@@ -52,7 +52,7 @@ export const Step2: React.FC = () => {
             <button
               key={estado.id}
               onClick={() => handleSelect(estado.id)}
-              className="w-full card-lumina flex items-center justify-between text-body font-medium active:scale-[0.98] transition-transform"
+              className="w-full card-intergo flex items-center justify-between text-body font-medium active:scale-[0.98] transition-transform"
             >
               <span>{estado.nome}</span>
               <span className="text-secondary uppercase">{estado.sigla}</span>

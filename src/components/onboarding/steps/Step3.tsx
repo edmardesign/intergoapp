@@ -61,7 +61,7 @@ export const Step3: React.FC = () => {
             <button
               key={municipio.id}
               onClick={() => handleSelect(municipio.id)}
-              className="w-full card-lumina text-left text-body font-medium active:scale-[0.98] transition-transform"
+              className="w-full card-intergo text-left text-body font-medium active:scale-[0.98] transition-transform"
             >
               {municipio.nome}
             </button>
@@ -73,7 +73,7 @@ export const Step3: React.FC = () => {
             </p>
             {waitlistSent ? (
               <p className="text-body-secondary text-[#C1272D]">
-                Avisaremos você assim que o Lumina chegar em {search}!
+                Avisaremos você assim que o INTERGO chegar em {search}!
               </p>
             ) : (
               <div className="space-y-4">

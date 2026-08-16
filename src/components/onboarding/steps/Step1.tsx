@@ -8,10 +8,10 @@ export const Step1: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
       <div className="w-24 h-24 bg-primary rounded-[20px] mb-8 flex items-center justify-center shadow-lg">
-        <span className="text-white text-4xl font-bold italic">L</span>
+        <span className="text-white text-4xl font-bold italic">I</span>
       </div>
       
-      <h1 className="text-screen-title mb-4">Lumina</h1>
+      <h1 className="text-screen-title mb-4">INTERGO</h1>
       <p className="text-body text-secondary mb-12 max-w-[280px]">
         Comunicação direta e eficiente para a gestão pública.
       </p>
