@@ -16,10 +16,12 @@ export const Step2: React.FC = () => {
     });
   }, []);
 
-  const filtered = estados.filter(e => 
-    e.nome.toLowerCase().includes(search.toLowerCase()) ||
-    e.sigla.toLowerCase().includes(search.toLowerCase())
-  );
+  const term = search.toLowerCase();
+  const filtered = estados.filter((e) => {
+    const nome = String(e?.nome ?? '').toLowerCase();
+    const sigla = String(e?.sigla ?? e?.uf ?? '').toLowerCase();
+    return nome.includes(term) || sigla.includes(term);
+  });
 
   const handleSelect = (id: string) => {
     updateData({ estado_id: id });
@@ -54,8 +56,8 @@ export const Step2: React.FC = () => {
               onClick={() => handleSelect(estado.id)}
               className="w-full card-intergo flex items-center justify-between text-body font-medium active:scale-[0.98] transition-transform"
             >
-              <span>{estado.nome}</span>
-              <span className="text-secondary uppercase">{estado.sigla}</span>
+              <span>{estado.nome ?? estado.sigla ?? estado.uf}</span>
+              <span className="text-secondary uppercase">{estado.sigla ?? estado.uf ?? ''}</span>
             </button>
           ))
         )}
