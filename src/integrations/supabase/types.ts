@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      perfis: {
+        Row: {
+          bairro: string | null
+          cep: string
+          complemento: string | null
+          cpf: string
+          created_at: string | null
+          id: string
+          logradouro: string | null
+          municipio_id: string | null
+          nivel_id: string | null
+          nome_completo: string
+          numero: string | null
+          secretaria_id: string | null
+          status: Database["public"]["Enums"]["perfil_status"] | null
+          superior_id: string | null
+          telefone: string
+          unidade_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bairro?: string | null
+          cep: string
+          complemento?: string | null
+          cpf: string
+          created_at?: string | null
+          id: string
+          logradouro?: string | null
+          municipio_id?: string | null
+          nivel_id?: string | null
+          nome_completo: string
+          numero?: string | null
+          secretaria_id?: string | null
+          status?: Database["public"]["Enums"]["perfil_status"] | null
+          superior_id?: string | null
+          telefone: string
+          unidade_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string
+          complemento?: string | null
+          cpf?: string
+          created_at?: string | null
+          id?: string
+          logradouro?: string | null
+          municipio_id?: string | null
+          nivel_id?: string | null
+          nome_completo?: string
+          numero?: string | null
+          secretaria_id?: string | null
+          status?: Database["public"]["Enums"]["perfil_status"] | null
+          superior_id?: string | null
+          telefone?: string
+          unidade_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          cidade_texto: string | null
+          criado_em: string | null
+          email: string
+          estado_id: string | null
+          id: string
+        }
+        Insert: {
+          cidade_texto?: string | null
+          criado_em?: string | null
+          email: string
+          estado_id?: string | null
+          id?: string
+        }
+        Update: {
+          cidade_texto?: string | null
+          criado_em?: string | null
+          email?: string
+          estado_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +106,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      perfil_status: "pendente" | "ativo" | "negado" | "inativo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +233,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      perfil_status: ["pendente", "ativo", "negado", "inativo"],
+    },
   },
 } as const
