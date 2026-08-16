@@ -21,6 +21,8 @@ import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/aguardando'
 import { Route as OnboardingNegadoRouteImport } from './routes/onboarding/negado'
 import { Route as PainelIndexRouteImport } from './routes/painel/index'
+import { Route as PedidosIndexRouteImport } from './routes/pedidos/index'
+import { Route as PedidosNovoRouteImport } from './routes/pedidos/novo'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
@@ -87,6 +89,16 @@ const PainelIndexRoute = PainelIndexRouteImport.update({
   path: '/painel/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidosIndexRoute = PedidosIndexRouteImport.update({
+  id: '/pedidos/',
+  path: '/pedidos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidosNovoRoute = PedidosNovoRouteImport.update({
+  id: '/pedidos/novo',
+  path: '/pedidos/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarTipoIndexRoute = EnviarTipoIndexRouteImport.update({
   id: '/enviar/$tipo/',
   path: '/enviar/$tipo/',
@@ -121,11 +133,13 @@ export interface FileRoutesByFullPath {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
+  '/pedidos/': typeof PedidosIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -140,11 +154,13 @@ export interface FileRoutesByTo {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas': typeof EnviadasIndexRoute
   '/enviar': typeof EnviarIndexRoute
   '/inicio': typeof InicioIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/painel': typeof PainelIndexRoute
+  '/pedidos': typeof PedidosIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -160,11 +176,13 @@ export interface FileRoutesById {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
+  '/pedidos/': typeof PedidosIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -181,11 +199,13 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/novo'
     | '/enviadas/'
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
     | '/painel/'
+    | '/pedidos/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -200,11 +220,13 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/novo'
     | '/enviadas'
     | '/enviar'
     | '/inicio'
     | '/onboarding'
     | '/painel'
+    | '/pedidos'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -219,11 +241,13 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/novo'
     | '/enviadas/'
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
     | '/painel/'
+    | '/pedidos/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -239,11 +263,13 @@ export interface RootRouteChildren {
   EnviarSucessoRoute: typeof EnviarSucessoRoute
   OnboardingAguardandoRoute: typeof OnboardingAguardandoRoute
   OnboardingNegadoRoute: typeof OnboardingNegadoRoute
+  PedidosNovoRoute: typeof PedidosNovoRoute
   EnviadasIndexRoute: typeof EnviadasIndexRoute
   EnviarIndexRoute: typeof EnviarIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
   PainelIndexRoute: typeof PainelIndexRoute
+  PedidosIndexRoute: typeof PedidosIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
   InicioMsgIdRoute: typeof InicioMsgIdRoute
@@ -337,6 +363,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedidos/': {
+      id: '/pedidos/'
+      path: '/pedidos'
+      fullPath: '/pedidos/'
+      preLoaderRoute: typeof PedidosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedidos/novo': {
+      id: '/pedidos/novo'
+      path: '/pedidos/novo'
+      fullPath: '/pedidos/novo'
+      preLoaderRoute: typeof PedidosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar/$tipo/': {
       id: '/enviar/$tipo/'
       path: '/enviar/$tipo'
@@ -383,11 +423,13 @@ const rootRouteChildren: RootRouteChildren = {
   EnviarSucessoRoute: EnviarSucessoRoute,
   OnboardingAguardandoRoute: OnboardingAguardandoRoute,
   OnboardingNegadoRoute: OnboardingNegadoRoute,
+  PedidosNovoRoute: PedidosNovoRoute,
   EnviadasIndexRoute: EnviadasIndexRoute,
   EnviarIndexRoute: EnviarIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
   PainelIndexRoute: PainelIndexRoute,
+  PedidosIndexRoute: PedidosIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
   InicioMsgIdRoute: InicioMsgIdRoute,
