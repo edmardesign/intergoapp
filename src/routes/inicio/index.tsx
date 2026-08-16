@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Loader2 } from 'lucide-react'
@@ -10,6 +10,8 @@ export const Route = createFileRoute('/inicio/')({
 function InicioComponent() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
+  const [pendentesCount, setPendentesCount] = useState(0)
+  const [canSend, setCanSend] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,7 +24,7 @@ function InicioComponent() {
 
       const { data: profile } = await supabase
         .from('perfis')
-        .select('status')
+        .select('status, nivel:nivel_id(nome)')
         .eq('id', session.user.id)
         .single()
 
@@ -30,6 +32,17 @@ function InicioComponent() {
         // @ts-ignore
         navigate({ to: '/' })
       }
+      
+      const role = (profile as any).nivel?.nome || ''
+      setCanSend(!role.toLowerCase().includes('professor'))
+
+      const { count } = await supabase
+        .from('perfis')
+        .select('*', { count: 'exact', head: true })
+        .eq('superior_id', session.user.id)
+        .eq('status', 'pendente')
+
+      setPendentesCount(count || 0)
       setLoading(false)
     }
     checkAuth()

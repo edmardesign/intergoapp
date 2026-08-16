@@ -80,8 +80,10 @@ function RevisarPage() {
 
       if (result.success) {
         clearDraft(tipo);
-        toast.success("Mensagem enviada com sucesso!");
-        navigate({ to: '/inicio' }); // Sucesso redireciona para inicio com toast
+        navigate({ 
+          to: '/enviar/sucesso', 
+          search: { n: draft.destinatarios.length } 
+        });
       }
     } catch (err: any) {
       toast.error(err.message || "Falha ao enviar mensagem");
