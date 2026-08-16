@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as EnviadasIndexRouteImport } from './routes/enviadas/index'
+import { Route as EnviadasIdRouteImport } from './routes/enviadas/$id'
 import { Route as EnviarIndexRouteImport } from './routes/enviar/index'
 import { Route as EnviarSucessoRouteImport } from './routes/enviar/sucesso'
 import { Route as InicioIndexRouteImport } from './routes/inicio/index'
@@ -22,6 +24,7 @@ import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
+import { Route as InicioMsgIdRouteImport } from './routes/inicio/msg/$id'
 import { Route as PainelSecretariaIdRouteImport } from './routes/painel/secretaria.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -37,6 +40,16 @@ const EquipeRoute = EquipeRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnviadasIndexRoute = EnviadasIndexRouteImport.update({
+  id: '/enviadas/',
+  path: '/enviadas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnviadasIdRoute = EnviadasIdRouteImport.update({
+  id: '/enviadas/$id',
+  path: '/enviadas/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnviarIndexRoute = EnviarIndexRouteImport.update({
@@ -89,6 +102,11 @@ const EnviarTipoRevisarRoute = EnviarTipoRevisarRouteImport.update({
   path: '/enviar/$tipo/revisar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InicioMsgIdRoute = InicioMsgIdRouteImport.update({
+  id: '/inicio/msg/$id',
+  path: '/inicio/msg/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PainelSecretariaIdRoute = PainelSecretariaIdRouteImport.update({
   id: '/painel/secretaria/$id',
   path: '/painel/secretaria/$id',
@@ -99,15 +117,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/equipe': typeof EquipeRoute
   '/login': typeof LoginRoute
+  '/enviadas/$id': typeof EnviadasIdRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
@@ -115,15 +136,18 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/equipe': typeof EquipeRoute
   '/login': typeof LoginRoute
+  '/enviadas/$id': typeof EnviadasIdRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/enviadas': typeof EnviadasIndexRoute
   '/enviar': typeof EnviarIndexRoute
   '/inicio': typeof InicioIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/painel': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo': typeof EnviarTipoIndexRoute
 }
@@ -132,15 +156,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/equipe': typeof EquipeRoute
   '/login': typeof LoginRoute
+  '/enviadas/$id': typeof EnviadasIdRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
@@ -150,15 +177,18 @@ export interface FileRouteTypes {
     | '/'
     | '/equipe'
     | '/login'
+    | '/enviadas/$id'
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/enviadas/'
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesByTo: FileRoutesByTo
@@ -166,15 +196,18 @@ export interface FileRouteTypes {
     | '/'
     | '/equipe'
     | '/login'
+    | '/enviadas/$id'
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/enviadas'
     | '/enviar'
     | '/inicio'
     | '/onboarding'
     | '/painel'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo'
   id:
@@ -182,15 +215,18 @@ export interface FileRouteTypes {
     | '/'
     | '/equipe'
     | '/login'
+    | '/enviadas/$id'
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/enviadas/'
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesById: FileRoutesById
@@ -199,15 +235,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EquipeRoute: typeof EquipeRoute
   LoginRoute: typeof LoginRoute
+  EnviadasIdRoute: typeof EnviadasIdRoute
   EnviarSucessoRoute: typeof EnviarSucessoRoute
   OnboardingAguardandoRoute: typeof OnboardingAguardandoRoute
   OnboardingNegadoRoute: typeof OnboardingNegadoRoute
+  EnviadasIndexRoute: typeof EnviadasIndexRoute
   EnviarIndexRoute: typeof EnviarIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
   PainelIndexRoute: typeof PainelIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
+  InicioMsgIdRoute: typeof InicioMsgIdRoute
   PainelSecretariaIdRoute: typeof PainelSecretariaIdRoute
   EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
 }
@@ -233,6 +272,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enviadas/': {
+      id: '/enviadas/'
+      path: '/enviadas'
+      fullPath: '/enviadas/'
+      preLoaderRoute: typeof EnviadasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enviadas/$id': {
+      id: '/enviadas/$id'
+      path: '/enviadas/$id'
+      fullPath: '/enviadas/$id'
+      preLoaderRoute: typeof EnviadasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enviar/': {
@@ -305,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarTipoRevisarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inicio/msg/$id': {
+      id: '/inicio/msg/$id'
+      path: '/inicio/msg/$id'
+      fullPath: '/inicio/msg/$id'
+      preLoaderRoute: typeof InicioMsgIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/painel/secretaria/$id': {
       id: '/painel/secretaria/$id'
       path: '/painel/secretaria/$id'
@@ -319,15 +379,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EquipeRoute: EquipeRoute,
   LoginRoute: LoginRoute,
+  EnviadasIdRoute: EnviadasIdRoute,
   EnviarSucessoRoute: EnviarSucessoRoute,
   OnboardingAguardandoRoute: OnboardingAguardandoRoute,
   OnboardingNegadoRoute: OnboardingNegadoRoute,
+  EnviadasIndexRoute: EnviadasIndexRoute,
   EnviarIndexRoute: EnviarIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
   PainelIndexRoute: PainelIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
+  InicioMsgIdRoute: InicioMsgIdRoute,
   PainelSecretariaIdRoute: PainelSecretariaIdRoute,
   EnviarTipoIndexRoute: EnviarTipoIndexRoute,
 }
