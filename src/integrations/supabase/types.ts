@@ -269,36 +269,20 @@ export type Database = {
       }
     }
     Views: {
-      perfis_publicos_min: {
-        Row: {
-          id: string | null
-          municipio_id: string | null
-          nivel_id: string | null
-          nome_completo: string | null
-          secretaria_id: string | null
-          unidade_id: string | null
-        }
-        Insert: {
-          id?: string | null
-          municipio_id?: string | null
-          nivel_id?: string | null
-          nome_completo?: string | null
-          secretaria_id?: string | null
-          unidade_id?: string | null
-        }
-        Update: {
-          id?: string | null
-          municipio_id?: string | null
-          nivel_id?: string | null
-          nome_completo?: string | null
-          secretaria_id?: string | null
-          unidade_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      perfis_publicos_min: {
+        Args: never
+        Returns: {
+          id: string
+          municipio_id: string
+          nivel_id: string
+          nome_completo: string
+          secretaria_id: string
+          unidade_id: string
+        }[]
+      }
     }
     Enums: {
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
