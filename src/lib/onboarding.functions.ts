@@ -79,13 +79,11 @@ export const getSuperiores = createServerFn({ method: "GET" })
         .maybeSingle();
 
       if (niveisData) {
-        const { data, error } = await (supabase as any)
-          .from("perfis_publicos_min")
-          .select("*")
-          .eq("municipio_id", municipio_id)
-          .eq("nivel_id", niveisData.id);
+        const { data, error } = await (supabase as any).rpc("perfis_publicos_min");
         if (error) throw error;
-        return data;
+        return (data || []).filter(
+          (p: any) => p.municipio_id === municipio_id && p.nivel_id === niveisData.id,
+        );
       }
       return [];
     }
