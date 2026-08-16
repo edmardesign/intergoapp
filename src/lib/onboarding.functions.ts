@@ -12,7 +12,7 @@ export const getEstados = createServerFn({ method: "GET" })
   });
 
 export const getMunicipios = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
+  .validator((d: any) => d)
   .handler(async ({ data: estadoId }) => {
     const { data, error } = await (supabase as any)
       .from("municipios")
@@ -25,7 +25,7 @@ export const getMunicipios = createServerFn({ method: "GET" })
   });
 
 export const getSecretarias = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
+  .validator((d: any) => d)
   .handler(async ({ data: municipioId }) => {
     const { data, error } = await (supabase as any)
       .from("secretarias")
@@ -37,7 +37,7 @@ export const getSecretarias = createServerFn({ method: "GET" })
   });
 
 export const getNiveis = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
+  .validator((d: any) => d)
   .handler(async ({ data: secretariaId }) => {
     const { data, error } = await (supabase as any)
       .from("niveis")
@@ -49,7 +49,7 @@ export const getNiveis = createServerFn({ method: "GET" })
   });
 
 export const getUnidades = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
+  .validator((d: any) => d)
   .handler(async ({ data: secretariaId }) => {
     const { data, error } = await (supabase as any)
       .from("unidades")
@@ -61,12 +61,7 @@ export const getUnidades = createServerFn({ method: "GET" })
   });
 
 export const getSuperiores = createServerFn({ method: "GET" })
-  .validator((d: { 
-    municipio_id: number | string;
-    secretaria_id: number | string; 
-    nivel_ordem: number;
-    unidade_id?: number | string;
-  }) => d)
+  .validator((d: any) => d)
   .handler(async ({ data: params }) => {
     const { municipio_id, secretaria_id, nivel_ordem, unidade_id } = params;
     
@@ -113,7 +108,7 @@ export const getSuperiores = createServerFn({ method: "GET" })
   });
 
 export const addToWaitlist = createServerFn({ method: "POST" })
-  .validator((d: { email: string; estado_id: number | string; cidade_texto: string }) => d)
+  .validator((d: any) => d)
   .handler(async ({ data }) => {
     const { error } = await (supabase as any)
       .from("waitlist")
