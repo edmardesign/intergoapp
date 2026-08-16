@@ -40,7 +40,7 @@ export const Step4: React.FC = () => {
           ))
         ) : (
           secretarias.map((sec) => {
-            const Icon = iconMap[sec.nome] || iconMap.default;
+            const Icon = iconMap[sec.nome] || iconMap['default'];
             return (
               <button
                 key={sec.id}
