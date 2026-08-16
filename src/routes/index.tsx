@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -14,7 +15,7 @@ function Index() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // @ts-ignore - Route will be generated
+        // @ts-ignore
         navigate({ to: "/onboarding" });
         return;
       }
@@ -26,20 +27,24 @@ function Index() {
         .single();
 
       if (!profile) {
-        // @ts-ignore - Route will be generated
+        // @ts-ignore
         navigate({ to: "/onboarding" });
         return;
       }
 
       if (profile.status === "pendente") {
-        // @ts-ignore - Route will be generated
+        // @ts-ignore
         navigate({ to: "/onboarding/aguardando" });
       } else if (profile.status === "ativo") {
-        // @ts-ignore - Route will be generated
+        // @ts-ignore
         navigate({ to: "/inicio" });
       } else if (profile.status === "negado") {
-        // @ts-ignore - Route will be generated
+        // @ts-ignore
         navigate({ to: "/onboarding/negado" });
+      } else {
+        // Inativo ou outro
+        // @ts-ignore
+        navigate({ to: "/onboarding" });
       }
     };
 
@@ -48,7 +53,7 @@ function Index() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <Loader2 className="animate-spin text-primary" size={32} />
     </div>
   );
 }
