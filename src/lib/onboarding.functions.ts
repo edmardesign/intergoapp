@@ -81,8 +81,10 @@ export const getSuperiores = createServerFn({ method: "GET" })
       if (niveisData) {
         const { data, error } = await (supabase as any).rpc("perfis_publicos_min");
         if (error) throw error;
+        
+        // Loose comparison (==) to handle potential type mismatches from the RPC view
         return (data || []).filter(
-          (p: any) => p.municipio_id === municipio_id && p.nivel_id === niveisData.id,
+          (p: any) => p.municipio_id == municipio_id && p.nivel_id == niveisData.id,
         );
       }
       return [];
@@ -98,11 +100,13 @@ export const getSuperiores = createServerFn({ method: "GET" })
     if (nivelSuperior) {
       const { data, error } = await (supabase as any).rpc("perfis_publicos_min");
       if (error) throw error;
+      
+      // Loose comparison (==) to handle potential type mismatches from the RPC view
       return (data || []).filter((p: any) => {
-        if (p.secretaria_id !== secretaria_id) return false;
-        if (p.municipio_id !== municipio_id) return false;
-        if (p.nivel_id !== nivelSuperior.id) return false;
-        if (nivelSuperior.tem_unidade && unidade_id && p.unidade_id !== unidade_id) return false;
+        if (p.secretaria_id != secretaria_id) return false;
+        if (p.municipio_id != municipio_id) return false;
+        if (p.nivel_id != nivelSuperior.id) return false;
+        if (nivelSuperior.tem_unidade && unidade_id && p.unidade_id != unidade_id) return false;
         return true;
       });
     }
