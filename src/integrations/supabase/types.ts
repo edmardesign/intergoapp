@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      estados: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          sigla: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          sigla: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          sigla?: string
+        }
+        Relationships: []
+      }
+      municipios: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          estado_id: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          estado_id: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          estado_id?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipios_estado_id_fkey"
+            columns: ["estado_id"]
+            isOneToOne: false
+            referencedRelation: "estados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      niveis: {
+        Row: {
+          created_at: string
+          id: string
+          municipio_id: string
+          nome: string
+          ordem: number
+          secretaria_id: string | null
+          tem_unidade: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          municipio_id: string
+          nome: string
+          ordem?: number
+          secretaria_id?: string | null
+          tem_unidade?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          municipio_id?: string
+          nome?: string
+          ordem?: number
+          secretaria_id?: string | null
+          tem_unidade?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "niveis_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "niveis_secretaria_id_fkey"
+            columns: ["secretaria_id"]
+            isOneToOne: false
+            referencedRelation: "secretarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfis: {
         Row: {
           bairro: string | null
@@ -74,6 +172,77 @@ export type Database = {
         }
         Relationships: []
       }
+      secretarias: {
+        Row: {
+          created_at: string
+          icone: string | null
+          id: string
+          municipio_id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          icone?: string | null
+          id?: string
+          municipio_id: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          icone?: string | null
+          id?: string
+          municipio_id?: string
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secretarias_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unidades: {
+        Row: {
+          created_at: string
+          id: string
+          municipio_id: string
+          nome: string
+          secretaria_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          municipio_id: string
+          nome: string
+          secretaria_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          municipio_id?: string
+          nome?: string
+          secretaria_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unidades_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unidades_secretaria_id_fkey"
+            columns: ["secretaria_id"]
+            isOneToOne: false
+            referencedRelation: "secretarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waitlist: {
         Row: {
           cidade_texto: string | null
@@ -103,7 +272,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      perfis_publicos_min: {
+        Args: never
+        Returns: {
+          id: string
+          municipio_id: string
+          nivel_id: string
+          nome_completo: string
+          secretaria_id: string
+          unidade_id: string
+        }[]
+      }
     }
     Enums: {
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"

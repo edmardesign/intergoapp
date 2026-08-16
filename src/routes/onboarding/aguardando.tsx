@@ -23,12 +23,8 @@ function AguardandoComponent() {
         .single()
 
       if (profile?.superior_id) {
-        const { data: superior } = await (supabase as any)
-          .from('perfis_publicos_min')
-          .select('nome_completo')
-          .eq('id', profile.superior_id)
-          .single()
-        
+        const { data: publicos } = await (supabase as any).rpc('perfis_publicos_min')
+        const superior = (publicos || []).find((p: any) => p.id === profile.superior_id)
         if (superior) setSuperiorNome(superior.nome_completo)
       }
     }
