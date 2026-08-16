@@ -19,8 +19,8 @@ import {
 type Filtro = 'todas' | 'urgentes'
 
 export const Route = createFileRoute('/inicio/')({
-  validateSearch: (search: Record<string, unknown>): { filtro?: Filtro } => ({
-    filtro: search.filtro === 'urgentes' ? 'urgentes' : undefined,
+  validateSearch: (search: Record<string, unknown>): { filtro?: Filtro | undefined } => ({
+    filtro: search['filtro'] === 'urgentes' ? 'urgentes' : undefined,
   }),
   component: InicioComponent,
 })
@@ -175,7 +175,7 @@ function InicioComponent() {
 
   const confirmar = async (mensagemId: string) => {
     if (!userId) return
-    setSaindo((s) => new Set(s).add(mensagemId))
+    setSaindo((s: Set<string>) => new Set(s).add(mensagemId))
     const agora = new Date().toISOString()
     const anterior = itens
     setTimeout(() => {
@@ -184,7 +184,7 @@ function InicioComponent() {
           i.mensagem.id === mensagemId ? { ...i, confirmado_em: agora, lido_em: i.lido_em ?? agora } : i,
         ),
       )
-      setSaindo((s) => {
+      setSaindo((s: Set<string>) => {
         const n = new Set(s)
         n.delete(mensagemId)
         return n

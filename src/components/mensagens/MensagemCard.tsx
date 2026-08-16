@@ -11,7 +11,7 @@ import {
 
 export interface MensagemCardProps {
   mensagem: Mensagem
-  remetente?: PessoaMin
+  remetente?: PessoaMin | undefined
   naoLida?: boolean
   saindo?: boolean
   onClick?: () => void
