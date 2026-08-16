@@ -398,6 +398,12 @@ export type Database = {
           unidade_id: string
         }[]
       }
+      perfis_subarvore: {
+        Args: { superior_id_root: string }
+        Returns: {
+          id: string
+        }[]
+      }
     }
     Enums: {
       mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
