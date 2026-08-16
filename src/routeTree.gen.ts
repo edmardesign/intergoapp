@@ -18,6 +18,7 @@ import { Route as InicioIndexRouteImport } from './routes/inicio/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/aguardando'
 import { Route as OnboardingNegadoRouteImport } from './routes/onboarding/negado'
+import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
@@ -67,6 +68,11 @@ const OnboardingNegadoRoute = OnboardingNegadoRouteImport.update({
   path: '/onboarding/negado',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelIndexRoute = PainelIndexRouteImport.update({
+  id: '/painel/',
+  path: '/painel/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarTipoIndexRoute = EnviarTipoIndexRouteImport.update({
   id: '/enviar/$tipo/',
   path: '/enviar/$tipo/',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/enviar': typeof EnviarIndexRoute
   '/inicio': typeof InicioIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/painel': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/enviar/$tipo': typeof EnviarTipoIndexRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/enviar/$tipo/'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/enviar'
     | '/inicio'
     | '/onboarding'
+    | '/painel'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/enviar/$tipo'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/enviar/$tipo/'
@@ -181,6 +193,7 @@ export interface RootRouteChildren {
   EnviarIndexRoute: typeof EnviarIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
+  PainelIndexRoute: typeof PainelIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
   EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingNegadoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/': {
+      id: '/painel/'
+      path: '/painel'
+      fullPath: '/painel/'
+      preLoaderRoute: typeof PainelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar/$tipo/': {
       id: '/enviar/$tipo/'
       path: '/enviar/$tipo'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnviarIndexRoute: EnviarIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
+  PainelIndexRoute: PainelIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
   EnviarTipoIndexRoute: EnviarTipoIndexRoute,
