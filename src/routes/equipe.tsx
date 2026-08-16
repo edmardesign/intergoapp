@@ -3,28 +3,29 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users as UsersIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
 
 type Aba = 'ativos' | 'pendentes' | 'inativos';
 
+const equipeSearchSchema = z.object({
+  aba: z.enum(['ativos', 'pendentes', 'inativos']).optional().catch('ativos')
+});
+
 export const Route = createFileRoute("/equipe")({
   component: EquipePage,
-  validateSearch: (search: Record<string, unknown>): { aba: Aba } => {
-    return {
-      aba: (search.aba as Aba) || "ativos",
-    };
-  },
+  validateSearch: (search) => equipeSearchSchema.parse(search),
 });
 
 function EquipePage() {
   const navigate = useNavigate();
   const searchParams = useSearch({ from: '/equipe' });
-  const [aba, setAba] = useState<Aba>(searchParams.aba || 'ativos');
+  const [aba, setAba] = useState<Aba>((searchParams.aba as Aba) || 'ativos');
   const [loading, setLoading] = useState(true);
   const [pendentesCount, setPendentesCount] = useState(0);
 
   useEffect(() => {
     if (searchParams.aba) {
-      setAba(searchParams.aba);
+      setAba(searchParams.aba as Aba);
     }
   }, [searchParams.aba]);
 
@@ -57,7 +58,11 @@ function EquipePage() {
             key={a}
             onClick={() => {
               setAba(a);
-              navigate({ search: { aba: a }, replace: true });
+              navigate({ 
+                to: '/equipe',
+                search: (prev: any) => ({ ...prev, aba: a }),
+                replace: true 
+              });
             }}
             className={cn(
               "flex-1 py-2 text-[13px] font-medium rounded-lg transition-all relative",
