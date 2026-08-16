@@ -31,7 +31,7 @@ export const Step7: React.FC = () => {
           municipio_id: onboardingData.municipio_id,
           secretaria_id: onboardingData.secretaria_id || "",
           nivel_ordem: currentLevel.ordem,
-          unidade_id: onboardingData.unidade_id || undefined
+          unidade_id: onboardingData.unidade_id ? onboardingData.unidade_id : undefined
         } 
       });
 
