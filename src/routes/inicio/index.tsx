@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Loader2 } from 'lucide-react'
 
-export const Route = createFileRoute('/inicio/index')({
+export const Route = createFileRoute('/inicio/')({
   component: InicioComponent
 })
 
