@@ -16,6 +16,9 @@ import { Route as InicioIndexRouteImport } from './routes/inicio/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/aguardando'
 import { Route as OnboardingNegadoRouteImport } from './routes/onboarding/negado'
+import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
+import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
+import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +55,21 @@ const OnboardingNegadoRoute = OnboardingNegadoRouteImport.update({
   path: '/onboarding/negado',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnviarTipoIndexRoute = EnviarTipoIndexRouteImport.update({
+  id: '/enviar/$tipo/',
+  path: '/enviar/$tipo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnviarTipoDestinatariosRoute = EnviarTipoDestinatariosRouteImport.update({
+  id: '/enviar/$tipo/destinatarios',
+  path: '/enviar/$tipo/destinatarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnviarTipoRevisarRoute = EnviarTipoRevisarRouteImport.update({
+  id: '/enviar/$tipo/revisar',
+  path: '/enviar/$tipo/revisar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +79,9 @@ export interface FileRoutesByFullPath {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
+  '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +91,9 @@ export interface FileRoutesByTo {
   '/enviar': typeof EnviarIndexRoute
   '/inicio': typeof InicioIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
+  '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/enviar/$tipo': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +104,9 @@ export interface FileRoutesById {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
+  '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +118,9 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/enviar/$tipo/destinatarios'
+    | '/enviar/$tipo/revisar'
+    | '/enviar/$tipo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +130,9 @@ export interface FileRouteTypes {
     | '/enviar'
     | '/inicio'
     | '/onboarding'
+    | '/enviar/$tipo/destinatarios'
+    | '/enviar/$tipo/revisar'
+    | '/enviar/$tipo'
   id:
     | '__root__'
     | '/'
@@ -109,6 +142,9 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/enviar/$tipo/destinatarios'
+    | '/enviar/$tipo/revisar'
+    | '/enviar/$tipo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +155,9 @@ export interface RootRouteChildren {
   EnviarIndexRoute: typeof EnviarIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
+  EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
+  EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
+  EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +211,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingNegadoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/enviar/$tipo/': {
+      id: '/enviar/$tipo/'
+      path: '/enviar/$tipo'
+      fullPath: '/enviar/$tipo/'
+      preLoaderRoute: typeof EnviarTipoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enviar/$tipo/destinatarios': {
+      id: '/enviar/$tipo/destinatarios'
+      path: '/enviar/$tipo/destinatarios'
+      fullPath: '/enviar/$tipo/destinatarios'
+      preLoaderRoute: typeof EnviarTipoDestinatariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enviar/$tipo/revisar': {
+      id: '/enviar/$tipo/revisar'
+      path: '/enviar/$tipo/revisar'
+      fullPath: '/enviar/$tipo/revisar'
+      preLoaderRoute: typeof EnviarTipoRevisarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +243,9 @@ const rootRouteChildren: RootRouteChildren = {
   EnviarIndexRoute: EnviarIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
+  EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
+  EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
+  EnviarTipoIndexRoute: EnviarTipoIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
