@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const getEstados = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await (supabase
-      .from("estados" as any)
+    const { data, error } = await (supabase as any)
+      .from("estados")
       .select("*")
-      .order("nome" as any) as any);
+      .order("nome");
     if (error) throw error;
     return data;
   });
@@ -14,12 +14,12 @@ export const getEstados = createServerFn({ method: "GET" })
 export const getMunicipios = createServerFn({ method: "GET" })
   .validator((estadoId: string) => estadoId)
   .handler(async ({ data: estadoId }) => {
-    const { data, error } = await (supabase
-      .from("municipios" as any)
+    const { data, error } = await (supabase as any)
+      .from("municipios")
       .select("*")
-      .eq("estado_id" as any, estadoId)
-      .eq("ativo" as any, true)
-      .order("nome" as any) as any);
+      .eq("estado_id", estadoId)
+      .eq("ativo", true)
+      .order("nome");
     if (error) throw error;
     return data;
   });
@@ -27,11 +27,11 @@ export const getMunicipios = createServerFn({ method: "GET" })
 export const getSecretarias = createServerFn({ method: "GET" })
   .validator((municipioId: string) => municipioId)
   .handler(async ({ data: municipioId }) => {
-    const { data, error } = await (supabase
-      .from("secretarias" as any)
+    const { data, error } = await (supabase as any)
+      .from("secretarias")
       .select("*")
-      .eq("municipio_id" as any, municipioId)
-      .order("nome" as any) as any);
+      .eq("municipio_id", municipioId)
+      .order("nome");
     if (error) throw error;
     return data;
   });
@@ -39,11 +39,11 @@ export const getSecretarias = createServerFn({ method: "GET" })
 export const getNiveis = createServerFn({ method: "GET" })
   .validator((secretariaId: string) => secretariaId)
   .handler(async ({ data: secretariaId }) => {
-    const { data, error } = await (supabase
-      .from("niveis" as any)
+    const { data, error } = await (supabase as any)
+      .from("niveis")
       .select("*")
-      .eq("secretaria_id" as any, secretariaId)
-      .order("ordem" as any, { ascending: true } as any) as any);
+      .eq("secretaria_id", secretariaId)
+      .order("ordem", { ascending: true });
     if (error) throw error;
     return data;
   });
@@ -51,11 +51,11 @@ export const getNiveis = createServerFn({ method: "GET" })
 export const getUnidades = createServerFn({ method: "GET" })
   .validator((secretariaId: string) => secretariaId)
   .handler(async ({ data: secretariaId }) => {
-    const { data, error } = await (supabase
-      .from("unidades" as any)
+    const { data, error } = await (supabase as any)
+      .from("unidades")
       .select("*")
-      .eq("secretaria_id" as any, secretariaId)
-      .order("nome" as any) as any);
+      .eq("secretaria_id", secretariaId)
+      .order("nome");
     if (error) throw error;
     return data;
   });
@@ -71,45 +71,45 @@ export const getSuperiores = createServerFn({ method: "GET" })
     const { municipio_id, secretaria_id, nivel_ordem, unidade_id } = params;
     
     if (nivel_ordem === 1) {
-      const { data: niveisData } = await (supabase
-        .from("niveis" as any)
+      const { data: niveisData } = await (supabase as any)
+        .from("niveis")
         .select("id")
-        .eq("municipio_id" as any, municipio_id)
-        .eq("ordem" as any, 0)
-        .maybeSingle() as any);
+        .eq("municipio_id", municipio_id)
+        .eq("ordem", 0)
+        .maybeSingle();
 
       if (niveisData) {
-        const { data, error } = await (supabase
-          .from("perfis_publicos_min" as any)
+        const { data, error } = await (supabase as any)
+          .from("perfis_publicos_min")
           .select("*")
-          .eq("municipio_id" as any, municipio_id)
-          .eq("nivel_id" as any, (niveisData as any).id) as any);
+          .eq("municipio_id", municipio_id)
+          .eq("nivel_id", niveisData.id);
         if (error) throw error;
         return data;
       }
       return [];
     }
 
-    const { data: nivelSuperior } = await (supabase
-      .from("niveis" as any)
+    const { data: nivelSuperior } = await (supabase as any)
+      .from("niveis")
       .select("id, tem_unidade")
-      .eq("secretaria_id" as any, secretaria_id)
-      .eq("ordem" as any, nivel_ordem - 1)
-      .maybeSingle() as any);
+      .eq("secretaria_id", secretaria_id)
+      .eq("ordem", nivel_ordem - 1)
+      .maybeSingle();
 
     if (nivelSuperior) {
-      let query = supabase
-        .from("perfis_publicos_min" as any)
+      let query = (supabase as any)
+        .from("perfis_publicos_min")
         .select("*")
-        .eq("secretaria_id" as any, secretaria_id)
-        .eq("municipio_id" as any, municipio_id)
-        .eq("nivel_id" as any, (nivelSuperior as any).id);
+        .eq("secretaria_id", secretaria_id)
+        .eq("municipio_id", municipio_id)
+        .eq("nivel_id", nivelSuperior.id);
 
-      if ((nivelSuperior as any).tem_unidade && unidade_id) {
-        query = query.eq("unidade_id" as any, unidade_id);
+      if (nivelSuperior.tem_unidade && unidade_id) {
+        query = query.eq("unidade_id", unidade_id);
       }
       
-      const { data, error } = await (query as any);
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     }
@@ -120,9 +120,9 @@ export const getSuperiores = createServerFn({ method: "GET" })
 export const addToWaitlist = createServerFn({ method: "POST" })
   .validator((data: { email: string; estado_id: string; cidade_texto: string }) => data)
   .handler(async ({ data }) => {
-    const { error } = await (supabase
-      .from("waitlist" as any)
-      .insert([data] as any) as any);
+    const { error } = await (supabase as any)
+      .from("waitlist")
+      .insert([data]);
     if (error) throw error;
     return { success: true };
   });
