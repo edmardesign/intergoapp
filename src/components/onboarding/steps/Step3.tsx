@@ -20,8 +20,8 @@ export const Step3: React.FC = () => {
     }
   }, [onboardingData.estado_id]);
 
-  const filtered = municipios.filter(m => 
-    m.nome.toLowerCase().includes(search.toLowerCase())
+  const filtered = municipios.filter((m) =>
+    String(m?.nome ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelect = (id: string) => {
