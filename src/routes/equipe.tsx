@@ -1,30 +1,30 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users as UsersIcon, ChevronRight } from "lucide-react";
+import { Loader2, Users as UsersIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type Aba = 'ativos' | 'pendentes' | 'inativos';
 
 export const Route = createFileRoute("/equipe")({
   component: EquipePage,
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (search: Record<string, unknown>): { aba: Aba } => {
     return {
-      aba: (search.aba as string) || "ativos",
+      aba: (search.aba as Aba) || "ativos",
     };
   },
 });
 
-type Aba = 'ativos' | 'pendentes' | 'inativos';
-
 function EquipePage() {
   const navigate = useNavigate();
   const searchParams = useSearch({ from: '/equipe' });
-  const [aba, setAba] = useState<Aba>((searchParams.aba as Aba) || 'ativos');
+  const [aba, setAba] = useState<Aba>(searchParams.aba || 'ativos');
   const [loading, setLoading] = useState(true);
   const [pendentesCount, setPendentesCount] = useState(0);
 
   useEffect(() => {
     if (searchParams.aba) {
-      setAba(searchParams.aba as Aba);
+      setAba(searchParams.aba);
     }
   }, [searchParams.aba]);
 
@@ -83,7 +83,7 @@ function EquipePage() {
           <div className="text-center py-20">
             <UsersIcon size={48} className="mx-auto text-muted mb-4" strokeWidth={1} />
             <p className="text-[15px] text-secondary">
-              Nenhum cadastro aguardando
+              Nenhum cadastro em {aba}
             </p>
           </div>
         )}
