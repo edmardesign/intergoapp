@@ -1,66 +1,44 @@
-# Plano de Implementação - Lumina Onboarding
+# Plan: Approval Flow Implementation
 
-Este plano detalha a criação do fluxo de onboarding do aplicativo Lumina, um sistema de comunicação hierárquica para prefeituras, focado na experiência mobile-first e integração com o backend Lovable Cloud.
+Build the "Equipe" feature for INTERGO, allowing superiors to review and approve/deny pending registrations from their direct subordinates.
 
-## 1. Configuração do Ambiente e Design System
+## User Review Required
 
-- Configurar variáveis de cores e tokens no `src/styles.css` (Tailwind v4 inline theme).
-- Definir tipografia e espaçamentos baseados na grade de 4px.
-- Configurar animações de transição de tela.
+> [!IMPORTANT]
+> The current database schema for `perfis` needs new columns: `aprovado_por` (UUID) and `aprovado_em` (TIMESTAMPTZ). I will add these via migration.
+> I will also implement the `perfis_subarvore(superior_id_root UUID)` function in PostgreSQL to support the hierarchy view.
 
-## 2. Estrutura de Dados e Backend
+## Proposed Changes
 
-### Tabelas do Banco de Dados
-- Criar a tabela `waitlist` (id, email, estado_id, cidade_texto, criado_em).
-- As demais tabelas já estão configuradas conforme o contexto: `estados`, `municipios`, `secretarias`, `niveis`, `unidades`, `perfis`.
-- Configurar políticas RLS para permitir a inserção de novos perfis durante o onboarding.
+### Database & Security (Supabase Engineer)
+- **Migration**: Add `aprovado_por`, `aprovado_em`, and `motivo_negativa` to `perfis`.
+- **Function**: Create `perfis_subarvore` to return recursive subordinates.
+- **RLS**: Update policies on `perfis` to allow `UPDATE status` only if `auth.uid() = superior_id`.
 
-### Estado da Aplicação
-- Implementar `useOnboardingStore` com Zustand para gerenciar o estado dos 16 passos.
-- Adicionar persistência automática no `localStorage` (chave `onboarding_v1`).
+### Server Functions (API Integrator)
+- **src/lib/equipe.functions.ts**:
+    - `getEquipePendentes`: Fetch direct subordinates with status 'pendente'.
+    - `getEquipeAtivos`: Fetch sub-tree subordinates with status 'ativo'.
+    - `getEquipeInativos`: Fetch sub-tree subordinates with status 'negado' or 'inativo'.
+    - `aprovarPerfil`: Set status to 'ativo'.
+    - `negarPerfil`: Set status to 'negado' + reason.
+    - `reativarPerfil`: Reset status to 'ativo'.
 
-## 3. Fluxo de Onboarding (16 Telas)
+### UI Components (UI Architect)
+- **BottomNavigation**: Persistent bar with conditional tabs (3 for Professor, 5 for others).
+- **EquipeTabs**: Segmented control for Ativos/Pendentes/Inativos.
+- **ProfileSheet**: Approval/Detail bottom sheet with formatting for CPF/Telefone.
+- **PendingNotification**: Card for the Inicio screen showing pending counts.
 
-### Componente de Layout Base
-- Barra de progresso fixa (16 passos).
-- Botão "Voltar" discreto no topo.
-- Botão principal fixo na base (52px altura, estados habilitado/desabilitado).
+### Routes & Integration
+- **src/routes/equipe.tsx**: Main route for the team management.
+- **src/routes/inicio/index.tsx**: Add pending notification card.
+- **src/routes/__root.tsx**: Wrap outlet with `BottomNavigation` (excluding login/onboarding).
 
-### Detalhamento dos Passos
-1.  **Abertura**: Logo, CTA e link para Login.
-2.  **Estado**: Busca e lista de UFs.
-3.  **Cidade**: Filtro por `estado_id` e `ativo: true`. Lógica de Waitlist se lista vazia.
-4.  **Secretaria**: Cards com ícones das secretarias do município.
-5.  **Cargo**: Cards de níveis ordenados por `ordem ASC`.
-6.  **Local de Trabalho**: Condicional a `niveis.tem_unidade`.
-7.  **Superior Direto**: Título dinâmico, busca em `perfis_publicos_min`. Lógica de pré-preenchimento ou fallback para Prefeito.
-8.  **Nome Completo**: Input com auto-capitalização.
-9.  **CPF**: Máscara e validação de dígito verificador.
-10. **Telefone**: Máscara de celular brasileiro.
-11. **CEP**: Máscara e integração com API ViaCEP para preenchimento de endereço.
-12. **Número e Complemento**: Campos de endereço.
-13. **E-mail**: Validação de formato.
-14. **Senha**: Mínimo 8 caracteres com medidor de força.
-15. **Conferência**: Resumo com botões de edição rápida.
-16. **Status Pendente**: Tela de espera com feedback do superior responsável.
-
-## 4. Integração com Auth e Perfis
-
-- Implementar função de submissão final:
-    - `signUp` no Auth do Lovable Cloud.
-    - `insert` na tabela `perfis` com `status: 'pendente'`.
-    - Limpeza do rascunho.
-- Implementar redirecionamentos inteligentes:
-    - Se logado e pendente -> Tela 16.
-    - Se logado e ativo -> `/inicio`.
-    - Se negado -> Tela de erro com motivo.
-
-## Detalhes Técnicos
-
-- **Navegação**: TanStack Router para rotas internas do onboarding.
-- **Formulários**: React Hook Form + Zod para validações em tempo real.
-- **Componentes UI**: Extensão dos componentes Shadcn existentes com os tokens de design específicos do Lumina.
-- **Transições**: Animações CSS personalizadas para o efeito de "deslizar da direita".
-
----
-**Nota**: Este sprint foca exclusivamente no onboarding e status de aprovação. Funcionalidades de mensagens e dashboards serão implementadas em etapas futuras.
+## Technical Details
+- **Hierarchy Logic**: Superior status determined by `nivel.ordem < 2` (Professor is order 3 in Education, but generally "Professor" will be the role name check or a metadata flag).
+- **Transitions**: 200ms smooth transitions for tab switching.
+- **Validation**: "Motivo recusa" requires 10+ characters.
+- **Formatting**: CPF (000.000.000-00), Telefone ((00) 00000-0000).
+- **Empty States**: Illustrated text for zero items.
+- **Error Handling**: Toast notifications (Sonner) for RLS/Permission errors.
