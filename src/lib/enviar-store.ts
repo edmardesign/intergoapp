@@ -17,53 +17,71 @@ export interface MensagemPayload {
   descricao?: string;
 }
 
-export interface EnviarState {
-  tipo: MensagemTipo | null;
+export interface EnviarDraft {
   payload: MensagemPayload;
   exigir_confirmacao: boolean;
   urgente: boolean;
-  destinatarios: string[]; // IDs dos perfis
+  destinatarios: string[];
   anexos: Array<{
     nome: string;
     url: string;
     tamanho: number;
     tipo_mime: string;
   }>;
-  
-  setTipo: (tipo: MensagemTipo | null) => void;
-  updatePayload: (data: Partial<MensagemPayload>) => void;
-  setExigirConfirmacao: (val: boolean) => void;
-  setUrgente: (val: boolean) => void;
-  setDestinatarios: (ids: string[]) => void;
-  addAnexo: (anexo: EnviarState['anexos'][0]) => void;
-  removeAnexo: (url: string) => void;
-  clear: () => void;
 }
 
-export const useEnviarStore = (tipo: MensagemTipo) => {
-  const store = create<EnviarState>()(
-    persist(
-      (set) => ({
-        tipo: null,
-        payload: {},
-        exigir_confirmacao: false,
-        urgente: false,
-        destinatarios: [],
-        anexos: [],
-        
-        setTipo: (tipo) => set({ tipo }),
-        updatePayload: (data) => set((state) => ({ payload: { ...state.payload, ...data } })),
-        setExigirConfirmacao: (exigir_confirmacao) => set({ exigir_confirmacao }),
-        setUrgente: (urgente) => set({ urgente }),
-        setDestinatarios: (destinatarios) => set({ destinatarios }),
-        addAnexo: (anexo) => set((state) => ({ anexos: [...state.anexos, anexo] })),
-        removeAnexo: (url) => set((state) => ({ anexos: state.anexos.filter(a => a.url !== url) })),
-        clear: () => set({ payload: {}, exigir_confirmacao: false, urgente: false, destinatarios: [], anexos: [] }),
-      }),
-      {
-        name: `enviar_v1_${tipo}`,
-      }
-    )
-  );
-  return store;
+interface EnviarState {
+  drafts: Record<MensagemTipo, EnviarDraft>;
+  
+  updateDraft: (tipo: MensagemTipo, data: Partial<EnviarDraft>) => void;
+  updatePayload: (tipo: MensagemTipo, data: Partial<MensagemPayload>) => void;
+  clearDraft: (tipo: MensagemTipo) => void;
+}
+
+const initialDraft: EnviarDraft = {
+  payload: {},
+  exigir_confirmacao: false,
+  urgente: false,
+  destinatarios: [],
+  anexos: [],
 };
+
+export const useEnviarStore = create<EnviarState>()(
+  persist(
+    (set) => ({
+      drafts: {
+        comunicado: { ...initialDraft },
+        demanda: { ...initialDraft },
+        reuniao: { ...initialDraft },
+        evento: { ...initialDraft },
+      },
+      
+      updateDraft: (tipo, data) => set((state) => ({
+        drafts: {
+          ...state.drafts,
+          [tipo]: { ...state.drafts[tipo], ...data }
+        }
+      })),
+      
+      updatePayload: (tipo, data) => set((state) => ({
+        drafts: {
+          ...state.drafts,
+          [tipo]: { 
+            ...state.drafts[tipo], 
+            payload: { ...state.drafts[tipo].payload, ...data } 
+          }
+        }
+      })),
+      
+      clearDraft: (tipo) => set((state) => ({
+        drafts: {
+          ...state.drafts,
+          [tipo]: { ...initialDraft }
+        }
+      })),
+    }),
+    {
+      name: 'enviar_v1_drafts',
+    }
+  )
+);
