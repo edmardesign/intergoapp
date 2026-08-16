@@ -387,6 +387,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      painel_is_prefeito: { Args: { _user_id: string }; Returns: boolean }
+      painel_meu_contexto: { Args: never; Returns: Json }
+      painel_prefeito: { Args: never; Returns: Json }
+      painel_secretaria: { Args: { _secretaria_id?: string }; Returns: Json }
+      painel_solicitacoes_stats: {
+        Args: { _municipio_id: string; _secretaria_id?: string }
+        Returns: Json
+      }
       perfis_publicos_min: {
         Args: never
         Returns: {

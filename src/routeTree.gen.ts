@@ -18,9 +18,11 @@ import { Route as InicioIndexRouteImport } from './routes/inicio/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/aguardando'
 import { Route as OnboardingNegadoRouteImport } from './routes/onboarding/negado'
+import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
+import { Route as PainelSecretariaIdRouteImport } from './routes/painel/secretaria.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -67,6 +69,11 @@ const OnboardingNegadoRoute = OnboardingNegadoRouteImport.update({
   path: '/onboarding/negado',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelIndexRoute = PainelIndexRouteImport.update({
+  id: '/painel/',
+  path: '/painel/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarTipoIndexRoute = EnviarTipoIndexRouteImport.update({
   id: '/enviar/$tipo/',
   path: '/enviar/$tipo/',
@@ -82,6 +89,11 @@ const EnviarTipoRevisarRoute = EnviarTipoRevisarRouteImport.update({
   path: '/enviar/$tipo/revisar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelSecretariaIdRoute = PainelSecretariaIdRouteImport.update({
+  id: '/painel/secretaria/$id',
+  path: '/painel/secretaria/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -93,8 +105,10 @@ export interface FileRoutesByFullPath {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesByTo {
@@ -107,8 +121,10 @@ export interface FileRoutesByTo {
   '/enviar': typeof EnviarIndexRoute
   '/inicio': typeof InicioIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/painel': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesById {
@@ -122,8 +138,10 @@ export interface FileRoutesById {
   '/enviar/': typeof EnviarIndexRoute
   '/inicio/': typeof InicioIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRouteTypes {
@@ -138,8 +156,10 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -152,8 +172,10 @@ export interface FileRouteTypes {
     | '/enviar'
     | '/inicio'
     | '/onboarding'
+    | '/painel'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo'
   id:
     | '__root__'
@@ -166,8 +188,10 @@ export interface FileRouteTypes {
     | '/enviar/'
     | '/inicio/'
     | '/onboarding/'
+    | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesById: FileRoutesById
 }
@@ -181,8 +205,10 @@ export interface RootRouteChildren {
   EnviarIndexRoute: typeof EnviarIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
+  PainelIndexRoute: typeof PainelIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
+  PainelSecretariaIdRoute: typeof PainelSecretariaIdRoute
   EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
 }
 
@@ -251,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingNegadoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/': {
+      id: '/painel/'
+      path: '/painel'
+      fullPath: '/painel/'
+      preLoaderRoute: typeof PainelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar/$tipo/': {
       id: '/enviar/$tipo/'
       path: '/enviar/$tipo'
@@ -272,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarTipoRevisarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/secretaria/$id': {
+      id: '/painel/secretaria/$id'
+      path: '/painel/secretaria/$id'
+      fullPath: '/painel/secretaria/$id'
+      preLoaderRoute: typeof PainelSecretariaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -285,8 +325,10 @@ const rootRouteChildren: RootRouteChildren = {
   EnviarIndexRoute: EnviarIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
+  PainelIndexRoute: PainelIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
+  PainelSecretariaIdRoute: PainelSecretariaIdRoute,
   EnviarTipoIndexRoute: EnviarTipoIndexRoute,
 }
 export const routeTree = rootRouteImport
