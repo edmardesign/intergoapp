@@ -21,7 +21,7 @@ export const Step1: React.FC = () => {
           Começar
         </button>
         <Link 
-          to="/" // Em um app real levaria para login
+          to="/login" // Em um app real levaria para login
           className="block mt-6 text-body text-primary font-semibold"
         >
           Já tenho cadastro
