@@ -44,17 +44,38 @@ function InicioComponent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
-      <h1 className="text-screen-title mb-4">Bem-vindo ao INTERGO</h1>
-      <p className="text-body text-secondary max-w-[280px]">
-        Início será construído na próxima etapa.
-      </p>
-      <button 
-        onClick={() => supabase.auth.signOut().then(() => navigate({ to: '/login' }))}
-        className="mt-8 text-primary font-semibold"
-      >
-        Sair
-      </button>
+    <div className="flex flex-col min-h-screen bg-background p-6">
+      <h1 className="text-screen-title mb-6">Início</h1>
+      
+      {/* Pending Notification Card */}
+      <div className="mb-6">
+        <button 
+          onClick={() => navigate({ to: '/equipe', search: { aba: 'pendentes' } })}
+          className="w-full card-intergo border border-primary/20 bg-primary/5 flex items-center p-4 active:scale-[0.98] transition-all"
+        >
+          <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center mr-4">
+            <UsersIcon size={20} />
+          </div>
+          <div className="flex flex-col text-left flex-1">
+            <span className="text-[15px] font-bold text-primary">Pendências da sua equipe</span>
+            <span className="text-[13px] text-primary/70">Cadastros aguardando aprovação — Ver equipe →</span>
+          </div>
+        </button>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+        <p className="text-body text-secondary max-w-[280px]">
+          Seu feed de mensagens aparecerá aqui na próxima etapa.
+        </p>
+        <button 
+          onClick={() => supabase.auth.signOut().then(() => navigate({ to: '/login' }))}
+          className="mt-8 text-primary font-semibold"
+        >
+          Sair da conta
+        </button>
+      </div>
     </div>
   )
 }
+import { Users as UsersIcon } from 'lucide-react'
+
