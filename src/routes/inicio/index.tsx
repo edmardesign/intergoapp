@@ -45,7 +45,7 @@ function InicioComponent() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
-      <h1 className="text-screen-title mb-4">Bem-vindo ao Lumina</h1>
+      <h1 className="text-screen-title mb-4">Bem-vindo ao INTERGO</h1>
       <p className="text-body text-secondary max-w-[280px]">
         Início será construído na próxima etapa.
       </p>

@@ -80,7 +80,7 @@ export const Step15: React.FC = () => {
       
       <div className="space-y-3 mb-32">
         {rows.filter(r => r.value).map((row, i) => (
-          <div key={i} className="card-lumina flex items-center justify-between">
+          <div key={i} className="card-intergo flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-label text-secondary">{row.label}</span>
               <span className="text-body font-medium truncate max-w-[200px]">{String(row.value)}</span>

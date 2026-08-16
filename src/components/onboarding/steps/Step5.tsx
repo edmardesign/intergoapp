@@ -35,7 +35,7 @@ export const Step5: React.FC = () => {
             <button
               key={nivel.id}
               onClick={() => handleSelect(nivel.id)}
-              className="w-full card-lumina p-5 text-left active:scale-[0.98] transition-transform"
+              className="w-full card-intergo p-5 text-left active:scale-[0.98] transition-transform"
             >
               <div className="flex flex-col">
                 <span className="text-body font-semibold">{nivel.nome}</span>

@@ -71,7 +71,7 @@ export const Step6: React.FC = () => {
             <button
               key={unidade.id}
               onClick={() => handleSelect(unidade.id)}
-              className="w-full card-lumina flex items-center p-5 active:scale-[0.98] transition-transform"
+              className="w-full card-intergo flex items-center p-5 active:scale-[0.98] transition-transform"
             >
               <div className="w-10 h-10 bg-primary/5 text-primary rounded-[10px] flex items-center justify-center mr-4">
                 <MapPin size={20} />

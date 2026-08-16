@@ -45,7 +45,7 @@ export const Step4: React.FC = () => {
               <button
                 key={sec.id}
                 onClick={() => handleSelect(sec.id)}
-                className="w-full card-lumina flex items-center p-5 active:scale-[0.98] transition-transform"
+                className="w-full card-intergo flex items-center p-5 active:scale-[0.98] transition-transform"
               >
                 <div className="w-12 h-12 bg-primary/10 text-primary rounded-[12px] flex items-center justify-center mr-4">
                   <Icon size={24} />

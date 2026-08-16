@@ -136,7 +136,7 @@
     @apply border-destructive focus:border-destructive;
   }
 
-  .card-lumina {
+  .card-intergo {
     @apply bg-white rounded-[16px] p-4;
   }
 }

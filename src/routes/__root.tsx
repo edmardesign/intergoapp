@@ -78,9 +78,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" },
-      { title: "Lumina - Gestão Pública" },
+      { title: "INTERGO - Gestão Pública" },
       { name: "description", content: "App de comunicação hierárquica para prefeituras." },
-      { property: "og:title", content: "Lumina" },
+      { property: "og:title", content: "INTERGO" },
       { property: "og:description", content: "Comunicação direta e eficiente para a gestão pública." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

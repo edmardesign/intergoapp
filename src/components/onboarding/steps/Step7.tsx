@@ -69,7 +69,7 @@ export const Step7: React.FC = () => {
             <button
               key={superior.id}
               onClick={() => handleSelect(superior.id)}
-              className="w-full card-lumina flex items-center p-5 active:scale-[0.98] transition-transform"
+              className="w-full card-intergo flex items-center p-5 active:scale-[0.98] transition-transform"
             >
               <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mr-4">
                 <User size={24} />
