@@ -39,7 +39,7 @@ function LoginComponent() {
   return (
     <div className="flex flex-col min-h-screen bg-background p-6 items-center justify-center">
       <div className="w-16 h-16 bg-primary rounded-[16px] mb-8 flex items-center justify-center">
-        <span className="text-white text-3xl font-bold italic">L</span>
+        <span className="text-white text-3xl font-bold italic">I</span>
       </div>
 
       <h1 className="text-screen-title mb-8">Bem-vindo de volta</h1>
