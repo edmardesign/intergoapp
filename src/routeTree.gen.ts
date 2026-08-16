@@ -22,6 +22,7 @@ import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
+import { Route as InicioMsgIdRouteImport } from './routes/inicio/msg/$id'
 import { Route as PainelSecretariaIdRouteImport } from './routes/painel/secretaria.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +90,11 @@ const EnviarTipoRevisarRoute = EnviarTipoRevisarRouteImport.update({
   path: '/enviar/$tipo/revisar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InicioMsgIdRoute = InicioMsgIdRouteImport.update({
+  id: '/inicio/msg/$id',
+  path: '/inicio/msg/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PainelSecretariaIdRoute = PainelSecretariaIdRouteImport.update({
   id: '/painel/secretaria/$id',
   path: '/painel/secretaria/$id',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/painel': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo': typeof EnviarTipoIndexRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/inicio/msg/$id': typeof InicioMsgIdRoute
   '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/inicio/msg/$id'
     | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   PainelIndexRoute: typeof PainelIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
+  InicioMsgIdRoute: typeof InicioMsgIdRoute
   PainelSecretariaIdRoute: typeof PainelSecretariaIdRoute
   EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
 }
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarTipoRevisarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inicio/msg/$id': {
+      id: '/inicio/msg/$id'
+      path: '/inicio/msg/$id'
+      fullPath: '/inicio/msg/$id'
+      preLoaderRoute: typeof InicioMsgIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/painel/secretaria/$id': {
       id: '/painel/secretaria/$id'
       path: '/painel/secretaria/$id'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelIndexRoute: PainelIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
+  InicioMsgIdRoute: InicioMsgIdRoute,
   PainelSecretariaIdRoute: PainelSecretariaIdRoute,
   EnviarTipoIndexRoute: EnviarTipoIndexRoute,
 }
