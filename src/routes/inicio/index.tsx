@@ -151,7 +151,7 @@ function InicioComponent() {
       const novos = await listarRecebidas(userId, offset, LOTE)
       setItens((prev) => {
         const vistos = new Set(prev.map((i) => i.mensagem.id))
-        return [...prev, ...novos.filter((n) => !vistos.has(n.mensagem.id))]
+        return [...prev, ...novos.filter((n: MensagemRecebida) => !vistos.has(n.mensagem.id))]
       })
       setOffset((o) => o + novos.length)
       setTemMais(novos.length === LOTE)
