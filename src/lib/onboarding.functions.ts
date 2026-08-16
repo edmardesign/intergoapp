@@ -1,105 +1,115 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type TableName = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 
 export const getEstados = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabase
-      .from("estados")
+      .from("estados" as any)
       .select("*")
-      .order("nome");
+      .order("nome" as any);
     if (error) throw error;
     return data;
   });
 
 export const getMunicipios = createServerFn({ method: "GET" })
-  .input((estadoId: string) => estadoId)
+  .validator((estadoId: string) => estadoId)
   .handler(async ({ data: estadoId }) => {
     const { data, error } = await supabase
-      .from("municipios")
+      .from("municipios" as any)
       .select("*")
-      .eq("estado_id", estadoId)
-      .eq("ativo", true)
-      .order("nome");
+      .eq("estado_id" as any, estadoId)
+      .eq("ativo" as any, true)
+      .order("nome" as any);
     if (error) throw error;
     return data;
   });
 
 export const getSecretarias = createServerFn({ method: "GET" })
-  .input((municipioId: string) => municipioId)
+  .validator((municipioId: string) => municipioId)
   .handler(async ({ data: municipioId }) => {
     const { data, error } = await supabase
-      .from("secretarias")
+      .from("secretarias" as any)
       .select("*")
-      .eq("municipio_id", municipioId)
-      .order("nome");
+      .eq("municipio_id" as any, municipioId)
+      .order("nome" as any);
     if (error) throw error;
     return data;
   });
 
 export const getNiveis = createServerFn({ method: "GET" })
-  .input((secretariaId: string) => secretariaId)
+  .validator((secretariaId: string) => secretariaId)
   .handler(async ({ data: secretariaId }) => {
     const { data, error } = await supabase
-      .from("niveis")
+      .from("niveis" as any)
       .select("*")
-      .eq("secretaria_id", secretariaId)
-      .order("ordem", { ascending: true });
+      .eq("secretaria_id" as any, secretariaId)
+      .order("ordem" as any, { ascending: true });
     if (error) throw error;
     return data;
   });
 
 export const getUnidades = createServerFn({ method: "GET" })
-  .input((secretariaId: string) => secretariaId)
+  .validator((secretariaId: string) => secretariaId)
   .handler(async ({ data: secretariaId }) => {
     const { data, error } = await supabase
-      .from("unidades")
+      .from("unidades" as any)
       .select("*")
-      .eq("secretaria_id", secretariaId)
-      .order("nome");
+      .eq("secretaria_id" as any, secretariaId)
+      .order("nome" as any);
     if (error) throw error;
     return data;
   });
 
 export const getSuperiores = createServerFn({ method: "GET" })
-  .input((params: { 
+  .validator((params: { 
     municipio_id: string;
     secretaria_id: string; 
     nivel_ordem: number;
     unidade_id?: string;
-    superior_tem_unidade?: boolean;
   }) => params)
   .handler(async ({ data: params }) => {
-    const { municipio_id, secretaria_id, nivel_ordem, unidade_id, superior_tem_unidade } = params;
+    const { municipio_id, secretaria_id, nivel_ordem, unidade_id } = params;
     
-    // Se o cargo escolhido for Secretário (ordem = 1, pois Prefeito é 0), o superior é o Prefeito
     if (nivel_ordem === 1) {
-      const { data, error } = await supabase
-        .from("perfis_publicos_min")
-        .select("*")
-        .eq("municipio_id", municipio_id)
-        .eq("nivel_id", (await supabase.from("niveis").select("id").eq("municipio_id", municipio_id).eq("ordem", 0).single()).data?.id);
-      if (error) throw error;
-      return data;
+      const { data: nivelPrefeito } = await supabase
+        .from("niveis" as any)
+        .select("id")
+        .eq("municipio_id" as any, municipio_id)
+        .eq("ordem" as any, 0)
+        .single();
+
+      if (nivelPrefeito) {
+        const { data, error } = await supabase
+          .from("perfis_publicos_min" as any)
+          .select("*")
+          .eq("municipio_id" as any, municipio_id)
+          .eq("nivel_id" as any, (nivelPrefeito as any).id);
+        if (error) throw error;
+        return data;
+      }
+      return [];
     }
 
     let query = supabase
-      .from("perfis_publicos_min")
+      .from("perfis_publicos_min" as any)
       .select("*")
-      .eq("secretaria_id", secretaria_id)
-      .eq("municipio_id", municipio_id);
+      .eq("secretaria_id" as any, secretaria_id)
+      .eq("municipio_id" as any, municipio_id);
 
-    // Nível superior imediato
     const { data: nivelSuperior } = await supabase
-      .from("niveis")
+      .from("niveis" as any)
       .select("id, tem_unidade")
-      .eq("secretaria_id", secretaria_id)
-      .eq("ordem", nivel_ordem - 1)
+      .eq("secretaria_id" as any, secretaria_id)
+      .eq("ordem" as any, nivel_ordem - 1)
       .single();
 
     if (nivelSuperior) {
-      query = query.eq("nivel_id", nivelSuperior.id);
-      if (nivelSuperior.tem_unidade && unidade_id) {
-        query = query.eq("unidade_id", unidade_id);
+      query = query.eq("nivel_id" as any, (nivelSuperior as any).id);
+      if ((nivelSuperior as any).tem_unidade && unidade_id) {
+        query = query.eq("unidade_id" as any, unidade_id);
       }
     }
 
@@ -109,7 +119,7 @@ export const getSuperiores = createServerFn({ method: "GET" })
   });
 
 export const addToWaitlist = createServerFn({ method: "POST" })
-  .input((data: { email: string; estado_id: string; cidade_texto: string }) => data)
+  .validator((data: { email: string; estado_id: string; cidade_texto: string }) => data)
   .handler(async ({ data }) => {
     const { error } = await supabase
       .from("waitlist")
