@@ -1,44 +1,46 @@
-# Plan: Approval Flow Implementation
+# Plano de Implementação - Sprint de Mensagens (Recebimento e Acompanhamento)
 
-Build the "Equipe" feature for INTERGO, allowing superiors to review and approve/deny pending registrations from their direct subordinates.
+Implementação do feed de mensagens recebidas, confirmação de leitura/recebimento, detalhe da mensagem e fluxo de acompanhamento para quem enviou.
 
-## User Review Required
+## 1. Banco de Dados e Segurança
+- Criar coluna `lido_em` na tabela `mensagem_destinatarios` (caso não exista, conferir tipos).
+- Garantir RLS para que destinatários possam atualizar `confirmado_em` e `lido_em` de seus próprios registros.
+- Criar função RPC para buscar mensagens recebidas com status de confirmação.
 
-> [!IMPORTANT]
-> The current database schema for `perfis` needs new columns: `aprovado_por` (UUID) and `aprovado_em` (TIMESTAMPTZ). I will add these via migration.
-> I will also implement the `perfis_subarvore(superior_id_root UUID)` function in PostgreSQL to support the hierarchy view.
+## 2. Server Functions (`src/lib/mensagens.functions.ts`)
+- `getMensagensRecebidas`: Busca mensagens destinadas ao usuário atual, filtrando por "Hoje" e "Anteriores".
+- `getMensagemDetalhe`: Busca dados completos de uma mensagem (remetente, anexos, status do destinatário atual).
+- `confirmarRecebimento`: Atualiza `confirmado_em = now()` otimisticamente.
+- `marcarComoLida`: Atualiza `lido_em = now()`.
+- `getMensagensEnviadas`: Para gestores, lista mensagens enviadas com contadores de confirmação.
+- `getAcompanhamentoEnvio`: Detalha quem confirmou e quem não confirmou uma mensagem específica.
 
-## Proposed Changes
+## 3. UI - Tela de Início (`src/routes/inicio/index.tsx`)
+- Refatorar para incluir as seções solicitadas:
+  - Bloco de Pendências (expandido com contadores reais).
+  - Faixa Urgente (alerta vermelho).
+  - Seção "Precisa da sua Confirmação" (cards com botão inline).
+  - Seção "Recebidas Hoje" (feed do dia).
+  - Seção "Anteriores" (agrupamento por data e infinite scroll).
+- Implementar animação de 250ms ao confirmar.
+- Adicionar link "Ver mensagens que eu enviei" para gestores.
 
-### Database & Security (Supabase Engineer)
-- **Migration**: Add `aprovado_por`, `aprovado_em`, and `motivo_negativa` to `perfis`.
-- **Function**: Create `perfis_subarvore` to return recursive subordinates.
-- **RLS**: Update policies on `perfis` to allow `UPDATE status` only if `auth.uid() = superior_id`.
+## 4. UI - Detalhe da Mensagem (`src/routes/inicio/msg/$id.tsx`)
+- Layout completo com cabeçalho, assunto gigante, metadados do remetente.
+- Blocos específicos para Demanda (prazo) e Reunião/Evento (local/data/hora).
+- Gerador de arquivo ICS simples para calendário.
+- Lista de anexos com URLs assinadas.
 
-### Server Functions (API Integrator)
-- **src/lib/equipe.functions.ts**:
-    - `getEquipePendentes`: Fetch direct subordinates with status 'pendente'.
-    - `getEquipeAtivos`: Fetch sub-tree subordinates with status 'ativo'.
-    - `getEquipeInativos`: Fetch sub-tree subordinates with status 'negado' or 'inativo'.
-    - `aprovarPerfil`: Set status to 'ativo'.
-    - `negarPerfil`: Set status to 'negado' + reason.
-    - `reativarPerfil`: Reset status to 'ativo'.
+## 5. UI - Fluxo de Enviadas (`src/routes/enviadas/index.tsx` e `$id.tsx`)
+- Lista compacta de envios com status X de Y confirmados.
+- Detalhe do envio com abas "Confirmaram" e "Não confirmaram".
+- Lógica de "Cobrar" com trava de 24h no localStorage.
 
-### UI Components (UI Architect)
-- **BottomNavigation**: Persistent bar with conditional tabs (3 for Professor, 5 for others).
-- **EquipeTabs**: Segmented control for Ativos/Pendentes/Inativos.
-- **ProfileSheet**: Approval/Detail bottom sheet with formatting for CPF/Telefone.
-- **PendingNotification**: Card for the Inicio screen showing pending counts.
+## 6. Realtime
+- Configurar `supabase.channel` para ouvir mudanças em `mensagens` e `mensagem_destinatarios`.
+- Fallback para polling de 30s.
 
-### Routes & Integration
-- **src/routes/equipe.tsx**: Main route for the team management.
-- **src/routes/inicio/index.tsx**: Add pending notification card.
-- **src/routes/__root.tsx**: Wrap outlet with `BottomNavigation` (excluding login/onboarding).
-
-## Technical Details
-- **Hierarchy Logic**: Superior status determined by `nivel.ordem < 2` (Professor is order 3 in Education, but generally "Professor" will be the role name check or a metadata flag).
-- **Transitions**: 200ms smooth transitions for tab switching.
-- **Validation**: "Motivo recusa" requires 10+ characters.
-- **Formatting**: CPF (000.000.000-00), Telefone ((00) 00000-0000).
-- **Empty States**: Illustrated text for zero items.
-- **Error Handling**: Toast notifications (Sonner) for RLS/Permission errors.
+## Detalhes Técnicos
+- Formatação de datas: `Intl.DateTimeFormat` com locale `pt-BR`.
+- Fuso horário: `America/Sao_Paulo` forçado na lógica de agrupamento.
+- Otimização: Cache do TanStack Query com invalidação via realtime.
