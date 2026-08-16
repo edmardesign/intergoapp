@@ -1,8 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
-
-type TableName = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 
 export const getEstados = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -74,55 +71,57 @@ export const getSuperiores = createServerFn({ method: "GET" })
     const { municipio_id, secretaria_id, nivel_ordem, unidade_id } = params;
     
     if (nivel_ordem === 1) {
-      const { data: nivelPrefeito } = await supabase
+      const { data: niveisData } = await supabase
         .from("niveis" as any)
         .select("id")
         .eq("municipio_id" as any, municipio_id)
         .eq("ordem" as any, 0)
-        .single();
+        .maybeSingle();
 
-      if (nivelPrefeito) {
+      if (niveisData) {
         const { data, error } = await supabase
           .from("perfis_publicos_min" as any)
           .select("*")
           .eq("municipio_id" as any, municipio_id)
-          .eq("nivel_id" as any, (nivelPrefeito as any).id);
+          .eq("nivel_id" as any, (niveisData as any).id);
         if (error) throw error;
         return data;
       }
       return [];
     }
 
-    let query = supabase
-      .from("perfis_publicos_min" as any)
-      .select("*")
-      .eq("secretaria_id" as any, secretaria_id)
-      .eq("municipio_id" as any, municipio_id);
-
     const { data: nivelSuperior } = await supabase
       .from("niveis" as any)
       .select("id, tem_unidade")
       .eq("secretaria_id" as any, secretaria_id)
       .eq("ordem" as any, nivel_ordem - 1)
-      .single();
+      .maybeSingle();
 
     if (nivelSuperior) {
-      query = query.eq("nivel_id" as any, (nivelSuperior as any).id);
+      let query = supabase
+        .from("perfis_publicos_min" as any)
+        .select("*")
+        .eq("secretaria_id" as any, secretaria_id)
+        .eq("municipio_id" as any, municipio_id)
+        .eq("nivel_id" as any, (nivelSuperior as any).id);
+
       if ((nivelSuperior as any).tem_unidade && unidade_id) {
         query = query.eq("unidade_id" as any, unidade_id);
       }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
+    return [];
   });
 
 export const addToWaitlist = createServerFn({ method: "POST" })
   .validator((data: { email: string; estado_id: string; cidade_texto: string }) => data)
   .handler(async ({ data }) => {
     const { error } = await supabase
-      .from("waitlist")
+      .from("waitlist" as any)
       .insert([data]);
     if (error) throw error;
     return { success: true };
