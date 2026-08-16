@@ -12,8 +12,9 @@ export const getEstados = createServerFn({ method: "GET" })
   });
 
 export const getMunicipios = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
-  .handler(async ({ data: estadoId }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const estadoId = typeof input === 'object' ? input.data : input;
     const { data, error } = await (supabase as any)
       .from("municipios")
       .select("*")
@@ -25,8 +26,9 @@ export const getMunicipios = createServerFn({ method: "GET" })
   });
 
 export const getSecretarias = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
-  .handler(async ({ data: municipioId }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const municipioId = typeof input === 'object' ? input.data : input;
     const { data, error } = await (supabase as any)
       .from("secretarias")
       .select("*")
@@ -37,8 +39,9 @@ export const getSecretarias = createServerFn({ method: "GET" })
   });
 
 export const getNiveis = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
-  .handler(async ({ data: secretariaId }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const secretariaId = typeof input === 'object' ? input.data : input;
     const { data, error } = await (supabase as any)
       .from("niveis")
       .select("*")
@@ -49,8 +52,9 @@ export const getNiveis = createServerFn({ method: "GET" })
   });
 
 export const getUnidades = createServerFn({ method: "GET" })
-  .validator((d: number | string) => d)
-  .handler(async ({ data: secretariaId }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const secretariaId = typeof input === 'object' ? input.data : input;
     const { data, error } = await (supabase as any)
       .from("unidades")
       .select("*")
@@ -61,13 +65,9 @@ export const getUnidades = createServerFn({ method: "GET" })
   });
 
 export const getSuperiores = createServerFn({ method: "GET" })
-  .validator((d: { 
-    municipio_id: number | string;
-    secretaria_id: number | string; 
-    nivel_ordem: number;
-    unidade_id?: number | string;
-  }) => d)
-  .handler(async ({ data: params }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const params = typeof input === 'object' && input.data ? input.data : input;
     const { municipio_id, secretaria_id, nivel_ordem, unidade_id } = params;
     
     if (nivel_ordem === 1) {
@@ -113,8 +113,9 @@ export const getSuperiores = createServerFn({ method: "GET" })
   });
 
 export const addToWaitlist = createServerFn({ method: "POST" })
-  .validator((d: { email: string; estado_id: number | string; cidade_texto: string }) => d)
-  .handler(async ({ data }) => {
+  .validator((d: any) => d)
+  .handler(async ({ data: input }) => {
+    const data = typeof input === 'object' && input.data ? input.data : input;
     const { error } = await (supabase as any)
       .from("waitlist")
       .insert([data]);
