@@ -1,13 +1,19 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { CheckCircle2, ChevronRight } from "lucide-react";
+import { z } from "zod";
+
+const sucessoSearchSchema = z.object({
+  n: z.number().catch(0)
+});
 
 export const Route = createFileRoute("/enviar/sucesso")({
   component: SucessoPage,
+  validateSearch: (search) => sucessoSearchSchema.parse(search),
 });
 
 function SucessoPage() {
   const navigate = useNavigate();
-  const search = Route.useSearch() as { n: number };
+  const search = useSearch({ from: '/enviar/sucesso' });
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-56px)] bg-background items-center justify-center p-6 text-center">
