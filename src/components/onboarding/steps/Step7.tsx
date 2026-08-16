@@ -21,7 +21,7 @@ export const Step7: React.FC = () => {
       // Set dynamic title based on superior level name
       const superiorLevel = niveis?.find((n: any) => n.ordem === currentLevel.ordem - 1);
       if (superiorLevel) {
-        setTitle(`Quem é seu ${superiorLevel.nome.toLowerCase()}?`);
+        setTitle(`Quem é seu ${String(superiorLevel?.nome ?? 'superior').toLowerCase()}?`);
       } else if (currentLevel.ordem === 1) {
         setTitle("Quem é o Prefeito?");
       }

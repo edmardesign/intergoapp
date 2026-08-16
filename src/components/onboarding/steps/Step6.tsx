@@ -35,7 +35,7 @@ export const Step6: React.FC = () => {
   }, [onboardingData.nivel_id, onboardingData.secretaria_id]);
 
   const filtered = unidades.filter(u => 
-    u.nome.toLowerCase().includes(search.toLowerCase())
+    String(u?.nome ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelect = (id: string) => {
