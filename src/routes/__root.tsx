@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { BottomNavigation } from "@/components/layout/BottomNavigation";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -106,7 +107,10 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <main className="pb-[56px]">
+          {children}
+        </main>
+        <BottomNavigation />
         <Toaster position="top-center" />
         <Scripts />
       </body>

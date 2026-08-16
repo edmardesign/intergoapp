@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      anexos: {
+        Row: {
+          created_at: string
+          id: string
+          mensagem_id: string
+          nome: string
+          tamanho: number
+          tipo_mime: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mensagem_id: string
+          nome: string
+          tamanho: number
+          tipo_mime: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mensagem_id?: string
+          nome?: string
+          tamanho?: number
+          tipo_mime?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anexos_mensagem_id_fkey"
+            columns: ["mensagem_id"]
+            isOneToOne: false
+            referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estados: {
         Row: {
           created_at: string
@@ -34,6 +72,83 @@ export type Database = {
           sigla?: string
         }
         Relationships: []
+      }
+      mensagem_destinatarios: {
+        Row: {
+          confirmado_em: string | null
+          destinatario_id: string
+          entregue_em: string | null
+          lido_em: string | null
+          mensagem_id: string
+        }
+        Insert: {
+          confirmado_em?: string | null
+          destinatario_id: string
+          entregue_em?: string | null
+          lido_em?: string | null
+          mensagem_id: string
+        }
+        Update: {
+          confirmado_em?: string | null
+          destinatario_id?: string
+          entregue_em?: string | null
+          lido_em?: string | null
+          mensagem_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagem_destinatarios_destinatario_id_fkey"
+            columns: ["destinatario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagem_destinatarios_mensagem_id_fkey"
+            columns: ["mensagem_id"]
+            isOneToOne: false
+            referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mensagens: {
+        Row: {
+          created_at: string
+          exigir_confirmacao: boolean
+          id: string
+          payload: Json
+          remetente_id: string
+          tipo: Database["public"]["Enums"]["mensagem_tipo"]
+          urgente: boolean
+        }
+        Insert: {
+          created_at?: string
+          exigir_confirmacao?: boolean
+          id?: string
+          payload: Json
+          remetente_id: string
+          tipo: Database["public"]["Enums"]["mensagem_tipo"]
+          urgente?: boolean
+        }
+        Update: {
+          created_at?: string
+          exigir_confirmacao?: boolean
+          id?: string
+          payload?: Json
+          remetente_id?: string
+          tipo?: Database["public"]["Enums"]["mensagem_tipo"]
+          urgente?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_remetente_id_fkey"
+            columns: ["remetente_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       municipios: {
         Row: {
@@ -283,8 +398,15 @@ export type Database = {
           unidade_id: string
         }[]
       }
+      perfis_subarvore: {
+        Args: { superior_id_root: string }
+        Returns: {
+          id: string
+        }[]
+      }
     }
     Enums: {
+      mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
     }
     CompositeTypes: {
@@ -413,6 +535,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      mensagem_tipo: ["comunicado", "demanda", "reuniao", "evento"],
       perfil_status: ["pendente", "ativo", "negado", "inativo"],
     },
   },
