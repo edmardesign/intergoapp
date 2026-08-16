@@ -22,6 +22,7 @@ import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/ag
 import { Route as OnboardingNegadoRouteImport } from './routes/onboarding/negado'
 import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as PedidosIndexRouteImport } from './routes/pedidos/index'
+import { Route as PedidosIdRouteImport } from './routes/pedidos/$id'
 import { Route as PedidosNovoRouteImport } from './routes/pedidos/novo'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
@@ -94,6 +95,11 @@ const PedidosIndexRoute = PedidosIndexRouteImport.update({
   path: '/pedidos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidosIdRoute = PedidosIdRouteImport.update({
+  id: '/pedidos/$id',
+  path: '/pedidos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PedidosNovoRoute = PedidosNovoRouteImport.update({
   id: '/pedidos/novo',
   path: '/pedidos/novo',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas': typeof EnviadasIndexRoute
   '/enviar': typeof EnviarIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/enviar/sucesso': typeof EnviarSucessoRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos/novo': typeof PedidosNovoRoute
   '/enviadas/': typeof EnviadasIndexRoute
   '/enviar/': typeof EnviarIndexRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/$id'
     | '/pedidos/novo'
     | '/enviadas/'
     | '/enviar/'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/$id'
     | '/pedidos/novo'
     | '/enviadas'
     | '/enviar'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/enviar/sucesso'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
+    | '/pedidos/$id'
     | '/pedidos/novo'
     | '/enviadas/'
     | '/enviar/'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   EnviarSucessoRoute: typeof EnviarSucessoRoute
   OnboardingAguardandoRoute: typeof OnboardingAguardandoRoute
   OnboardingNegadoRoute: typeof OnboardingNegadoRoute
+  PedidosIdRoute: typeof PedidosIdRoute
   PedidosNovoRoute: typeof PedidosNovoRoute
   EnviadasIndexRoute: typeof EnviadasIndexRoute
   EnviarIndexRoute: typeof EnviarIndexRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedidos/$id': {
+      id: '/pedidos/$id'
+      path: '/pedidos/$id'
+      fullPath: '/pedidos/$id'
+      preLoaderRoute: typeof PedidosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pedidos/novo': {
       id: '/pedidos/novo'
       path: '/pedidos/novo'
@@ -423,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnviarSucessoRoute: EnviarSucessoRoute,
   OnboardingAguardandoRoute: OnboardingAguardandoRoute,
   OnboardingNegadoRoute: OnboardingNegadoRoute,
+  PedidosIdRoute: PedidosIdRoute,
   PedidosNovoRoute: PedidosNovoRoute,
   EnviadasIndexRoute: EnviadasIndexRoute,
   EnviarIndexRoute: EnviarIndexRoute,
