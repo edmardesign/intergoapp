@@ -107,7 +107,10 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <main className="pb-[56px]">
+          {children}
+        </main>
+        <BottomNavigation />
         <Toaster position="top-center" />
         <Scripts />
       </body>
