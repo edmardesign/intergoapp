@@ -18,8 +18,9 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          mensagem_id: string
+          mensagem_id: string | null
           nome: string
+          solicitacao_id: string | null
           tamanho: number
           tipo_mime: string
           url: string
@@ -27,8 +28,9 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          mensagem_id: string
+          mensagem_id?: string | null
           nome: string
+          solicitacao_id?: string | null
           tamanho: number
           tipo_mime: string
           url: string
@@ -36,8 +38,9 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          mensagem_id?: string
+          mensagem_id?: string | null
           nome?: string
+          solicitacao_id?: string | null
           tamanho?: number
           tipo_mime?: string
           url?: string
@@ -48,6 +51,13 @@ export type Database = {
             columns: ["mensagem_id"]
             isOneToOne: false
             referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "anexos_solicitacao_id_fkey"
+            columns: ["solicitacao_id"]
+            isOneToOne: false
+            referencedRelation: "solicitacoes"
             referencedColumns: ["id"]
           },
         ]
@@ -319,6 +329,105 @@ export type Database = {
           },
         ]
       }
+      solicitacao_eventos: {
+        Row: {
+          acao: Database["public"]["Enums"]["solicitacao_acao"]
+          autor_id: string
+          created_at: string
+          id: string
+          observacao: string | null
+          solicitacao_id: string
+        }
+        Insert: {
+          acao: Database["public"]["Enums"]["solicitacao_acao"]
+          autor_id: string
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          solicitacao_id: string
+        }
+        Update: {
+          acao?: Database["public"]["Enums"]["solicitacao_acao"]
+          autor_id?: string
+          created_at?: string
+          id?: string
+          observacao?: string | null
+          solicitacao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitacao_eventos_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solicitacao_eventos_solicitacao_id_fkey"
+            columns: ["solicitacao_id"]
+            isOneToOne: false
+            referencedRelation: "solicitacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solicitacoes: {
+        Row: {
+          created_at: string
+          id: string
+          item: string
+          justificativa: string
+          quantidade: number
+          responsavel_atual_id: string | null
+          solicitante_id: string
+          status: Database["public"]["Enums"]["solicitacao_status"]
+          unidade_medida: string
+          updated_at: string
+          urgencia: Database["public"]["Enums"]["solicitacao_urgencia"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item: string
+          justificativa: string
+          quantidade: number
+          responsavel_atual_id?: string | null
+          solicitante_id: string
+          status?: Database["public"]["Enums"]["solicitacao_status"]
+          unidade_medida: string
+          updated_at?: string
+          urgencia?: Database["public"]["Enums"]["solicitacao_urgencia"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item?: string
+          justificativa?: string
+          quantidade?: number
+          responsavel_atual_id?: string | null
+          solicitante_id?: string
+          status?: Database["public"]["Enums"]["solicitacao_status"]
+          unidade_medida?: string
+          updated_at?: string
+          urgencia?: Database["public"]["Enums"]["solicitacao_urgencia"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitacoes_responsavel_atual_id_fkey"
+            columns: ["responsavel_atual_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solicitacoes_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unidades: {
         Row: {
           created_at: string
@@ -412,10 +521,31 @@ export type Database = {
           id: string
         }[]
       }
+      solic_envolvido: {
+        Args: { _solicitacao_id: string; _user_id: string }
+        Returns: boolean
+      }
+      solic_participou: {
+        Args: { _solicitacao_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
+      solicitacao_acao:
+        | "criou"
+        | "encaminhou"
+        | "aprovou"
+        | "negou"
+        | "entregou"
+      solicitacao_status:
+        | "solicitado"
+        | "em_analise"
+        | "aprovado"
+        | "negado"
+        | "entregue"
+      solicitacao_urgencia: "normal" | "urgente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -545,6 +675,15 @@ export const Constants = {
     Enums: {
       mensagem_tipo: ["comunicado", "demanda", "reuniao", "evento"],
       perfil_status: ["pendente", "ativo", "negado", "inativo"],
+      solicitacao_acao: ["criou", "encaminhou", "aprovou", "negou", "entregou"],
+      solicitacao_status: [
+        "solicitado",
+        "em_analise",
+        "aprovado",
+        "negado",
+        "entregue",
+      ],
+      solicitacao_urgencia: ["normal", "urgente"],
     },
   },
 } as const
