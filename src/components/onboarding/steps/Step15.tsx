@@ -25,25 +25,27 @@ export const Step15: React.FC = () => {
 
       if (authData.user) {
         // 2. Insert Profile
+        const profileInsert: any = {
+          id: authData.user.id,
+          nome_completo: data.nome_completo!,
+          cpf: data.cpf!,
+          telefone: data.telefone!,
+          cep: data.cep!,
+          logradouro: data.logradouro || null,
+          numero: data.numero || null,
+          complemento: data.complemento || null,
+          bairro: data.bairro || null,
+          municipio_id: data.municipio_id || null,
+          secretaria_id: data.secretaria_id || null,
+          nivel_id: data.nivel_id || null,
+          unidade_id: data.unidade_id || null,
+          superior_id: data.superior_id || null,
+          status: 'pendente'
+        };
+
         const { error: profileError } = await supabase
           .from('perfis')
-          .insert({
-            id: authData.user.id,
-            nome_completo: data.nome_completo!,
-            cpf: data.cpf!,
-            telefone: data.telefone!,
-            cep: data.cep!,
-            logradouro: data.logradouro,
-            numero: data.numero,
-            complemento: data.complemento,
-            bairro: data.bairro,
-            municipio_id: data.municipio_id,
-            secretaria_id: data.secretaria_id,
-            nivel_id: data.nivel_id,
-            unidade_id: data.unidade_id,
-            superior_id: data.superior_id,
-            status: 'pendente'
-          });
+          .insert(profileInsert);
 
         if (profileError) throw profileError;
 
@@ -68,7 +70,7 @@ export const Step15: React.FC = () => {
     { label: 'Nome', value: data.nome_completo, step: 8 },
     { label: 'CPF', value: data.cpf, step: 9 },
     { label: 'Telefone', value: data.telefone, step: 10 },
-    { label: 'Endereço', value: `${data.logradouro}, ${data.numero}`, step: 11 },
+    { label: 'Endereço', value: `${data.logradouro || ''}, ${data.numero || ''}`, step: 11 },
     { label: 'E-mail', value: data.email, step: 13 },
   ];
 
@@ -81,7 +83,7 @@ export const Step15: React.FC = () => {
           <div key={i} className="card-lumina flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-label text-secondary">{row.label}</span>
-              <span className="text-body font-medium truncate max-w-[200px]">{row.value}</span>
+              <span className="text-body font-medium truncate max-w-[200px]">{String(row.value)}</span>
             </div>
             <button 
               onClick={() => goToStep(row.step)}
