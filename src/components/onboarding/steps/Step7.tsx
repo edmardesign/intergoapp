@@ -26,14 +26,17 @@ export const Step7: React.FC = () => {
         setTitle("Quem é o Prefeito?");
       }
 
-      const data = await getSuperiores({ 
-        data: {
-          municipio_id: onboardingData.municipio_id,
-          secretaria_id: onboardingData.secretaria_id || "",
-          nivel_ordem: currentLevel.ordem,
-          unidade_id: onboardingData.unidade_id ? onboardingData.unidade_id : undefined
-        } 
-      });
+      const params: any = {
+        municipio_id: onboardingData.municipio_id,
+        secretaria_id: onboardingData.secretaria_id || "",
+        nivel_ordem: currentLevel.ordem
+      };
+      
+      if (onboardingData.unidade_id) {
+        params.unidade_id = onboardingData.unidade_id;
+      }
+
+      const data = await getSuperiores({ data: params });
 
       if (data && data.length === 1) {
         updateData({ superior_id: data[0].id });
