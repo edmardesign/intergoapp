@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
-import { Home, Send, ClipboardList, Users, User, LucideIcon } from 'lucide-react';
+import { Home, Send, ClipboardList, Users, User, BarChart3, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -36,21 +36,46 @@ export const BottomNavigation: React.FC = () => {
 
   if (loading) return null;
 
-  const isProfessor = role?.toLowerCase().includes('professor');
-  
-  const tabs: Tab[] = isProfessor 
-    ? [
-        { label: 'Início', icon: Home, to: '/inicio' },
-        { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
-        { label: 'Perfil', icon: User, to: '/perfil' },
-      ]
-    : [
-        { label: 'Início', icon: Home, to: '/inicio' },
-        { label: 'Enviar', icon: Send, to: '/enviar' },
-        { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
-        { label: 'Equipe', icon: Users, to: '/equipe' },
-        { label: 'Perfil', icon: User, to: '/perfil' },
-      ];
+  const cargo = role?.toLowerCase() ?? '';
+  const isProfessor = cargo.includes('professor');
+  const isPrefeito = cargo.includes('prefeito');
+  const isSecretario = cargo.includes('secret');
+
+  let tabs: Tab[];
+
+  if (isProfessor) {
+    tabs = [
+      { label: 'Início', icon: Home, to: '/inicio' },
+      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
+      { label: 'Perfil', icon: User, to: '/perfil' },
+    ];
+  } else if (isPrefeito) {
+    // Prefeito não envia mensagens: a aba "Enviar" dá lugar ao Painel.
+    tabs = [
+      { label: 'Início', icon: Home, to: '/inicio' },
+      { label: 'Painel', icon: BarChart3, to: '/painel' },
+      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
+      { label: 'Equipe', icon: Users, to: '/equipe' },
+      { label: 'Perfil', icon: User, to: '/perfil' },
+    ];
+  } else if (isSecretario) {
+    tabs = [
+      { label: 'Início', icon: Home, to: '/inicio' },
+      { label: 'Painel', icon: BarChart3, to: '/painel' },
+      { label: 'Enviar', icon: Send, to: '/enviar' },
+      { label: 'Equipe', icon: Users, to: '/equipe' },
+      { label: 'Perfil', icon: User, to: '/perfil' },
+    ];
+  } else {
+    tabs = [
+      { label: 'Início', icon: Home, to: '/inicio' },
+      { label: 'Enviar', icon: Send, to: '/enviar' },
+      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
+      { label: 'Equipe', icon: Users, to: '/equipe' },
+      { label: 'Perfil', icon: User, to: '/perfil' },
+    ];
+  }
+
 
   // Don't show on onboarding or login
   const hideOn = ['/onboarding', '/login', '/'];

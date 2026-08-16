@@ -22,6 +22,7 @@ import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
+import { Route as PainelSecretariaIdRouteImport } from './routes/painel/secretaria.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +89,11 @@ const EnviarTipoRevisarRoute = EnviarTipoRevisarRouteImport.update({
   path: '/enviar/$tipo/revisar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelSecretariaIdRoute = PainelSecretariaIdRouteImport.update({
+  id: '/painel/secretaria/$id',
+  path: '/painel/secretaria/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/painel': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo': typeof EnviarTipoIndexRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/painel/': typeof PainelIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
+  '/painel/secretaria/$id': typeof PainelSecretariaIdRoute
   '/enviar/$tipo/': typeof EnviarTipoIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/painel/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
+    | '/painel/secretaria/$id'
     | '/enviar/$tipo/'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   PainelIndexRoute: typeof PainelIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
+  PainelSecretariaIdRoute: typeof PainelSecretariaIdRoute
   EnviarTipoIndexRoute: typeof EnviarTipoIndexRoute
 }
 
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarTipoRevisarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/secretaria/$id': {
+      id: '/painel/secretaria/$id'
+      path: '/painel/secretaria/$id'
+      fullPath: '/painel/secretaria/$id'
+      preLoaderRoute: typeof PainelSecretariaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelIndexRoute: PainelIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
+  PainelSecretariaIdRoute: PainelSecretariaIdRoute,
   EnviarTipoIndexRoute: EnviarTipoIndexRoute,
 }
 export const routeTree = rootRouteImport
