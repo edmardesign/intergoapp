@@ -36,6 +36,33 @@ function PreencherPage() {
   const [urgente, setUrgente] = useState(draft?.urgente || false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione uma imagem.");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Não autenticado");
+
+      const path = `${session.user.id}/eventos/${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from('anexos').upload(path, file);
+      if (error) throw error;
+
+      update('imagem', path);
+      toast.success("Imagem carregada!");
+    } catch (err: any) {
+      toast.error(err.message || "Erro no upload");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   useEffect(() => {
     if (draft) {
       setLocalPayload(draft.payload);
