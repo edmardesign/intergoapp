@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/equipe")({
+export const Route = createFileRoute("/equipe/")({
   component: EquipePage,
 });
 
