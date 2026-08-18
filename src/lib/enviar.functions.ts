@@ -59,7 +59,7 @@ export const getSubtreeRecipients = createServerFn({ method: "GET" })
       .select('perfil_id, unidade:unidade_id(id, nome)')
       .in('perfil_id', ids);
 
-    return (profiles || []).map(p => ({
+    return (profiles || []).map((p: any) => ({
       ...p,
       unidades: (lotacoes || [])
         .filter((l: any) => l.perfil_id === p.id)
