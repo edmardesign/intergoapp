@@ -47,7 +47,7 @@ export const Step2: React.FC = () => {
       <div className="space-y-3">
         {loading ? (
           Array(8).fill(0).map((_, i) => (
-            <div key={i} className="h-[60px] bg-white rounded-[16px] animate-pulse" />
+            <div key={i} className="h-[60px] bg-white rounded-2xl animate-pulse" />
           ))
         ) : (
           filtered.map((estado) => (

@@ -36,7 +36,7 @@ export const Step4: React.FC = () => {
       <div className="grid grid-cols-1 gap-4">
         {loading ? (
           Array(6).fill(0).map((_, i) => (
-            <div key={i} className="h-[80px] bg-white rounded-[16px] animate-pulse" />
+            <div key={i} className="h-[80px] bg-white rounded-2xl animate-pulse" />
           ))
         ) : (
           secretarias.map((sec) => {

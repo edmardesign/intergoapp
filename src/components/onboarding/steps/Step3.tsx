@@ -54,7 +54,7 @@ export const Step3: React.FC = () => {
       <div className="space-y-3">
         {loading ? (
           Array(8).fill(0).map((_, i) => (
-            <div key={i} className="h-[60px] bg-white rounded-[16px] animate-pulse" />
+            <div key={i} className="h-[60px] bg-white rounded-2xl animate-pulse" />
           ))
         ) : filtered.length > 0 ? (
           filtered.map((municipio) => (
@@ -91,7 +91,7 @@ export const Step3: React.FC = () => {
                   <button 
                     onClick={handleWaitlist}
                     disabled={!email.includes('@')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#C1272D] text-white rounded-[10px] flex items-center justify-center disabled:opacity-50"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#C1272D] text-white rounded-xl flex items-center justify-center disabled:opacity-50"
                   >
                     <Send size={18} />
                   </button>
