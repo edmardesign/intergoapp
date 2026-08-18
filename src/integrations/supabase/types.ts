@@ -295,7 +295,43 @@ export type Database = {
           unidade_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "perfis_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfis_nivel_id_fkey"
+            columns: ["nivel_id"]
+            isOneToOne: false
+            referencedRelation: "niveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfis_secretaria_id_fkey"
+            columns: ["secretaria_id"]
+            isOneToOne: false
+            referencedRelation: "secretarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfis_superior_id_fkey"
+            columns: ["superior_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfis_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       secretarias: {
         Row: {
@@ -496,6 +532,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      msg_e_meu_envio: { Args: { msg_id: string }; Returns: boolean }
+      msg_e_meu_recebimento: { Args: { msg_id: string }; Returns: boolean }
       painel_is_prefeito: { Args: { _user_id: string }; Returns: boolean }
       painel_meu_contexto: { Args: never; Returns: Json }
       painel_prefeito: { Args: never; Returns: Json }
