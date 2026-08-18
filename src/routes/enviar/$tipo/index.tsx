@@ -47,6 +47,25 @@ function PreencherPage() {
   };
 
   const isFormValid = () => {
+    const limits: any = {
+      assunto: 60,
+      corpo: 300,
+      o_que_precisa: 400,
+      local_evento: 120,
+      pauta: 250,
+      titulo: 60,
+      descricao: 250
+    };
+
+    const checkLimits = () => {
+      for (const [key, value] of Object.entries(localPayload)) {
+        if (limits[key] && (value as string).length > limits[key]) return false;
+      }
+      return true;
+    };
+
+    if (!checkLimits()) return false;
+
     if (tipo === 'comunicado') return !!localPayload.assunto && !!localPayload.corpo;
     if (tipo === 'demanda') return !!localPayload.assunto && !!localPayload.o_que_precisa && !!localPayload.prazo;
     if (tipo === 'reuniao') return !!localPayload.assunto && !!localPayload.data_evento && !!localPayload.hora_evento && !!localPayload.local_evento;
