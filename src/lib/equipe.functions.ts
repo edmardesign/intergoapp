@@ -115,7 +115,7 @@ export const reatribuirLotacao = createServerFn({ method: "POST" })
 
     const { error: insertError } = await supabase
       .from("perfil_unidades")
-      .insert({ perfil_id: coordenador_id, unidade_id, principal: true });
+      .insert({ perfil_id: coordenador_id, unidade_id: unidade_id, principal: true });
 
     if (insertError) throw insertError;
 
