@@ -663,6 +663,7 @@ export type Database = {
         Args: { _municipio_id: string }
         Returns: Json
       }
+      get_nome_aprovador: { Args: { perfil_uuid: string }; Returns: string }
       get_subarvore: {
         Args: { root_id: string }
         Returns: {
