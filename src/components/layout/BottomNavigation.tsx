@@ -3,6 +3,7 @@ import { Link, useLocation } from '@tanstack/react-router';
 import { Home, Send, ClipboardList, Users, User, BarChart3, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { canUserSend } from '@/lib/enviar.functions';
 
 interface Tab {
   label: string;
@@ -13,25 +14,30 @@ interface Tab {
 export const BottomNavigation: React.FC = () => {
   const location = useLocation();
   const [role, setRole] = useState<string | null>(null);
+  const [canSend, setCanSend] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRole = async () => {
+    const fetchPerms = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data: profile } = await supabase
-        .from('perfis')
-        .select('nivel:nivel_id(nome)')
-        .eq('id', session.user.id)
-        .single();
+      const [roleData, sendData] = await Promise.all([
+        supabase
+          .from('perfis')
+          .select('nivel:nivel_id(nome)')
+          .eq('id', session.user.id)
+          .single(),
+        canUserSend()
+      ]);
 
-      if (profile) {
-        setRole((profile as any).nivel?.nome || '');
+      if (roleData.data) {
+        setRole((roleData.data as any).nivel?.nome || '');
       }
+      setCanSend(sendData.canSend);
       setLoading(false);
     };
-    fetchRole();
+    fetchPerms();
   }, []);
 
   if (loading) return null;
