@@ -11,9 +11,9 @@ export const Route = createFileRoute("/enviar/$tipo/")({
 
 function CharCounter({ current, max }: { current: number; max: number }) {
   const percentage = (current / max) * 100;
-  let colorClass = "text-secondary";
-  if (percentage >= 100) colorClass = "text-error";
-  else if (percentage >= 80) colorClass = "text-[#FF9F0A]";
+  let colorClass = "text-[#AEAEB2]"; // cinza
+  if (percentage > 100) colorClass = "text-[#FF3B30]"; // vermelho
+  else if (percentage >= 80) colorClass = "text-[#FF9F0A]"; // âmbar
 
   return (
     <div className={`text-[12px] text-right mt-1 ${colorClass}`}>
