@@ -1,15 +1,14 @@
 import React from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
 import { Link } from '@tanstack/react-router';
-import logoAsset from '@/assets/intergo_logo.png.asset.json';
 
 export const Step1: React.FC = () => {
   const nextStep = useOnboardingStore((state) => state.nextStep);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
-      <div className="w-24 h-24 bg-white rounded-[20px] mb-8 flex items-center justify-center shadow-lg overflow-hidden p-2">
-        <img src={logoAsset.url} alt="INTERGO Logo" className="w-full h-full object-contain" />
+      <div className="w-24 h-24 bg-primary rounded-[20px] mb-8 flex items-center justify-center shadow-lg">
+        <span className="text-white text-4xl font-bold italic">I</span>
       </div>
       
       <h1 className="text-screen-title mb-4">INTERGO</h1>
