@@ -47,40 +47,25 @@ export const BottomNavigation: React.FC = () => {
   const isPrefeito = cargo.includes('prefeito');
   const isSecretario = cargo.includes('secret');
 
-  let tabs: Tab[];
+  const tabs: Tab[] = [
+    { label: 'Início', icon: Home, to: '/inicio' },
+  ];
 
-  if (isProfessor) {
-    tabs = [
-      { label: 'Início', icon: Home, to: '/inicio' },
-      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
-      { label: 'Perfil', icon: User, to: '/perfil' },
-    ];
-  } else if (isPrefeito) {
-    // Prefeito não envia mensagens: a aba "Enviar" dá lugar ao Painel.
-    tabs = [
-      { label: 'Início', icon: Home, to: '/inicio' },
-      { label: 'Painel', icon: BarChart3, to: '/painel' },
-      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
-      { label: 'Equipe', icon: Users, to: '/equipe' },
-      { label: 'Perfil', icon: User, to: '/perfil' },
-    ];
-  } else if (isSecretario) {
-    tabs = [
-      { label: 'Início', icon: Home, to: '/inicio' },
-      { label: 'Painel', icon: BarChart3, to: '/painel' },
-      { label: 'Enviar', icon: Send, to: '/enviar' },
-      { label: 'Equipe', icon: Users, to: '/equipe' },
-      { label: 'Perfil', icon: User, to: '/perfil' },
-    ];
-  } else {
-    tabs = [
-      { label: 'Início', icon: Home, to: '/inicio' },
-      { label: 'Enviar', icon: Send, to: '/enviar' },
-      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos' },
-      { label: 'Equipe', icon: Users, to: '/equipe' },
-      { label: 'Perfil', icon: User, to: '/perfil' },
-    ];
+  if (isPrefeito || isSecretario) {
+    tabs.push({ label: 'Painel', icon: BarChart3, to: '/painel' });
   }
+
+  if (canSend) {
+    tabs.push({ label: 'Enviar', icon: Send, to: '/enviar' });
+  }
+
+  tabs.push({ label: 'Pedidos', icon: ClipboardList, to: '/pedidos' });
+
+  if (!isProfessor) {
+    tabs.push({ label: 'Equipe', icon: Users, to: '/equipe' });
+  }
+
+  tabs.push({ label: 'Perfil', icon: User, to: '/perfil' });
 
 
   // Don't show on onboarding or login

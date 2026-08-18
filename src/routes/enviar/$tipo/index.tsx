@@ -45,13 +45,14 @@ function PreencherPage() {
       assunto: 60,
       corpo: 300,
       o_que_precisa: 400,
-      local: 120,
+      local_evento: 120,
       pauta: 250,
       titulo: 60,
       descricao: 250
     };
     
-    if (limits[key] && value.length > limits[key]) return;
+    const limit = limits[key];
+    if (limit && value.length > limit) return;
 
     const newPayload = { ...localPayload, [key]: value };
     setLocalPayload(newPayload);
@@ -213,6 +214,9 @@ function PreencherPage() {
 
         <div className="text-secondary text-[13px] text-center mt-4">
           Precisa detalhar mais? Anexe um PDF no próximo passo.
+        </div>
+        <div className="text-secondary text-[12px] text-center mt-1 border-t border-dashed pt-2">
+          Linha fixa abaixo do campo corpo: Precisa detalhar mais? Anexe um PDF.
         </div>
 
         <div className="space-y-4 pt-4 border-t border-border">
