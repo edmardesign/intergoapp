@@ -128,12 +128,6 @@ export const Step15: React.FC = () => {
               <span className="text-label text-secondary">{row.label}</span>
               <span className="text-body font-medium truncate">{String(row.value)}</span>
             </div>
-            <button 
-              onClick={() => goToStep(row.step)}
-              className="p-2 text-primary bg-primary/5 rounded-full"
-            >
-              <Edit2 size={16} />
-            </button>
           </div>
         ))}
         
