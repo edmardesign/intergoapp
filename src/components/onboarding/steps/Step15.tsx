@@ -61,9 +61,10 @@ export const Step15: React.FC = () => {
           });
 
           if (filtered && filtered.length > 0) {
-             calculatedSuperiorId = filtered.sort((a: any, b: any) => 
+             const sortedSuperiors = [...filtered].sort((a: any, b: any) => 
                new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
-             )[0].id;
+             );
+             calculatedSuperiorId = sortedSuperiors[0].id;
           }
         }
 
