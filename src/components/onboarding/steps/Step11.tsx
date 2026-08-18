@@ -1,83 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
+import { Loader2 } from 'lucide-react';
 
 export const Step11: React.FC = () => {
-  const { data: onboardingData, updateData, nextStep } = useOnboardingStore();
-  const [cep, setCep] = useState(onboardingData.cep || '');
+  const { data, updateData, nextStep } = useOnboardingStore();
+  const [cep, setCep] = useState(data.cep || '');
+  const [rua, setRua] = useState(data.logradouro || '');
+  const [bairro, setBairro] = useState(data.bairro || '');
+  const [num, setNum] = useState(data.numero || '');
   const [loading, setLoading] = useState(false);
 
-  const formatCEP = (value: string) => {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{5})(\d)/, '$1-$2')
-      .replace(/(-\d{3})\d+?$/, '$1');
-  };
-
   useEffect(() => {
-    const cleanCep = cep.replace(/\D/g, '');
-    if (cleanCep.length === 8) {
-      setLoading(true);
-      fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.erro) {
-            updateData({
-              logradouro: data.logradouro,
-              bairro: data.bairro,
-              cidade_texto: data.localidade
-            });
+    if (cep.length === 9) {
+      const fetchCep = async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${cep.replace('-', '')}/json/`);
+          const json = await res.json();
+          if (!json.erro) {
+            setRua(json.logradouro);
+            setBairro(json.bairro);
           }
-        })
-        .finally(() => setLoading(false));
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCep();
     }
   }, [cep]);
 
   const handleNext = () => {
-    if (cep.replace(/\D/g, '').length === 8) {
-      updateData({ cep });
+    if (cep.length === 9 && rua && num) {
+      updateData({ 
+        cep, 
+        logradouro: rua, 
+        bairro, 
+        numero: num 
+      });
       nextStep();
     }
   };
 
+  const formatCEP = (val: string) => {
+    return val.replace(/\D/g, '').substring(0, 8).replace(/(\d{5})(\d)/, '-');
+  };
+
   return (
-    <div className="flex flex-col animate-in fade-in duration-500">
-      <h2 className="text-question mb-6">Qual seu CEP?</h2>
+    <div className="flex flex-col animate-in fade-in slide-in-from-right-5 duration-300 pb-32">
+      <h2 className="text-question mb-6">Onde você mora?</h2>
       
       <div className="space-y-4">
-        <div>
-          <label className="text-label text-secondary ml-1 mb-2 block">CEP</label>
-          <div className="relative">
-            <input 
-              type="text"
-              inputMode="numeric"
-              placeholder="00000-000"
-              className="input-field"
-              value={cep}
-              onChange={(e) => setCep(formatCEP(e.target.value))}
-              autoFocus
-            />
-            {loading && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              </div>
-            )}
-          </div>
+        <div className="relative">
+          <input 
+            type="tel"
+            placeholder="CEP: 00000-000"
+            className="input-field"
+            value={cep}
+            onChange={(e) => setCep(formatCEP(e.target.value))}
+          />
+          {loading && <Loader2 className="absolute right-4 top-4 animate-spin text-primary" size={20} />}
         </div>
         
-        {onboardingData.logradouro && (
-          <div className="p-4 bg-white rounded-[16px] animate-in fade-in slide-in-from-top-2">
-            <p className="text-body font-medium">{onboardingData.logradouro}</p>
-            <p className="text-body-secondary text-secondary">
-              {onboardingData.bairro}, {onboardingData.cidade_texto}
-            </p>
-          </div>
-        )}
+        <input 
+          type="text"
+          placeholder="Rua / Logradouro"
+          className="input-field"
+          value={rua}
+          onChange={(e) => setRua(e.target.value)}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <input 
+            type="text"
+            placeholder="Número"
+            className="input-field"
+            value={num}
+            onChange={(e) => setNum(e.target.value)}
+          />
+          <input 
+            type="text"
+            placeholder="Bairro"
+            className="input-field"
+            value={bairro}
+            onChange={(e) => setBairro(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="fixed bottom-8 left-5 right-5">
         <button 
           onClick={handleNext} 
-          disabled={cep.replace(/\D/g, '').length < 8 || loading}
+          disabled={!rua || !num || cep.length < 9}
           className="btn-primary"
         >
           Continuar

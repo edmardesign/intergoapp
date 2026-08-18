@@ -25,6 +25,7 @@ import { Route as PainelIndexRouteImport } from './routes/painel/index'
 import { Route as PedidosIndexRouteImport } from './routes/pedidos/index'
 import { Route as PedidosIdRouteImport } from './routes/pedidos/$id'
 import { Route as PedidosNovoRouteImport } from './routes/pedidos/novo'
+import { Route as PerfilIndexRouteImport } from './routes/perfil/index'
 import { Route as EnviarTipoIndexRouteImport } from './routes/enviar/$tipo/index'
 import { Route as EnviarTipoDestinatariosRouteImport } from './routes/enviar/$tipo/destinatarios'
 import { Route as EnviarTipoRevisarRouteImport } from './routes/enviar/$tipo/revisar'
@@ -111,6 +112,11 @@ const PedidosNovoRoute = PedidosNovoRouteImport.update({
   path: '/pedidos/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerfilIndexRoute = PerfilIndexRouteImport.update({
+  id: '/perfil/',
+  path: '/perfil/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarTipoIndexRoute = EnviarTipoIndexRouteImport.update({
   id: '/enviar/$tipo/',
   path: '/enviar/$tipo/',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/pedidos/': typeof PedidosIndexRoute
+  '/perfil/': typeof PerfilIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingIndexRoute
   '/painel': typeof PainelIndexRoute
   '/pedidos': typeof PedidosIndexRoute
+  '/perfil': typeof PerfilIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/onboarding/': typeof OnboardingIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/pedidos/': typeof PedidosIndexRoute
+  '/perfil/': typeof PerfilIndexRoute
   '/enviar/$tipo/destinatarios': typeof EnviarTipoDestinatariosRoute
   '/enviar/$tipo/revisar': typeof EnviarTipoRevisarRoute
   '/inicio/msg/$id': typeof InicioMsgIdRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/painel/'
     | '/pedidos/'
+    | '/perfil/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/painel'
     | '/pedidos'
+    | '/perfil'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/painel/'
     | '/pedidos/'
+    | '/perfil/'
     | '/enviar/$tipo/destinatarios'
     | '/enviar/$tipo/revisar'
     | '/inicio/msg/$id'
@@ -293,6 +305,7 @@ export interface RootRouteChildren {
   OnboardingIndexRoute: typeof OnboardingIndexRoute
   PainelIndexRoute: typeof PainelIndexRoute
   PedidosIndexRoute: typeof PedidosIndexRoute
+  PerfilIndexRoute: typeof PerfilIndexRoute
   EnviarTipoDestinatariosRoute: typeof EnviarTipoDestinatariosRoute
   EnviarTipoRevisarRoute: typeof EnviarTipoRevisarRoute
   InicioMsgIdRoute: typeof InicioMsgIdRoute
@@ -414,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/perfil/': {
+      id: '/perfil/'
+      path: '/perfil'
+      fullPath: '/perfil/'
+      preLoaderRoute: typeof PerfilIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar/$tipo/': {
       id: '/enviar/$tipo/'
       path: '/enviar/$tipo'
@@ -479,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingIndexRoute: OnboardingIndexRoute,
   PainelIndexRoute: PainelIndexRoute,
   PedidosIndexRoute: PedidosIndexRoute,
+  PerfilIndexRoute: PerfilIndexRoute,
   EnviarTipoDestinatariosRoute: EnviarTipoDestinatariosRoute,
   EnviarTipoRevisarRoute: EnviarTipoRevisarRoute,
   InicioMsgIdRoute: InicioMsgIdRoute,

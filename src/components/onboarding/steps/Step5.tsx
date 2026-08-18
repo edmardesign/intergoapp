@@ -35,7 +35,7 @@ export const Step5: React.FC = () => {
       <div className="space-y-3">
         {loading ? (
           Array(5).fill(0).map((_, i) => (
-            <div key={i} className="h-[70px] bg-white rounded-[16px] animate-pulse" />
+            <div key={i} className="h-[70px] bg-white rounded-2xl animate-pulse" />
           ))
         ) : (
           cargos.map((cargo) => (

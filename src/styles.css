@@ -38,7 +38,7 @@
   --color-urgent-bg: var(--urgent-bg);
   --color-urgent-text: var(--urgent-text);
   
-  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", sans-serif;
   
   --spacing-1: 4px;
   --spacing-2: 8px;
@@ -70,7 +70,7 @@
   --destructive: #FF3B30;
   --destructive-foreground: #FFFFFF;
   --border: #E5E5EA;
-  --input: #E5E5EA;
+  --input: #F2F2F7;
   --ring: #1B4F8C;
   
   --success: #34C759;
@@ -92,18 +92,21 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   h1, .text-screen-title {
     font-size: 34px;
     line-height: 41px;
     font-weight: 700;
+    letter-spacing: -0.5px;
   }
 
   .text-question {
     font-size: 28px;
     line-height: 34px;
     font-weight: 700;
+    letter-spacing: -0.4px;
   }
 
   .text-body {
@@ -115,28 +118,47 @@
   .text-body-secondary {
     font-size: 15px;
     line-height: 20px;
+    color: var(--color-secondary);
   }
 
   .text-label {
     font-size: 13px;
     line-height: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  /* Apple-style Page Transitions */
+  .page-transition-enter {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  .page-transition-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 300ms cubic-bezier(0.25, 0.1, 0.25, 1), transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply w-full h-[52px] bg-primary text-white rounded-[12px] text-[17px] font-semibold flex items-center justify-center transition-transform active:scale-[0.97] duration-100 disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] disabled:scale-100;
+    @apply w-full h-[52px] bg-primary text-white rounded-[12px] text-[17px] font-semibold flex items-center justify-center transition-all active:scale-[0.97] duration-100 disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] disabled:scale-100;
   }
   
   .input-field {
-    @apply w-full h-[52px] bg-white border border-[#E5E5EA] rounded-[10px] px-4 text-[17px] focus:outline-none focus:border-2 focus:border-primary transition-colors;
+    @apply w-full h-[52px] bg-[#F2F2F7] border-none rounded-[10px] px-4 text-[17px] focus:ring-2 focus:ring-primary focus:bg-white transition-all;
   }
 
   .input-error {
-    @apply border-destructive focus:border-destructive;
+    @apply ring-2 ring-destructive bg-white;
   }
 
   .card-intergo {
-    @apply bg-white rounded-[16px] p-4;
+    @apply bg-white rounded-[16px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)];
+  }
+
+  .bottom-sheet {
+    @apply fixed bottom-0 left-0 right-0 bg-white rounded-t-[20px] p-6 shadow-[0_-8px_24px_rgba(0,0,0,0.1)] z-50;
   }
 }
