@@ -4,6 +4,9 @@ import { useEnviarStore, MensagemTipo } from "@/lib/enviar-store";
 import { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Camera, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/enviar/$tipo/")({
   component: PreencherPage,
