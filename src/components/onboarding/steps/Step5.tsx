@@ -1,29 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
-import { getNiveis } from '@/lib/onboarding.functions';
+import { getCargos } from '@/lib/onboarding.functions';
 
 export const Step5: React.FC = () => {
   const { data: onboardingData, updateData, nextStep } = useOnboardingStore();
-  const [niveis, setNiveis] = useState<any[]>([]);
+  const [cargos, setCargos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (onboardingData.secretaria_id) {
-      getNiveis({ data: onboardingData.secretaria_id }).then(data => {
-        setNiveis(data || []);
+      getCargos({ data: onboardingData.secretaria_id }).then(data => {
+        setCargos(data || []);
         setLoading(false);
       });
     }
   }, [onboardingData.secretaria_id]);
 
-  const handleSelect = (id: string) => {
-    updateData({ nivel_id: id });
+  const handleSelect = (cargo: any) => {
+    updateData({ cargo_id: cargo.id });
+    
+    // Auto-navigate logic based on scope
+    if (cargo.escopo === 'municipio' || cargo.escopo === 'secretaria') {
+      updateData({ unidades_ids: [] });
+      nextStep(); // This skips Step 6 and Step 7 if logic is in index.tsx
+      // Wait, let's make index.tsx handle the jump.
+    }
     nextStep();
   };
 
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
-      <h2 className="text-question mb-6">Qual o seu cargo/nível?</h2>
+      <h2 className="text-question mb-6">Qual o seu cargo?</h2>
       
       <div className="space-y-3">
         {loading ? (
@@ -31,15 +38,15 @@ export const Step5: React.FC = () => {
             <div key={i} className="h-[70px] bg-white rounded-[16px] animate-pulse" />
           ))
         ) : (
-          niveis.map((nivel) => (
+          cargos.map((cargo) => (
             <button
-              key={nivel.id}
-              onClick={() => handleSelect(nivel.id)}
+              key={cargo.id}
+              onClick={() => handleSelect(cargo)}
               className="w-full card-intergo p-5 text-left active:scale-[0.98] transition-transform"
             >
               <div className="flex flex-col">
-                <span className="text-body font-semibold">{nivel.nome}</span>
-                {nivel.descricao && <span className="text-label text-secondary mt-1">{nivel.descricao}</span>}
+                <span className="text-body font-semibold">{cargo.nome}</span>
+                <span className="text-label text-secondary mt-1 capitalize">{cargo.escopo.replace('_', ' ')}</span>
               </div>
             </button>
           ))

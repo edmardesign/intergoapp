@@ -22,7 +22,29 @@ export const Route = createFileRoute('/onboarding/')({
 })
 
 function OnboardingComponent() {
-  const step = useOnboardingStore((state) => state.data.step)
+  const { data, nextStep, goToStep } = useOnboardingStore()
+  const step = data.step
+
+  // Hierarchy Logic: Skip Step 6/7 if not needed
+  const skipLogic = async () => {
+    if (step === 6) {
+      const { data: cargos } = await import('@/lib/onboarding.functions').then(m => m.getCargos({ data: data.secretaria_id! }))
+      const currentCargo = cargos?.find((c: any) => c.id === data.cargo_id)
+      if (currentCargo && (currentCargo.escopo === 'municipio' || currentCargo.escopo === 'secretaria')) {
+        // Skip unit selection and superior selection (Step 7 is also skipped for top levels usually, 
+        // but let's see Step 7)
+        goToStep(8)
+      }
+    }
+    // Spec: Step 7 "Não existe tela perguntando quem é o superior"
+    if (step === 7) {
+       goToStep(8)
+    }
+  }
+
+  React.useEffect(() => {
+    skipLogic()
+  }, [step, data.cargo_id])
 
   const renderStep = () => {
     switch (step) {
@@ -32,7 +54,7 @@ function OnboardingComponent() {
       case 4: return <Step4 />
       case 5: return <Step5 />
       case 6: return <Step6 />
-      case 7: return <Step7 />
+      case 7: return null // Skipped
       case 8: return <Step8 />
       case 9: return <Step9 />
       case 10: return <Step10 />
@@ -46,7 +68,7 @@ function OnboardingComponent() {
   }
 
   return (
-    <OnboardingLayout currentStep={step} totalSteps={16}>
+    <OnboardingLayout currentStep={step} totalSteps={15}>
       {renderStep()}
     </OnboardingLayout>
   )
