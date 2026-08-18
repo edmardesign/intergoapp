@@ -61,9 +61,12 @@ export const Step15: React.FC = () => {
           });
 
           if (filtered && filtered.length > 0) {
-             calculatedSuperiorId = filtered.sort((a: any, b: any) => 
-               new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-             )[0].id;
+             const sortedSuperiors = [...filtered].sort((a: any, b: any) => 
+               new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
+             );
+             if (sortedSuperiors.length > 0 && sortedSuperiors[0]) {
+               calculatedSuperiorId = sortedSuperiors[0].id;
+             }
           }
         }
 
@@ -91,7 +94,7 @@ export const Step15: React.FC = () => {
 
         if (data.unidades_ids && data.unidades_ids.length > 0) {
           const lotacoes = data.unidades_ids.map((uid, index) => ({
-            perfil_id: authData?.user?.id,
+            perfil_id: authData?.user?.id as string,
             unidade_id: uid,
             principal: index === 0
           }));
@@ -128,12 +131,6 @@ export const Step15: React.FC = () => {
               <span className="text-label text-secondary">{row.label}</span>
               <span className="text-body font-medium truncate">{String(row.value)}</span>
             </div>
-            <button 
-              onClick={() => goToStep(row.step)}
-              className="p-2 text-primary bg-primary/5 rounded-full"
-            >
-              <Edit2 size={16} />
-            </button>
           </div>
         ))}
         

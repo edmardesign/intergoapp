@@ -23,7 +23,7 @@ export const BottomNavigation = () => {
         // Show Equipe if has subordinates or is Secretary/Mayor
         const hasSubordinates = !!profile.superior_id; // Simple check for now, ideally check if others have profile.id as superior
         setShowEquipe(profile.cargo?.nome === 'Secretário de Educação' || profile.cargo?.nome === 'Prefeito' || hasSubordinates);
-        setShowEnviar(profile.cargo?.pode_enviar_descendente);
+        setShowEnviar(!!(profile.cargo as any)?.pode_enviar_descendente);
       }
     };
     checkPerms();
