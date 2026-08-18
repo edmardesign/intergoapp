@@ -240,6 +240,24 @@ function PreencherPage() {
                 onChange={(e) => update('hora_evento', e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label className="text-label text-secondary mb-2 block">Imagem do Evento</Label>
+              <div className="relative aspect-video bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border overflow-hidden">
+                {localPayload.imagem ? (
+                  <img 
+                    src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/anexos/${localPayload.imagem}`} 
+                    className="w-full h-full object-cover" 
+                    alt="Preview" 
+                  />
+                ) : (
+                  <Camera size={32} className="text-secondary/50" />
+                )}
+                <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
+                  {uploadingImage ? <Loader2 className="animate-spin text-white" /> : <span className="text-white font-medium">Trocar imagem</span>}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                </label>
+              </div>
+            </div>
             <input 
               className="input-field"
               placeholder="Local (máx 120)"
