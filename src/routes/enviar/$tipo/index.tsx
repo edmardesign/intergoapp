@@ -41,19 +41,6 @@ function PreencherPage() {
   }, [tipo, draft]);
 
   const update = (key: string, value: string) => {
-    const limits: any = {
-      assunto: 60,
-      corpo: 300,
-      o_que_precisa: 400,
-      local_evento: 120,
-      pauta: 250,
-      titulo: 60,
-      descricao: 250
-    };
-    
-    const limit = limits[key];
-    if (limit && value.length > limit) return;
-
     const newPayload = { ...localPayload, [key]: value };
     setLocalPayload(newPayload);
     updatePayload(tipo, { [key]: value });
