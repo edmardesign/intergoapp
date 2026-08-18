@@ -62,6 +62,39 @@ export type Database = {
           },
         ]
       }
+      auditoria: {
+        Row: {
+          acao: Database["public"]["Enums"]["auditoria_acao"]
+          criado_em: string
+          delegou_de_id: string | null
+          detalhes: Json | null
+          entidade: string
+          entidade_id: string
+          id: string
+          usuario_id: string
+        }
+        Insert: {
+          acao: Database["public"]["Enums"]["auditoria_acao"]
+          criado_em?: string
+          delegou_de_id?: string | null
+          detalhes?: Json | null
+          entidade: string
+          entidade_id: string
+          id?: string
+          usuario_id: string
+        }
+        Update: {
+          acao?: Database["public"]["Enums"]["auditoria_acao"]
+          criado_em?: string
+          delegou_de_id?: string | null
+          detalhes?: Json | null
+          entidade?: string
+          entidade_id?: string
+          id?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       cargos: {
         Row: {
           cargo_superior_id: string | null
@@ -329,6 +362,8 @@ export type Database = {
       }
       perfis: {
         Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
           bairro: string | null
           cep: string
           complemento: string | null
@@ -336,6 +371,7 @@ export type Database = {
           created_at: string | null
           id: string
           logradouro: string | null
+          motivo_negativa: string | null
           municipio_id: string | null
           nivel_id: string | null
           nome_completo: string
@@ -347,6 +383,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           bairro?: string | null
           cep: string
           complemento?: string | null
@@ -354,6 +392,7 @@ export type Database = {
           created_at?: string | null
           id: string
           logradouro?: string | null
+          motivo_negativa?: string | null
           municipio_id?: string | null
           nivel_id?: string | null
           nome_completo: string
@@ -365,6 +404,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           bairro?: string | null
           cep?: string
           complemento?: string | null
@@ -372,6 +413,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           logradouro?: string | null
+          motivo_negativa?: string | null
           municipio_id?: string | null
           nivel_id?: string | null
           nome_completo?: string
@@ -613,11 +655,26 @@ export type Database = {
     }
     Functions: {
       can_edit_lotacao: { Args: { target_perfil_id: string }; Returns: boolean }
+      get_equipe_detalhada: { Args: { _user_id: string }; Returns: Json }
+      get_lotacao_coordenadores: {
+        Args: { _municipio_id: string }
+        Returns: Json
+      }
       get_subarvore: {
         Args: { root_id: string }
         Returns: {
           profile_id: string
         }[]
+      }
+      get_subarvore_recursiva: {
+        Args: { root_id: string }
+        Returns: {
+          id: string
+        }[]
+      }
+      is_delegado: {
+        Args: { _target_perfil_id: string; _user_id: string }
+        Returns: boolean
       }
       is_secretario: { Args: { user_id: string }; Returns: boolean }
       msg_e_meu_envio: { Args: { msg_id: string }; Returns: boolean }
@@ -657,6 +714,7 @@ export type Database = {
       }
     }
     Enums: {
+      auditoria_acao: "aprovacao" | "negativa" | "reatribuicao_lotacao"
       cargo_escopo: "municipio" | "secretaria" | "multi_unidade" | "unidade"
       mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
@@ -800,6 +858,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      auditoria_acao: ["aprovacao", "negativa", "reatribuicao_lotacao"],
       cargo_escopo: ["municipio", "secretaria", "multi_unidade", "unidade"],
       mensagem_tipo: ["comunicado", "demanda", "reuniao", "evento"],
       perfil_status: ["pendente", "ativo", "negado", "inativo"],
