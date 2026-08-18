@@ -10,7 +10,7 @@ export const Step8: React.FC = () => {
     if (nome.trim().length > 3) {
       updateData({ 
         nome_completo: nome.trim(),
-        funcao: funcao.trim() || undefined
+        funcao: funcao.trim() || ""
       });
       nextStep();
     }
