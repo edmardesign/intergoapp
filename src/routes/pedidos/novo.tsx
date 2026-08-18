@@ -1,362 +1,133 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, Loader2, Paperclip, X } from 'lucide-react'
-import { toast } from 'sonner'
-import { supabase } from '@/integrations/supabase/client'
-import { cn } from '@/lib/utils'
-import { criarPedido, getMeuContexto, UNIDADES_MEDIDA, type MeuContexto } from '@/lib/pedidos'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { ChevronLeft, Loader2, Package, AlertCircle } from 'lucide-react';
+import { createSolicitacao } from '@/lib/solicitacoes.functions';
 
 export const Route = createFileRoute('/pedidos/novo')({
-  head: () => ({
-    meta: [
-      { title: 'Novo pedido de material | INTERGO' },
-      {
-        name: 'description',
-        content:
-          'Crie um pedido de material com item, quantidade, justificativa e anexos. Ele segue direto para o seu superior.',
-      },
-      { property: 'og:title', content: 'Novo pedido de material | INTERGO' },
-      {
-        property: 'og:description',
-        content: 'Registre um pedido de material e envie para o seu superior no INTERGO.',
-      },
-      { property: 'og:type', content: 'website' },
-      { name: 'twitter:card', content: 'summary' },
-    ],
-  }),
-  component: NovoPedidoComponent,
-})
+  component: NovoPedido,
+});
 
-interface AnexoLocal {
-  nome: string
-  url: string
-  tamanho: number
-  tipo_mime: string
-}
+function NovoPedido() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    item: '',
+    quantidade: 1,
+    unidade_medida: 'Unidade',
+    justificativa: '',
+    urgencia: 'media' as any
+  });
 
-const MAX_JUSTIFICATIVA = 300
-const MIN_JUSTIFICATIVA = 20
-
-function NovoPedidoComponent() {
-  const navigate = useNavigate()
-  const inputFile = useRef<HTMLInputElement>(null)
-
-  const [ctx, setCtx] = useState<MeuContexto | null>(null)
-  const [carregando, setCarregando] = useState(true)
-  const [item, setItem] = useState('')
-  const [quantidade, setQuantidade] = useState('')
-  const [unidade, setUnidade] = useState(UNIDADES_MEDIDA[0]!)
-  const [justificativa, setJustificativa] = useState('')
-  const [urgente, setUrgente] = useState(false)
-  const [anexos, setAnexos] = useState<AnexoLocal[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [enviando, setEnviando] = useState(false)
-  const [tocado, setTocado] = useState<Record<string, boolean>>({})
-
-  useEffect(() => {
-    ;(async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session) {
-        navigate({ to: '/login' })
-        return
-      }
-      try {
-        const c = await getMeuContexto(session.user.id)
-        setCtx(c)
-        if (!c.podeCriar) toast('Prefeito não solicita — recebe.')
-      } catch (err: any) {
-        toast.error(err?.message ?? 'Não foi possível carregar seus dados.')
-      } finally {
-        setCarregando(false)
-      }
-    })()
-  }, [navigate])
-
-  const qtdNum = Number(String(quantidade).replace(',', '.'))
-  const erroItem = tocado['item'] && !item.trim() ? 'Informe o item.' : ''
-  const erroQtd =
-    tocado['qtd'] && (!quantidade || !Number.isFinite(qtdNum) || qtdNum <= 0)
-      ? 'Informe uma quantidade maior que zero.'
-      : ''
-  const erroJust =
-    tocado['just'] && justificativa.trim().length < MIN_JUSTIFICATIVA
-      ? `Escreva pelo menos ${MIN_JUSTIFICATIVA} caracteres.`
-      : ''
-
-  const valido =
-    !!item.trim() &&
-    Number.isFinite(qtdNum) &&
-    qtdNum > 0 &&
-    justificativa.trim().length >= MIN_JUSTIFICATIVA &&
-    !!ctx?.superior_id
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-    if (anexos.length + files.length > 5) {
-      toast.error('Máximo de 5 anexos permitidos.')
-      return
-    }
-    setUploading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session) throw new Error('Não autenticado')
-
-      for (const file of Array.from(files)) {
-        if (file.size > 10 * 1024 * 1024) {
-          toast.error(`Arquivo ${file.name} excede 10MB.`)
-          continue
-        }
-        const path = `${session.user.id}/${Date.now()}_${file.name}`
-        const { error } = await supabase.storage.from('anexos').upload(path, file)
-        if (error) throw error
-        setAnexos((a) => [
-          ...a,
-          { nome: file.name, url: path, tamanho: file.size, tipo_mime: file.type },
-        ])
-      }
-    } catch (err: any) {
-      toast.error(err?.message ?? 'Erro no upload.')
+      await createSolicitacao({ data: form });
+      navigate({ to: '/pedidos' } as any);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao enviar pedido. Verifique se você tem um superior cadastrado.');
     } finally {
-      setUploading(false)
-      if (inputFile.current) inputFile.current.value = ''
+      setLoading(false);
     }
-  }
-
-  const enviar = async () => {
-    if (!ctx?.superior_id || !valido) return
-    setEnviando(true)
-    try {
-      const id = await criarPedido(ctx.id, ctx.superior_id, {
-        item,
-        quantidade: qtdNum,
-        unidade_medida: unidade,
-        justificativa,
-        urgente,
-        anexos,
-      })
-      navigate({ to: '/pedidos/$id', params: { id } })
-    } catch (err: any) {
-      toast.error(err?.message ?? 'Não foi possível enviar o pedido.')
-      setEnviando(false)
-    }
-  }
-
-  if (carregando) {
-    return (
-      <div className="min-h-screen space-y-3 bg-background p-5">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-muted" />
-        <div className="h-24 animate-pulse rounded-2xl bg-muted" />
-        <div className="h-24 animate-pulse rounded-2xl bg-muted" />
-      </div>
-    )
-  }
-
-  if (!ctx?.podeCriar) {
-    return (
-      <div className="min-h-screen bg-background p-5">
-        <button
-          type="button"
-          onClick={() => navigate({ to: '/pedidos' })}
-          className="mb-4 inline-flex items-center gap-1 text-[15px] text-primary"
-        >
-          <ChevronLeft size={18} strokeWidth={1.5} />
-          Pedidos
-        </button>
-        <p className="rounded-2xl bg-card p-4 text-[15px] text-secondary">
-          Prefeito não solicita — recebe.
-        </p>
-      </div>
-    )
-  }
-
-  const rotulo = 'mb-2 block text-[13px] font-semibold uppercase tracking-wide text-secondary'
-  const campo =
-    'w-full rounded-xl bg-card px-4 py-3 text-[16px] text-foreground outline-none ring-1 ring-inset ring-transparent focus:ring-primary'
+  };
 
   return (
-    <div className="min-h-screen bg-background pb-40">
-      <header className="px-5 pb-2 pt-6">
-        <button
-          type="button"
-          onClick={() => navigate({ to: '/pedidos' })}
-          className="mb-3 inline-flex items-center gap-1 text-[15px] text-primary"
-        >
-          <ChevronLeft size={18} strokeWidth={1.5} />
-          Pedidos
+    <div className="flex flex-col min-h-screen bg-background animate-in slide-in-from-bottom duration-300">
+      <header className="p-4 flex items-center bg-white border-b sticky top-0 z-10">
+        <button onClick={() => window.history.back()} className="p-2 -ml-2">
+          <ChevronLeft size={24} />
         </button>
-        <h1 className="text-[28px] font-bold leading-tight text-foreground">Novo pedido</h1>
+        <h1 className="flex-1 text-center font-bold text-lg">Novo Pedido</h1>
+        <div className="w-10" />
       </header>
 
-      <main className="space-y-6 px-5 py-4">
-        <div>
-          <label className={rotulo} htmlFor="item">
-            1. Item
-          </label>
-          <input
-            id="item"
-            className={campo}
-            maxLength={60}
-            value={item}
-            onChange={(e) => {
-              setItem(e.target.value)
-              setTocado((t) => ({ ...t, item: true }))
-            }}
-            placeholder="Ex.: Papel sulfite A4"
-          />
-          {erroItem && <p className="mt-1 text-[13px] text-[#FF3B30]">{erroItem}</p>}
-        </div>
-
-        <div>
-          <label className={rotulo} htmlFor="qtd">
-            2. Quantidade
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="qtd"
-              inputMode="decimal"
-              className={cn(campo, 'flex-1')}
-              value={quantidade}
-              onChange={(e) => {
-                setQuantidade(e.target.value)
-                setTocado((t) => ({ ...t, qtd: true }))
-              }}
-              placeholder="0"
+      <form onSubmit={handleSubmit} className="p-6 space-y-6 pb-32">
+        <div className="space-y-4">
+          <div>
+            <label className="text-label text-secondary mb-2 block">Item solicitado</label>
+            <input 
+              required
+              className="input-field"
+              placeholder="Ex: Resma de papel A4"
+              value={form.item}
+              onChange={e => setForm({...form, item: e.target.value})}
             />
-            <select
-              className={cn(campo, 'w-36')}
-              value={unidade}
-              onChange={(e) => setUnidade(e.target.value)}
-              aria-label="Unidade de medida"
-            >
-              {UNIDADES_MEDIDA.map((u) => (
-                <option key={u} value={u}>
-                  {u}
-                </option>
-              ))}
-            </select>
           </div>
-          {erroQtd && <p className="mt-1 text-[13px] text-[#FF3B30]">{erroQtd}</p>}
-        </div>
 
-        <div>
-          <label className={rotulo} htmlFor="just">
-            3. Justificativa
-          </label>
-          <textarea
-            id="just"
-            rows={5}
-            maxLength={MAX_JUSTIFICATIVA}
-            className={cn(campo, 'resize-none leading-[21px]')}
-            value={justificativa}
-            onChange={(e) => {
-              setJustificativa(e.target.value)
-              setTocado((t) => ({ ...t, just: true }))
-            }}
-            placeholder="Explique por que isso é necessário. Quem lê está a 1-2 níveis acima e precisa do contexto pra decidir."
-          />
-          <div className="mt-1 flex items-center justify-between">
-            <span className="text-[13px] text-[#FF3B30]">{erroJust}</span>
-            <span className="text-[13px] text-secondary">
-              {justificativa.length}/{MAX_JUSTIFICATIVA}
-            </span>
-          </div>
-        </div>
-
-        <div>
-          <span className={rotulo}>4. Urgência</span>
-          <button
-            type="button"
-            onClick={() => setUrgente((v) => !v)}
-            className="flex w-full items-center justify-between rounded-xl bg-card px-4 py-3"
-            aria-pressed={urgente}
-          >
-            <span className="text-[16px] text-foreground">Marcar como urgente</span>
-            <span
-              className={cn(
-                'relative h-[31px] w-[51px] rounded-full transition-colors',
-                urgente ? 'bg-primary' : 'bg-muted',
-              )}
-            >
-              <span
-                className={cn(
-                  'absolute top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow transition-all',
-                  urgente ? 'left-[22px]' : 'left-[2px]',
-                )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-label text-secondary mb-2 block">Quantidade</label>
+              <input 
+                required
+                type="number"
+                className="input-field"
+                value={form.quantidade}
+                onChange={e => setForm({...form, quantidade: Number(e.target.value)})}
               />
-            </span>
-          </button>
-          {urgente && (
-            <p className="mt-2 text-[13px] leading-[18px] text-secondary">
-              Urgência aciona notificação extra do seu superior via WhatsApp/SMS.
-            </p>
-          )}
-        </div>
+            </div>
+            <div>
+              <label className="text-label text-secondary mb-2 block">Medida</label>
+              <select 
+                className="input-field appearance-none"
+                value={form.unidade_medida}
+                onChange={e => setForm({...form, unidade_medida: e.target.value})}
+              >
+                <option>Unidade</option>
+                <option>Caixa</option>
+                <option>Pacote</option>
+                <option>Litro</option>
+                <option>Kg</option>
+              </select>
+            </div>
+          </div>
 
-        <div>
-          <span className={rotulo}>5. Anexos (opcional)</span>
-          <input
-            ref={inputFile}
-            type="file"
-            multiple
-            accept="application/pdf,image/*"
-            className="hidden"
-            onChange={handleUpload}
-          />
-          <button
-            type="button"
-            onClick={() => inputFile.current?.click()}
-            disabled={uploading || anexos.length >= 5}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-card py-3 text-[15px] font-medium text-primary disabled:opacity-50"
-          >
-            {uploading ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <Paperclip size={18} strokeWidth={1.5} />
-            )}
-            Anexar PDF ou imagem
-          </button>
-          {anexos.length > 0 && (
-            <ul className="mt-2 space-y-2">
-              {anexos.map((a, i) => (
-                <li
-                  key={a.url}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-card px-4 py-2.5"
+          <div>
+            <label className="text-label text-secondary mb-2 block">Urgência</label>
+            <div className="grid grid-cols-4 gap-2">
+              {['baixa', 'media', 'alta', 'critica'].map(u => (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => setForm({...form, urgencia: u})}
+                  className={`h-10 rounded-lg text-[12px] font-bold border ${form.urgencia === u ? 'bg-primary text-white border-primary' : 'bg-white text-secondary border-border'}`}
                 >
-                  <span className="truncate text-[14px] text-foreground">{a.nome}</span>
-                  <button
-                    type="button"
-                    aria-label={`Remover ${a.nome}`}
-                    onClick={() => setAnexos((list) => list.filter((_, idx) => idx !== i))}
-                  >
-                    <X size={16} strokeWidth={1.5} className="text-secondary" />
-                  </button>
-                </li>
+                  {u.toUpperCase()}
+                </button>
               ))}
-            </ul>
-          )}
-        </div>
-      </main>
+            </div>
+          </div>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t border-[#E5E5EA] bg-background/95 px-5 pb-6 pt-3 backdrop-blur">
-        <p className="mb-2 text-[13px] text-secondary">
-          Este pedido vai para {ctx.superior?.nome ?? 'seu superior'}
-          {ctx.superior?.cargo ? ` (${ctx.superior.cargo})` : ''}.
-        </p>
-        <button
-          type="button"
-          disabled={!valido || enviando || uploading}
-          onClick={enviar}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-[16px] font-semibold text-primary-foreground disabled:opacity-40"
-        >
-          {enviando && <Loader2 size={18} className="animate-spin" />}
-          Enviar pedido
-        </button>
-      </footer>
+          <div>
+            <label className="text-label text-secondary mb-2 block">Justificativa</label>
+            <textarea 
+              required
+              className="w-full min-h-[120px] bg-[#F2F2F7] border-none rounded-[10px] p-4 text-[17px] focus:ring-2 focus:ring-primary focus:bg-white transition-all resize-none"
+              placeholder="Por que este material é necessário?"
+              value={form.justificativa}
+              onChange={e => setForm({...form, justificativa: e.target.value})}
+            />
+          </div>
+        </div>
+
+        <div className="bg-blue-50 p-4 rounded-xl flex gap-3">
+          <AlertCircle className="text-primary shrink-0" size={20} />
+          <p className="text-[13px] text-primary/80">
+            Sua solicitação será enviada automaticamente para seu superior imediato para análise.
+          </p>
+        </div>
+
+        <div className="fixed bottom-8 left-5 right-5">
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn-primary"
+          >
+            {loading ? <Loader2 className="animate-spin" /> : 'Enviar Solicitação'}
+          </button>
+        </div>
+      </form>
     </div>
-  )
+  );
 }
