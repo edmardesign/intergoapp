@@ -215,12 +215,16 @@ function PreencherPage() {
               value={localPayload.local_evento || ''}
               onChange={(e) => update('local_evento', e.target.value)}
             />
-            <textarea 
-              className="input-field h-[120px] py-4"
-              placeholder="Descrição (máx 250)"
-              value={localPayload.descricao || ''}
-              onChange={(e) => update('descricao', e.target.value)}
-            />
+            <div className="relative">
+              <textarea 
+                className="input-field h-[120px] py-4"
+                placeholder="Descrição (máx 250)"
+                value={localPayload.descricao || ''}
+                onChange={(e) => update('descricao', e.target.value)}
+              />
+              <CharCounter current={localPayload.descricao?.length || 0} max={250} />
+              <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
+            </div>
           </>
         )}
 
