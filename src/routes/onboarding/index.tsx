@@ -26,26 +26,39 @@ function OnboardingComponent() {
   const { data, nextStep, goToStep } = useOnboardingStore()
   const step = data.step
 
-  // Hierarchy Logic: Skip Step 6/7 if not needed
-  const skipLogic = async () => {
-    if (step === 6) {
-      const { data: cargos } = await import('@/lib/onboarding.functions').then(m => m.getCargos({ data: data.secretaria_id! }))
-      const currentCargo = cargos?.find((c: any) => c.id === data.cargo_id)
-      if (currentCargo && (currentCargo.escopo === 'municipio' || currentCargo.escopo === 'secretaria')) {
-        // Skip unit selection and superior selection (Step 7 is also skipped for top levels usually, 
-        // but let's see Step 7)
+  // Hierarchy Logic: Skip Step 6 if not needed
+  React.useEffect(() => {
+    const checkSkip = async () => {
+      if (step === 6) {
+        const { getCargos } = await import('@/lib/onboarding.functions')
+        const cargos = await getCargos({ data: data.secretaria_id! })
+        const currentCargo = cargos?.find((c: any) => c.id === data.cargo_id)
+        
+        if (currentCargo) {
+          // Rule: If secretaria has NO units, skip Step 6
+          const { getUnidades } = await import('@/lib/onboarding.functions')
+          const unidades = await getUnidades({ data: data.secretaria_id! })
+          
+          if (!unidades || unidades.length === 0) {
+            goToStep(8)
+            return
+          }
+
+          // Rule: If scope is municipio/secretaria, skip Step 6
+          if (currentCargo.escopo === 'municipio' || currentCargo.escopo === 'secretaria') {
+            goToStep(8)
+            return
+          }
+        }
+      }
+      // Step 7 is officially removed/skipped
+      if (step === 7) {
         goToStep(8)
       }
     }
-    // Spec: Step 7 "Não existe tela perguntando quem é o superior"
-    if (step === 7) {
-       goToStep(8)
-    }
-  }
-
-  React.useEffect(() => {
-    skipLogic()
-  }, [step, data.cargo_id])
+    
+    checkSkip()
+  }, [step, data.cargo_id, data.secretaria_id])
 
   const renderStep = () => {
     switch (step) {

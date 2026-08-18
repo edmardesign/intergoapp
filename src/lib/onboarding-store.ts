@@ -10,6 +10,7 @@ export type OnboardingData = {
   unidades_ids?: string[]; // Multiple units for Coordenador
   superior_id?: string;
   nome_completo?: string;
+  funcao?: string;
   cpf?: string;
   telefone?: string;
   cep?: string;

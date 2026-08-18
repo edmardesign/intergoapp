@@ -88,6 +88,7 @@ export const Step15: React.FC = () => {
           secretaria_id: data.secretaria_id || null,
           nivel_id: data.cargo_id || null,
           superior_id: calculatedSuperiorId,
+          funcao: data.funcao || null,
           status: 'pendente'
         };
 
@@ -124,6 +125,7 @@ export const Step15: React.FC = () => {
     { label: 'Cargo', value: data.cargo_id, step: 5 },
     { label: 'Unidades', value: data.unidades_ids?.length ? `${data.unidades_ids.length} selecionada(s)` : null, step: 6 },
     { label: 'Nome', value: data.nome_completo, step: 8 },
+    { label: 'Função', value: data.funcao, step: 8 },
     { label: 'CPF', value: data.cpf, step: 9 },
     { label: 'Telefone', value: data.telefone, step: 10 },
     { label: 'Endereço', value: `${data.logradouro || ''}, ${data.numero || ''}`, step: 11 },

@@ -369,6 +369,7 @@ export type Database = {
           complemento: string | null
           cpf: string
           created_at: string | null
+          funcao: string | null
           id: string
           logradouro: string | null
           motivo_negativa: string | null
@@ -390,6 +391,7 @@ export type Database = {
           complemento?: string | null
           cpf: string
           created_at?: string | null
+          funcao?: string | null
           id: string
           logradouro?: string | null
           motivo_negativa?: string | null
@@ -411,6 +413,7 @@ export type Database = {
           complemento?: string | null
           cpf?: string
           created_at?: string | null
+          funcao?: string | null
           id?: string
           logradouro?: string | null
           motivo_negativa?: string | null
