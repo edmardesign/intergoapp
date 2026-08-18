@@ -44,7 +44,14 @@ function DestinatariosPage() {
   };
 
   const levels = Array.from(new Set(allProfiles.map(p => p.nivel?.nome))).filter(Boolean);
-  const units = Array.from(new Set(allProfiles.map(p => p.unidade?.nome))).filter(Boolean);
+  
+  // Group profiles by unit (school)
+  const groupedProfiles: Record<string, any[]> = {};
+  allProfiles.forEach(p => {
+    const unitName = p.unidades?.[0]?.nome || 'Sem unidade';
+    if (!groupedProfiles[unitName]) groupedProfiles[unitName] = [];
+    groupedProfiles[unitName].push(p);
+  });
 
   const filteredProfiles = allProfiles.filter(p => 
     p.nome_completo.toLowerCase().includes(search.toLowerCase()) ||
@@ -117,7 +124,7 @@ function DestinatariosPage() {
               <UsersIcon size={48} className="mx-auto text-primary mb-4" />
               <h3 className="text-body font-bold text-primary">Todos abaixo de você</h3>
               <p className="text-body-secondary text-secondary mt-2">
-                Sua mensagem será enviada para {allProfiles.length} pessoas em {units.length} unidades.
+                Sua mensagem será enviada para {allProfiles.length} pessoas da sua subárvore.
               </p>
             </div>
           )}
@@ -160,25 +167,35 @@ function DestinatariosPage() {
                 />
               </div>
               <div className="space-y-2">
-                {filteredProfiles.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => toggleSelection(p.id)}
-                    className={cn(
-                      "w-full card-intergo flex items-center p-4 border transition-all",
-                      selectedIds.has(p.id) ? "border-primary bg-primary/5" : "border-border"
-                    )}
-                  >
-                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mr-3">
-                      <User size={20} className="text-secondary" />
+                {Object.entries(groupedProfiles).map(([unitName, profiles]) => {
+                  const unitFiltered = profiles.filter(p => filteredProfiles.includes(p));
+                  if (unitFiltered.length === 0) return null;
+
+                  return (
+                    <div key={unitName} className="space-y-2">
+                      <h4 className="text-[12px] font-bold text-secondary uppercase px-1 mt-4">{unitName}</h4>
+                      {unitFiltered.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => toggleSelection(p.id)}
+                          className={cn(
+                            "w-full card-intergo flex items-center p-4 border transition-all",
+                            selectedIds.has(p.id) ? "border-primary bg-primary/5" : "border-border"
+                          )}
+                        >
+                          <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mr-3">
+                            <User size={20} className="text-secondary" />
+                          </div>
+                          <div className="flex flex-col text-left flex-1 min-w-0">
+                            <span className="text-body font-semibold truncate">{p.nome_completo}</span>
+                            <span className="text-label text-secondary">{p.nivel?.nome}</span>
+                          </div>
+                          {selectedIds.has(p.id) && <CheckCircle2 size={20} className="ml-auto text-primary" />}
+                        </button>
+                      ))}
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-body font-semibold">{p.nome_completo}</span>
-                      <span className="text-label text-secondary">{p.nivel?.nome} · {p.unidade?.nome}</span>
-                    </div>
-                    {selectedIds.has(p.id) && <CheckCircle2 size={20} className="ml-auto text-primary" />}
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

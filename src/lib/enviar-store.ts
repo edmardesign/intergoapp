@@ -8,9 +8,9 @@ export interface MensagemPayload {
   corpo?: string;
   o_que_precisa?: string;
   prazo?: string;
-  data?: string;
-  hora?: string;
-  local?: string;
+  data_evento?: string;
+  hora_evento?: string;
+  local_evento?: string;
   pauta?: string;
   titulo?: string;
   imagem?: string;

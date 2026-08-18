@@ -4,6 +4,9 @@ import { useEnviarStore, MensagemTipo } from "@/lib/enviar-store";
 import { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Camera, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/enviar/$tipo/")({
   component: PreencherPage,
@@ -11,9 +14,9 @@ export const Route = createFileRoute("/enviar/$tipo/")({
 
 function CharCounter({ current, max }: { current: number; max: number }) {
   const percentage = (current / max) * 100;
-  let colorClass = "text-secondary";
-  if (percentage >= 100) colorClass = "text-error";
-  else if (percentage >= 80) colorClass = "text-[#FF9F0A]";
+  let colorClass = "text-[#AEAEB2]"; // cinza
+  if (percentage > 100) colorClass = "text-[#FF3B30]"; // vermelho
+  else if (percentage >= 80) colorClass = "text-[#FF9F0A]"; // âmbar
 
   return (
     <div className={`text-[12px] text-right mt-1 ${colorClass}`}>
@@ -31,6 +34,34 @@ function PreencherPage() {
   const [localPayload, setLocalPayload] = useState(draft?.payload || {});
   const [exigirConfirmacao, setExigirConfirmacao] = useState(draft?.exigir_confirmacao || false);
   const [urgente, setUrgente] = useState(draft?.urgente || false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione uma imagem.");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Não autenticado");
+
+      const path = `${session.user.id}/eventos/${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from('anexos').upload(path, file);
+      if (error) throw error;
+
+      update('imagem', path);
+      toast.success("Imagem carregada!");
+    } catch (err: any) {
+      toast.error(err.message || "Erro no upload");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     if (draft) {
@@ -41,28 +72,35 @@ function PreencherPage() {
   }, [tipo, draft]);
 
   const update = (key: string, value: string) => {
-    const limits: any = {
-      assunto: 60,
-      corpo: 300,
-      o_que_precisa: 400,
-      local: 120,
-      pauta: 250,
-      titulo: 60,
-      descricao: 250
-    };
-    
-    if (limits[key] && value.length > limits[key]) return;
-
     const newPayload = { ...localPayload, [key]: value };
     setLocalPayload(newPayload);
     updatePayload(tipo, { [key]: value });
   };
 
   const isFormValid = () => {
+    const limits: any = {
+      assunto: 60,
+      corpo: 300,
+      o_que_precisa: 400,
+      local_evento: 120,
+      pauta: 250,
+      titulo: 60,
+      descricao: 250
+    };
+
+    const checkLimits = () => {
+      for (const [key, value] of Object.entries(localPayload)) {
+        if (limits[key] && (value as string).length > limits[key]) return false;
+      }
+      return true;
+    };
+
+    if (!checkLimits()) return false;
+
     if (tipo === 'comunicado') return !!localPayload.assunto && !!localPayload.corpo;
     if (tipo === 'demanda') return !!localPayload.assunto && !!localPayload.o_que_precisa && !!localPayload.prazo;
-    if (tipo === 'reuniao') return !!localPayload.assunto && !!localPayload.data && !!localPayload.hora && !!localPayload.local;
-    if (tipo === 'evento') return !!localPayload.titulo && !!localPayload.data && !!localPayload.hora && !!localPayload.local;
+    if (tipo === 'reuniao') return !!localPayload.assunto && !!localPayload.data_evento && !!localPayload.hora_evento && !!localPayload.local_evento;
+    if (tipo === 'evento') return !!localPayload.titulo && !!localPayload.data_evento && !!localPayload.hora_evento && !!localPayload.local_evento;
     return false;
   };
 
@@ -99,7 +137,8 @@ function PreencherPage() {
                 value={localPayload.corpo || ''}
                 onChange={(e) => update('corpo', e.target.value)}
               />
-              <CharCounter current={localPayload.corpo?.length || 0} max={300} />
+               <CharCounter current={localPayload.corpo?.length || 0} max={300} />
+               <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
             </div>
           </>
         )}
@@ -122,7 +161,8 @@ function PreencherPage() {
                 value={localPayload.o_que_precisa || ''}
                 onChange={(e) => update('o_que_precisa', e.target.value)}
               />
-              <CharCounter current={localPayload.o_que_precisa?.length || 0} max={400} />
+               <CharCounter current={localPayload.o_que_precisa?.length || 0} max={400} />
+               <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
             </div>
             <div>
               <Label className="text-label text-secondary mb-2 block">Prazo</Label>
@@ -149,28 +189,32 @@ function PreencherPage() {
               <input 
                 type="date"
                 className="input-field"
-                value={localPayload.data || ''}
-                onChange={(e) => update('data', e.target.value)}
+                value={localPayload.data_evento || ''}
+                onChange={(e) => update('data_evento', e.target.value)}
               />
               <input 
                 type="time"
                 className="input-field"
-                value={localPayload.hora || ''}
-                onChange={(e) => update('hora', e.target.value)}
+                value={localPayload.hora_evento || ''}
+                onChange={(e) => update('hora_evento', e.target.value)}
               />
             </div>
             <input 
               className="input-field"
               placeholder="Local ou Link (máx 120)"
-              value={localPayload.local || ''}
-              onChange={(e) => update('local', e.target.value)}
+              value={localPayload.local_evento || ''}
+              onChange={(e) => update('local_evento', e.target.value)}
             />
-            <textarea 
-              className="input-field h-[120px] py-4"
-              placeholder="Pauta (máx 250)"
-              value={localPayload.pauta || ''}
-              onChange={(e) => update('pauta', e.target.value)}
-            />
+            <div className="relative">
+              <textarea 
+                className="input-field h-[120px] py-4"
+                placeholder="Pauta (máx 250)"
+                value={localPayload.pauta || ''}
+                onChange={(e) => update('pauta', e.target.value)}
+              />
+              <CharCounter current={localPayload.pauta?.length || 0} max={250} />
+              <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
+            </div>
           </>
         )}
 
@@ -186,34 +230,53 @@ function PreencherPage() {
               <input 
                 type="date"
                 className="input-field"
-                value={localPayload.data || ''}
-                onChange={(e) => update('data', e.target.value)}
+                value={localPayload.data_evento || ''}
+                onChange={(e) => update('data_evento', e.target.value)}
               />
               <input 
                 type="time"
                 className="input-field"
-                value={localPayload.hora || ''}
-                onChange={(e) => update('hora', e.target.value)}
+                value={localPayload.hora_evento || ''}
+                onChange={(e) => update('hora_evento', e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-label text-secondary mb-2 block">Imagem do Evento</Label>
+              <div className="relative aspect-video bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border overflow-hidden">
+                {localPayload.imagem ? (
+                  <img 
+                    src={`${import.meta.env['VITE_SUPABASE_URL']}/storage/v1/object/public/anexos/${localPayload.imagem}`} 
+                    className="w-full h-full object-cover" 
+                    alt="Preview" 
+                  />
+                ) : (
+                  <Camera size={32} className="text-secondary/50" />
+                )}
+                <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
+                  {uploadingImage ? <Loader2 className="animate-spin text-white" /> : <span className="text-white font-medium">Trocar imagem</span>}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                </label>
+              </div>
             </div>
             <input 
               className="input-field"
               placeholder="Local (máx 120)"
-              value={localPayload.local || ''}
-              onChange={(e) => update('local', e.target.value)}
+              value={localPayload.local_evento || ''}
+              onChange={(e) => update('local_evento', e.target.value)}
             />
-            <textarea 
-              className="input-field h-[120px] py-4"
-              placeholder="Descrição (máx 250)"
-              value={localPayload.descricao || ''}
-              onChange={(e) => update('descricao', e.target.value)}
-            />
+            <div className="relative">
+              <textarea 
+                className="input-field h-[120px] py-4"
+                placeholder="Descrição (máx 250)"
+                value={localPayload.descricao || ''}
+                onChange={(e) => update('descricao', e.target.value)}
+              />
+              <CharCounter current={localPayload.descricao?.length || 0} max={250} />
+              <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
+            </div>
           </>
         )}
 
-        <div className="text-secondary text-[13px] text-center mt-4">
-          Precisa detalhar mais? Anexe um PDF no próximo passo.
-        </div>
 
         <div className="space-y-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between">

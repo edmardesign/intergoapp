@@ -142,10 +142,10 @@ function RevisarPage() {
             {draft.payload.corpo || draft.payload.o_que_precisa || draft.payload.descricao}
           </p>
 
-          {(draft.payload.data || draft.payload.prazo) && (
+          {(draft.payload.data_evento || draft.payload.prazo) && (
             <div className="flex items-center text-secondary text-[13px] mt-2">
               <Calendar size={14} className="mr-1" />
-              <span>{draft.payload.data || draft.payload.prazo} {draft.payload.hora}</span>
+              <span>{draft.payload.data_evento || draft.payload.prazo} {draft.payload.hora_evento}</span>
             </div>
           )}
         </div>

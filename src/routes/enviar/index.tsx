@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { Megaphone, ListChecks, Users, Calendar } from "lucide-react";
+import { canUserSend } from "@/lib/enviar.functions";
 
 export const Route = createFileRoute("/enviar/")({
   component: EnviarTipoPage,
@@ -7,6 +9,19 @@ export const Route = createFileRoute("/enviar/")({
 
 function EnviarTipoPage() {
   const navigate = useNavigate();
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    canUserSend().then((res) => {
+      setAllowed(res.canSend);
+      if (res.canSend === false) {
+        navigate({ to: '/inicio' });
+      }
+    });
+  }, [navigate]);
+
+  if (allowed === null) return null;
+  if (allowed === false) return null;
 
   const tipos = [
     { id: 'comunicado', title: 'Comunicado', desc: 'Informar algo sem prazo', icon: Megaphone },
