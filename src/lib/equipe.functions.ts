@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { Database } from "@/integrations/supabase/types";
+
+type AuditoriaInsert = Database['public']['Tables']['auditoria']['Insert'];
 
 export const getEquipe = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -50,14 +53,16 @@ export const aprovarCadastro = createServerFn({ method: "POST" })
 
     if (updateError) throw updateError;
 
-    const { error: auditError } = await supabase.from("auditoria").insert({
+    const auditEntry: AuditoriaInsert = {
       usuario_id: user.id,
       delegou_de_id: delegou_de_id as string | null,
       acao: "aprovacao",
       entidade: "perfis",
       entidade_id: perfil_id,
       detalhes: { info: delegou_de_id ? "Aprovado via delegado" : "Aprovado pelo superior" }
-    });
+    };
+
+    const { error: auditError } = await supabase.from("auditoria").insert(auditEntry);
     if (auditError) throw auditError;
 
     return { success: true };
@@ -79,13 +84,15 @@ export const negarCadastro = createServerFn({ method: "POST" })
 
     if (updateError) throw updateError;
 
-    await supabase.from("auditoria").insert({
+    const auditEntry: AuditoriaInsert = {
       usuario_id: user.id,
       acao: "negativa",
       entidade: "perfis",
       entidade_id: perfil_id,
       detalhes: { motivo }
-    });
+    };
+
+    await supabase.from("auditoria").insert(auditEntry);
 
     return { success: true };
   });
@@ -119,13 +126,15 @@ export const reatribuirLotacao = createServerFn({ method: "POST" })
 
     if (insertError) throw insertError;
 
-    await supabase.from("auditoria").insert({
+    const auditEntry: AuditoriaInsert = {
       usuario_id: user.id,
       acao: "reatribuicao_lotacao",
       entidade: "perfil_unidades",
       entidade_id: unidade_id,
       detalhes: { coordenador_id }
-    });
+    };
+
+    await supabase.from("auditoria").insert(auditEntry);
 
     return { success: true };
   });
