@@ -7,7 +7,7 @@ import { Step3 } from '@/components/onboarding/steps/Step3'
 import { Step4 } from '@/components/onboarding/steps/Step4'
 import { Step5 } from '@/components/onboarding/steps/Step5'
 import { Step6 } from '@/components/onboarding/steps/Step6'
-import { Step7 } from '@/components/onboarding/steps/Step7'
+// Step7 removed
 import { Step8 } from '@/components/onboarding/steps/Step8'
 import { Step9 } from '@/components/onboarding/steps/Step9'
 import { Step10 } from '@/components/onboarding/steps/Step10'
