@@ -149,21 +149,21 @@ function PreencherPage() {
               <input 
                 type="date"
                 className="input-field"
-                value={localPayload.data || ''}
-                onChange={(e) => update('data', e.target.value)}
+                value={localPayload.data_evento || ''}
+                onChange={(e) => update('data_evento', e.target.value)}
               />
               <input 
                 type="time"
                 className="input-field"
-                value={localPayload.hora || ''}
-                onChange={(e) => update('hora', e.target.value)}
+                value={localPayload.hora_evento || ''}
+                onChange={(e) => update('hora_evento', e.target.value)}
               />
             </div>
             <input 
               className="input-field"
               placeholder="Local ou Link (máx 120)"
-              value={localPayload.local || ''}
-              onChange={(e) => update('local', e.target.value)}
+              value={localPayload.local_evento || ''}
+              onChange={(e) => update('local_evento', e.target.value)}
             />
             <textarea 
               className="input-field h-[120px] py-4"
@@ -186,21 +186,21 @@ function PreencherPage() {
               <input 
                 type="date"
                 className="input-field"
-                value={localPayload.data || ''}
-                onChange={(e) => update('data', e.target.value)}
+                value={localPayload.data_evento || ''}
+                onChange={(e) => update('data_evento', e.target.value)}
               />
               <input 
                 type="time"
                 className="input-field"
-                value={localPayload.hora || ''}
-                onChange={(e) => update('hora', e.target.value)}
+                value={localPayload.hora_evento || ''}
+                onChange={(e) => update('hora_evento', e.target.value)}
               />
             </div>
             <input 
               className="input-field"
               placeholder="Local (máx 120)"
-              value={localPayload.local || ''}
-              onChange={(e) => update('local', e.target.value)}
+              value={localPayload.local_evento || ''}
+              onChange={(e) => update('local_evento', e.target.value)}
             />
             <textarea 
               className="input-field h-[120px] py-4"
