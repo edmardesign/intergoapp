@@ -64,7 +64,7 @@ export const Step15: React.FC = () => {
              const sortedSuperiors = [...filtered].sort((a: any, b: any) => 
                new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
              );
-             if (sortedSuperiors.length > 0) {
+             if (sortedSuperiors.length > 0 && sortedSuperiors[0]) {
                calculatedSuperiorId = sortedSuperiors[0].id;
              }
           }
