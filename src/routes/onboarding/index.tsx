@@ -1,3 +1,4 @@
+import React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { OnboardingLayout } from '@/components/onboarding/OnboardingLayout'
 import { Step1 } from '@/components/onboarding/steps/Step1'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from '@tanstack/react-router';
@@ -25,29 +25,29 @@ export const Step15: React.FC = () => {
 
       if (authData.user) {
         // 2. Fetch hierarchy to calculate superior_id
-        const { data: cargos } = await supabase.from('cargos').select('*');
-        const cargo = cargos?.find(c => c.id === data.cargo_id);
-        const cargoSuperior = cargos?.find(c => c.id === cargo?.cargo_superior_id);
+        const { data: cargos } = await (supabase as any).from('cargos').select('*');
+        const cargo = cargos?.find((c: any) => c.id === data.cargo_id);
+        const cargoSuperior = cargos?.find((c: any) => c.id === cargo?.cargo_superior_id);
         
         let calculatedSuperiorId = null;
 
         if (cargoSuperior) {
           // Localize person by cargo and scope
-          const { data: superiors } = await supabase
+          const { data: superiors } = await (supabase as any)
             .from('perfis')
             .select('id, created_at')
-            .eq('nivel_id', cargoSuperior.id) // Still using nivel_id column for now or we update schema
+            .eq('nivel_id', cargoSuperior.id)
             .eq('status', 'ativo');
             
           if (superiors && superiors.length > 0) {
              // Logic for multiple superiors: oldest one for Diretor, etc.
-             calculatedSuperiorId = superiors.sort((a, b) => 
+             calculatedSuperiorId = superiors.sort((a: any, b: any) => 
                new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
              )[0].id;
           } else if (cargoSuperior.nome === 'Coordenador') {
              // fallback: Diretor under Secretary if no Coord
-             const secEdu = cargos?.find(c => c.nome === 'Secretário de Educação');
-             const { data: secretaries } = await supabase.from('perfis').select('id').eq('nivel_id', secEdu?.id);
+             const secEdu = cargos?.find((c: any) => c.nome === 'Secretário de Educação');
+             const { data: secretaries } = await (supabase as any).from('perfis').select('id').eq('nivel_id', secEdu?.id);
              calculatedSuperiorId = secretaries?.[0]?.id;
           }
         }
@@ -70,7 +70,7 @@ export const Step15: React.FC = () => {
           status: 'pendente'
         };
 
-        const { error: profileError } = await supabase
+        const { error: profileError } = await (supabase as any)
           .from('perfis')
           .insert(profileInsert);
 
@@ -79,16 +79,16 @@ export const Step15: React.FC = () => {
         // 4. Insert Units (Lotação)
         if (data.unidades_ids && data.unidades_ids.length > 0) {
           const lotacoes = data.unidades_ids.map((uid, index) => ({
-            perfil_id: authData.user.id,
+            perfil_id: authData?.user?.id,
             unidade_id: uid,
             principal: index === 0
           }));
-          await supabase.from('perfil_unidades').insert(lotacoes);
+          await (supabase as any).from('perfil_unidades').insert(lotacoes);
         }
 
         // 5. Clean and Navigate
         clear();
-        navigate({ to: '/onboarding/aguardando' });
+        navigate({ to: '/onboarding/aguardando' } as any);
       }
     } catch (err: any) {
       setError(err.message || 'Erro ao enviar cadastro');
