@@ -61,8 +61,8 @@ function PreencherPage() {
   const isFormValid = () => {
     if (tipo === 'comunicado') return !!localPayload.assunto && !!localPayload.corpo;
     if (tipo === 'demanda') return !!localPayload.assunto && !!localPayload.o_que_precisa && !!localPayload.prazo;
-    if (tipo === 'reuniao') return !!localPayload.assunto && !!localPayload.data && !!localPayload.hora && !!localPayload.local;
-    if (tipo === 'evento') return !!localPayload.titulo && !!localPayload.data && !!localPayload.hora && !!localPayload.local;
+    if (tipo === 'reuniao') return !!localPayload.assunto && !!localPayload.data_evento && !!localPayload.hora_evento && !!localPayload.local_evento;
+    if (tipo === 'evento') return !!localPayload.titulo && !!localPayload.data_evento && !!localPayload.hora_evento && !!localPayload.local_evento;
     return false;
   };
 
