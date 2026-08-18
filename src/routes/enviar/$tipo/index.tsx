@@ -34,6 +34,7 @@ function PreencherPage() {
   const [localPayload, setLocalPayload] = useState(draft?.payload || {});
   const [exigirConfirmacao, setExigirConfirmacao] = useState(draft?.exigir_confirmacao || false);
   const [urgente, setUrgente] = useState(draft?.urgente || false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (draft) {
