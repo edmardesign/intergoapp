@@ -2,43 +2,69 @@ import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
-const anexoSchema = z.object({
-  nome: z.string(),
-  url: z.string(),
-  tamanho: z.number(),
-  tipo_mime: z.string(),
-});
+export const canUserSend = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { canSend: false };
 
-const payloadSchema = z.record(z.any());
+    // Check profile's cargo permissions
+    const { data: profile } = await supabase
+      .from('perfis')
+      .select('cargo:nivel_id(pode_enviar_descendente)')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (!profile || !(profile.cargo as any)?.pode_enviar_descendente) {
+      return { canSend: false };
+    }
+
+    // Check if user has subordinates
+    const { data: subordinates, error } = await (supabase as any).rpc('perfis_subarvore', { 
+      superior_id_root: session.user.id 
+    });
+
+    if (error || !subordinates || subordinates.length === 0) {
+      return { canSend: false };
+    }
+
+    return { canSend: true };
+  });
 
 export const getSubtreeRecipients = createServerFn({ method: "GET" })
   .handler(async () => {
-    // 1. Get current user profile to get their level
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Unauthorized");
 
-    // 2. Call RPC perfis_subarvore
     const { data, error } = await (supabase as any).rpc('perfis_subarvore', { 
       superior_id_root: session.user.id 
     });
     
     if (error) throw error;
     
-    // Join with profile details to get names, levels, units
-    // Actually perfis_subarvore should already return these or we fetch them
-    // Let's assume perfis_subarvore returns IDs, then we fetch active profiles
     const ids = (data || []).map((p: any) => p.id);
-    
     if (ids.length === 0) return [];
     
     const { data: profiles, error: pError } = await (supabase as any)
       .from('perfis')
-      .select('id, nome_completo, status, nivel:nivel_id(id, nome, ordem), unidade:unidade_id(id, nome)')
+      .select('id, nome_completo, status, nivel:nivel_id(id, nome, ordem), unidade_id')
       .in('id', ids)
       .eq('status', 'ativo');
       
     if (pError) throw pError;
-    return profiles;
+    
+    // Fetch units separately to handle many-to-many if needed, 
+    // but for now let's use a join or separate fetch for lotations
+    const { data: lotacoes } = await (supabase as any)
+      .from('perfil_unidades')
+      .select('perfil_id, unidade:unidade_id(id, nome)')
+      .in('perfil_id', ids);
+
+    return (profiles || []).map(p => ({
+      ...p,
+      unidades: (lotacoes || [])
+        .filter((l: any) => l.perfil_id === p.id)
+        .map((l: any) => l.unidade)
+    }));
   });
 
 export const enviarMensagem = createServerFn({ method: "POST" })
