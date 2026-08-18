@@ -245,7 +245,7 @@ function PreencherPage() {
               <div className="relative aspect-video bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border overflow-hidden">
                 {localPayload.imagem ? (
                   <img 
-                    src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/anexos/${localPayload.imagem}`} 
+                    src={`${import.meta.env['VITE_SUPABASE_URL']}/storage/v1/object/public/anexos/${localPayload.imagem}`} 
                     className="w-full h-full object-cover" 
                     alt="Preview" 
                   />
