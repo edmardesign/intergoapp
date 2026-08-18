@@ -174,12 +174,16 @@ function PreencherPage() {
               value={localPayload.local_evento || ''}
               onChange={(e) => update('local_evento', e.target.value)}
             />
-            <textarea 
-              className="input-field h-[120px] py-4"
-              placeholder="Pauta (máx 250)"
-              value={localPayload.pauta || ''}
-              onChange={(e) => update('pauta', e.target.value)}
-            />
+            <div className="relative">
+              <textarea 
+                className="input-field h-[120px] py-4"
+                placeholder="Pauta (máx 250)"
+                value={localPayload.pauta || ''}
+                onChange={(e) => update('pauta', e.target.value)}
+              />
+              <CharCounter current={localPayload.pauta?.length || 0} max={250} />
+              <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
+            </div>
           </>
         )}
 
