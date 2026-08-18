@@ -1,331 +1,107 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, Loader2, Paperclip } from 'lucide-react'
-import { toast } from 'sonner'
-import { supabase } from '@/integrations/supabase/client'
-import { cn } from '@/lib/utils'
-import { StatusSelo } from '@/components/pedidos/StatusSelo'
-import { Timeline } from '@/components/pedidos/Timeline'
-import { dataExtensa, getDiretorio, urlAssinada, type PessoaMin } from '@/lib/mensagens'
-import {
-  aprovar,
-  encaminhar,
-  entregar,
-  getMeuContexto,
-  getSolicitacao,
-  listarAnexosDoPedido,
-  listarEventos,
-  negar,
-  quantidadeFormatada,
-  type MeuContexto,
-  type Solicitacao,
-  type SolicitacaoEvento,
-} from '@/lib/pedidos'
+import { createFileRoute } from '@tanstack/react-router';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { ChevronLeft, Clock, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export const Route = createFileRoute('/pedidos/$id')({
-  head: () => ({
-    meta: [
-      { title: 'Detalhe do pedido | INTERGO' },
-      {
-        name: 'description',
-        content:
-          'Veja o pedido de material, a justificativa, os anexos e a linha do tempo completa de aprovações.',
-      },
-      { property: 'og:title', content: 'Detalhe do pedido | INTERGO' },
-      {
-        property: 'og:description',
-        content: 'Linha do tempo do pedido de material: quem analisou, aprovou e entregou.',
-      },
-      { property: 'og:type', content: 'website' },
-      { name: 'twitter:card', content: 'summary' },
-    ],
-  }),
-  component: PedidoDetalheComponent,
-})
+  component: PedidoDetails,
+});
 
-type AcaoSheet = 'aprovar' | 'negar' | 'entregar' | null
+function PedidoDetails() {
+  const { id } = Route.useParams();
 
-function PedidoDetalheComponent() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-
-  const [carregando, setCarregando] = useState(true)
-  const [pedido, setPedido] = useState<Solicitacao | null>(null)
-  const [eventos, setEventos] = useState<SolicitacaoEvento[]>([])
-  const [anexos, setAnexos] = useState<any[]>([])
-  const [diretorio, setDiretorio] = useState<Map<string, PessoaMin>>(new Map())
-  const [ctx, setCtx] = useState<MeuContexto | null>(null)
-  const [sheet, setSheet] = useState<AcaoSheet>(null)
-  const [obs, setObs] = useState('')
-  const [salvando, setSalvando] = useState(false)
-
-  const carregar = useCallback(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) {
-      navigate({ to: '/login' })
-      return
+  const { data: pedido, isLoading } = useQuery({
+    queryKey: ['solicitacao', id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from('solicitacoes')
+        .select(`
+          *,
+          solicitante:solicitante_id(nome_completo),
+          responsavel:responsavel_atual_id(nome_completo),
+          eventos:solicitacao_eventos(*, autor:autor_id(nome_completo))
+        `)
+        .eq('id', id)
+        .single();
+      return data;
     }
-    const [p, ev, an, dir, c] = await Promise.all([
-      getSolicitacao(id),
-      listarEventos(id),
-      listarAnexosDoPedido(id),
-      getDiretorio(),
-      getMeuContexto(session.user.id),
-    ])
-    setPedido(p)
-    setEventos(ev)
-    setAnexos(an)
-    setDiretorio(dir)
-    setCtx(c)
-  }, [id, navigate])
+  });
 
-  useEffect(() => {
-    carregar()
-      .catch((err: any) => toast.error(err?.message ?? 'Não foi possível abrir o pedido.'))
-      .finally(() => setCarregando(false))
-  }, [carregar])
-
-  const abrirAnexo = async (caminho: string) => {
-    try {
-      const url = await urlAssinada(caminho)
-      window.open(url, '_blank', 'noopener')
-    } catch {
-      toast.error('Não foi possível abrir o anexo.')
-    }
-  }
-
-  const executar = async (fn: () => Promise<void>, mensagem: string) => {
-    setSalvando(true)
-    try {
-      await fn()
-      setSheet(null)
-      setObs('')
-      await carregar()
-      toast.success(mensagem)
-    } catch (err: any) {
-      toast.error(err?.message ?? 'Não foi possível concluir a ação.')
-    } finally {
-      setSalvando(false)
-    }
-  }
-
-  if (carregando) {
-    return (
-      <div className="min-h-screen space-y-3 bg-background p-5">
-        <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-        <div className="h-32 animate-pulse rounded-2xl bg-muted" />
-        <div className="h-40 animate-pulse rounded-2xl bg-muted" />
-      </div>
-    )
-  }
-
-  if (!pedido) {
-    return (
-      <div className="min-h-screen bg-background p-5">
-        <p className="rounded-2xl bg-card p-4 text-[15px] text-secondary">Pedido não encontrado.</p>
-      </div>
-    )
-  }
-
-  const solicitante = diretorio.get(pedido.solicitante_id)
-  const aberto = pedido.status !== 'negado' && pedido.status !== 'entregue'
-  const souResponsavel = !!ctx && pedido.responsavel_atual_id === ctx.id
-  const podeAgir = aberto && souResponsavel
-  const jaAprovouAgora = eventos.some((e) => e.acao === 'aprovou' && e.autor_id === ctx?.id)
-  const podeAprovar = podeAgir && pedido.status !== 'aprovado' && !jaAprovouAgora
-  const podeEncaminhar = podeAgir && !!ctx?.superior_id
-  const podeEntregar =
-    podeAgir && pedido.status === 'aprovado' && (ctx!.isSecretario || ctx!.isPrefeito)
-
-  const campo =
-    'w-full rounded-xl bg-muted px-4 py-3 text-[16px] text-foreground outline-none resize-none'
+  if (isLoading || !pedido) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <header className="px-5 pb-2 pt-6">
-        <button
-          type="button"
-          onClick={() => navigate({ to: '/pedidos' })}
-          className="mb-3 inline-flex items-center gap-1 text-[15px] text-primary"
-        >
-          <ChevronLeft size={18} strokeWidth={1.5} />
-          Voltar
+    <div className="flex flex-col min-h-screen bg-background pb-20">
+      <header className="p-4 flex items-center bg-white border-b sticky top-0 z-10">
+        <button onClick={() => window.history.back()} className="p-2 -ml-2">
+          <ChevronLeft size={24} />
         </button>
-        <h1 className="text-[26px] font-bold leading-tight text-foreground">
-          {pedido.item} · {quantidadeFormatada(pedido.quantidade, pedido.unidade_medida)}
-        </h1>
-        <div className="mt-2 flex items-center gap-2">
-          <StatusSelo status={pedido.status} />
-          {pedido.urgencia === 'urgente' && (
-            <span className="rounded-md bg-[#FF3B30] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-              Urgente
-            </span>
-          )}
-        </div>
+        <h1 className="flex-1 text-center font-bold text-lg">Detalhes do Pedido</h1>
+        <div className="w-10" />
       </header>
 
-      <main className="space-y-4 px-5 py-4">
-        <section className="space-y-3 rounded-2xl bg-card p-4">
-          <div>
-            <p className="text-[13px] font-semibold uppercase tracking-wide text-secondary">
-              Solicitante
-            </p>
-            <p className="text-[15px] text-foreground">
-              {solicitante?.nome ?? 'Usuário'}
-              {solicitante?.cargo ? ` · ${solicitante.cargo}` : ''}
-              {solicitante?.unidade ? ` · ${solicitante.unidade}` : ''}
-            </p>
+      <main className="p-5 space-y-6">
+        <section className="card-intergo">
+          <div className="flex items-center justify-between mb-4">
+            <span className={`px-3 py-1 rounded-full text-[12px] font-bold ${
+              pedido.status === 'pendente' ? 'bg-warning/10 text-warning' : 
+              pedido.status === 'aprovado' ? 'bg-success/10 text-success' : 
+              'bg-primary/10 text-primary'
+            }`}>
+              {pedido.status.toUpperCase()}
+            </span>
+            <span className="text-[12px] text-secondary">
+              ID: {pedido.id.substring(0, 8)}
+            </span>
           </div>
-
-          <div>
-            <p className="text-[13px] font-semibold uppercase tracking-wide text-secondary">
-              Justificativa
-            </p>
-            <p className="whitespace-pre-wrap text-[15px] leading-[21px] text-foreground">
-              {pedido.justificativa}
-            </p>
+          
+          <h2 className="text-xl font-bold mb-1">{pedido.item}</h2>
+          <p className="text-body-secondary mb-4">{pedido.quantidade} {pedido.unidade_medida}</p>
+          
+          <div className="pt-4 border-t space-y-3">
+             <div className="flex justify-between">
+               <span className="text-label text-secondary">Solicitante</span>
+               <span className="text-body font-medium text-right">{pedido.solicitante?.nome_completo}</span>
+             </div>
+             <div className="flex justify-between">
+               <span className="text-label text-secondary">Responsável Atual</span>
+               <span className="text-body font-medium text-right">{pedido.responsavel?.nome_completo}</span>
+             </div>
           </div>
-
-          {anexos.length > 0 && (
-            <div>
-              <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-secondary">
-                Anexos
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {anexos.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => abrirAnexo(a.url)}
-                    className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2 text-[14px] text-foreground"
-                  >
-                    <Paperclip size={15} strokeWidth={1.5} className="text-secondary" />
-                    <span className="max-w-[160px] truncate">{a.nome}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <p className="text-[13px] text-secondary">Criado em {dataExtensa(pedido.created_at)}</p>
         </section>
 
-        <section className="rounded-2xl bg-card p-4">
-          <h2 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-secondary">
-            Linha do tempo
-          </h2>
-          <Timeline eventos={eventos} diretorio={diretorio} />
+        <section>
+          <h3 className="text-label text-secondary mb-4 ml-1">LINHA DO TEMPO</h3>
+          <div className="space-y-0 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+            {pedido.eventos?.map((evento: any, i: number) => {
+               const daysSince = i > 0 ? differenceInDays(new Date(evento.created_at), new Date(pedido.eventos[i-1].created_at)) : 0;
+               return (
+                 <div key={evento.id} className="relative pl-12 pb-8">
+                   <div className={`absolute left-0 top-1 w-10 h-10 rounded-full flex items-center justify-center border-4 border-background z-10 ${
+                     evento.acao === 'criou' ? 'bg-primary text-white' : 
+                     evento.acao === 'aprovou' ? 'bg-success text-white' : 'bg-white text-secondary border-border'
+                   }`}>
+                     {evento.acao === 'criou' ? <Package size={16} /> : <CheckCircle2 size={16} />}
+                   </div>
+                   <div>
+                     <p className="text-body font-bold">
+                        {evento.acao === 'criou' ? 'Solicitado' : 
+                         evento.acao === 'aprovou' ? 'Aprovado' : 
+                         evento.acao === 'negou' ? 'Negado' : 'Encaminhado'}
+                     </p>
+                     <p className="text-label text-secondary">
+                        {evento.autor?.nome_completo} • {format(new Date(evento.created_at), "dd/MM 'às' HH:mm", { locale: ptBR })}
+                     </p>
+                     {daysSince > 0 && <p className="text-[11px] text-warning font-bold mt-1">{daysSince} dias aguardando</p>}
+                     {evento.observacao && <p className="mt-2 text-sm text-secondary bg-white p-3 rounded-xl border">{evento.observacao}</p>}
+                   </div>
+                 </div>
+               );
+            })}
+          </div>
         </section>
-
-        {podeAgir && (
-          <section className="space-y-2 rounded-2xl bg-card p-4">
-            <h2 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-secondary">
-              O que fazer?
-            </h2>
-
-            {podeAprovar && (
-              <button
-                type="button"
-                onClick={() => setSheet('aprovar')}
-                className="w-full rounded-xl bg-primary py-3 text-[15px] font-semibold text-primary-foreground"
-              >
-                Aprovar
-              </button>
-            )}
-
-            {podeEncaminhar && (
-              <button
-                type="button"
-                disabled={salvando}
-                onClick={() =>
-                  executar(
-                    () => encaminhar(pedido, ctx!),
-                    `Encaminhado para ${ctx?.superior?.nome ?? 'seu superior'}.`,
-                  )
-                }
-                className="w-full rounded-xl bg-muted py-3 text-[15px] font-semibold text-foreground"
-              >
-                Encaminhar ao meu superior
-              </button>
-            )}
-
-            {podeEntregar && (
-              <button
-                type="button"
-                onClick={() => setSheet('entregar')}
-                className="w-full rounded-xl bg-muted py-3 text-[15px] font-semibold text-foreground"
-              >
-                Marcar como entregue
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setSheet('negar')}
-              className="w-full rounded-xl bg-muted py-3 text-[15px] font-semibold text-[#FF3B30]"
-            >
-              Negar
-            </button>
-          </section>
-        )}
       </main>
-
-      {sheet && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={() => setSheet(null)}>
-          <div
-            className="w-full rounded-t-3xl bg-background p-5 pb-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-3 text-[20px] font-bold text-foreground">
-              {sheet === 'aprovar' ? 'Aprovar pedido' : sheet === 'negar' ? 'Negar pedido' : 'Marcar como entregue'}
-            </h3>
-
-            <label className="mb-2 block text-[13px] font-semibold uppercase tracking-wide text-secondary">
-              {sheet === 'negar' ? 'Motivo' : 'Observação (opcional)'}
-            </label>
-            <textarea
-              rows={4}
-              maxLength={sheet === 'negar' ? 300 : 200}
-              className={campo}
-              value={obs}
-              onChange={(e) => setObs(e.target.value)}
-              placeholder={sheet === 'negar' ? 'Explique o motivo da negativa.' : 'Se quiser, deixe uma observação.'}
-            />
-            <p className="mt-1 text-right text-[13px] text-secondary">
-              {obs.length}/{sheet === 'negar' ? 300 : 200}
-            </p>
-
-            <button
-              type="button"
-              disabled={salvando || (sheet === 'negar' && obs.trim().length === 0)}
-              onClick={() => {
-                if (sheet === 'aprovar')
-                  executar(() => aprovar(pedido, ctx!, obs), 'Pedido aprovado.')
-                else if (sheet === 'negar') executar(() => negar(pedido, ctx!, obs), 'Pedido negado.')
-                else executar(() => entregar(pedido, ctx!, obs), 'Pedido marcado como entregue.')
-              }}
-              className={cn(
-                'mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[16px] font-semibold disabled:opacity-40',
-                sheet === 'negar'
-                  ? 'bg-[#FF3B30] text-white'
-                  : 'bg-primary text-primary-foreground',
-              )}
-            >
-              {salvando && <Loader2 size={18} className="animate-spin" />}
-              Confirmar
-            </button>
-            <button
-              type="button"
-              onClick={() => setSheet(null)}
-              className="mt-2 w-full rounded-xl py-3 text-[15px] font-medium text-secondary"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
-  )
+  );
 }
