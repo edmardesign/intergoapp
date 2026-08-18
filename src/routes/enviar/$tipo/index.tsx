@@ -106,7 +106,8 @@ function PreencherPage() {
                 value={localPayload.corpo || ''}
                 onChange={(e) => update('corpo', e.target.value)}
               />
-              <CharCounter current={localPayload.corpo?.length || 0} max={300} />
+               <CharCounter current={localPayload.corpo?.length || 0} max={300} />
+               <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
             </div>
           </>
         )}
