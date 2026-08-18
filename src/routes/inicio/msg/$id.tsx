@@ -166,29 +166,29 @@ function DetalheMensagem() {
 
         {(mensagem.tipo === 'reuniao' || mensagem.tipo === 'evento') && (
           <div className="mt-4 space-y-3 rounded-2xl bg-card p-4">
-            {p.data && (
+            {p.data_evento && (
               <div className="flex items-center gap-2 text-[15px] text-foreground">
                 <CalendarDays size={18} className="text-secondary" />
                 {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(
-                  new Date(`${p.data}T12:00:00Z`),
+                  new Date(`${p.data_evento}T12:00:00Z`),
                 )}
               </div>
             )}
-            {p.hora && (
+            {p.hora_evento && (
               <div className="flex items-center gap-2 text-[15px] text-foreground">
                 <Clock size={18} className="text-secondary" />
-                {p.hora}
+                {p.hora_evento}
               </div>
             )}
-            {p.local && (
+            {p.local_evento && (
               <div className="flex items-center gap-2 text-[15px] text-foreground">
                 <MapPin size={18} className="text-secondary" />
-                {p.local}
+                {p.local_evento}
               </div>
             )}
             <button
               type="button"
-              onClick={() => baixarICS(assuntoDe(mensagem), p.data, p.hora, p.local)}
+              onClick={() => baixarICS(assuntoDe(mensagem), p.data_evento, p.hora_evento, p.local_evento)}
               className="h-11 w-full rounded-xl text-[15px] font-semibold active:scale-[0.98] transition-transform"
               style={{ backgroundColor: '#E8EFF6', color: '#1B4F8C' }}
             >
