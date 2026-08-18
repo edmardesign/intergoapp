@@ -612,6 +612,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_lotacao: { Args: { target_perfil_id: string }; Returns: boolean }
       get_subarvore: {
         Args: { root_id: string }
         Returns: {
