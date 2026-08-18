@@ -27,7 +27,7 @@ export function ProfileSheet({ perfil, onClose, onUpdate, canApprove }: ProfileS
   const handleAprovar = async () => {
     setLoading(true);
     try {
-      await aprovar({ perfil_id: perfil.id });
+      await aprovar({ data: { perfil_id: perfil.id } });
       toast.success("Acesso liberado com sucesso!");
       onUpdate();
       onClose();
@@ -45,7 +45,7 @@ export function ProfileSheet({ perfil, onClose, onUpdate, canApprove }: ProfileS
     }
     setLoading(true);
     try {
-      await negar({ perfil_id: perfil.id, motivo });
+      await negar({ data: { perfil_id: perfil.id, motivo } });
       toast.success("Cadastro negado");
       onUpdate();
       onClose();

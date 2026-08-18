@@ -36,7 +36,7 @@ function EquipePage() {
       setMe(meData);
       
       const isSecretarioCheck = (meData as any)?.cargos?.nome?.toLowerCase().includes("secretário");
-      if (isSecretarioCheck) {
+      if (isSecretarioCheck && meData.municipio_id) {
         const lotData = await fetchLotacao({ data: { municipio_id: meData.municipio_id } });
         setLotacao(lotData || []);
       }
