@@ -218,12 +218,6 @@ function PreencherPage() {
           </>
         )}
 
-        <div className="text-secondary text-[13px] text-center mt-4">
-          Precisa detalhar mais? Anexe um PDF no próximo passo.
-        </div>
-        <div className="text-secondary text-[12px] text-center mt-1 border-t border-dashed pt-2">
-          Linha fixa abaixo do campo corpo: Precisa detalhar mais? Anexe um PDF.
-        </div>
 
         <div className="space-y-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between">
