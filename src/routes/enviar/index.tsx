@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { Megaphone, ListChecks, Users, Calendar } from "lucide-react";
+import { canUserSend } from "@/lib/enviar.functions";
 
 export const Route = createFileRoute("/enviar/")({
   component: EnviarTipoPage,
@@ -10,8 +12,7 @@ function EnviarTipoPage() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const { canUserSend } = require('@/lib/enviar.functions');
-    canUserSend().then((res: any) => {
+    canUserSend().then((res) => {
       setAllowed(res.canSend);
       if (res.canSend === false) {
         navigate({ to: '/inicio' });
