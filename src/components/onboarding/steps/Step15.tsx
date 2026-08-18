@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from '@tanstack/react-router';
@@ -24,7 +24,35 @@ export const Step15: React.FC = () => {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Insert Profile
+        // 2. Fetch hierarchy to calculate superior_id
+        const { data: cargos } = await (supabase as any).from('cargos').select('*');
+        const cargo = cargos?.find((c: any) => c.id === data.cargo_id);
+        const cargoSuperior = cargos?.find((c: any) => c.id === cargo?.cargo_superior_id);
+        
+        let calculatedSuperiorId = null;
+
+        if (cargoSuperior) {
+          // Localize person by cargo and scope
+          const { data: superiors } = await (supabase as any)
+            .from('perfis')
+            .select('id, created_at')
+            .eq('nivel_id', cargoSuperior.id)
+            .eq('status', 'ativo');
+            
+          if (superiors && superiors.length > 0) {
+             // Logic for multiple superiors: oldest one for Diretor, etc.
+             calculatedSuperiorId = superiors.sort((a: any, b: any) => 
+               new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+             )[0].id;
+          } else if (cargoSuperior.nome === 'Coordenador') {
+             // fallback: Diretor under Secretary if no Coord
+             const secEdu = cargos?.find((c: any) => c.nome === 'Secretário de Educação');
+             const { data: secretaries } = await (supabase as any).from('perfis').select('id').eq('nivel_id', secEdu?.id);
+             calculatedSuperiorId = secretaries?.[0]?.id;
+          }
+        }
+
+        // 3. Insert Profile
         const profileInsert: any = {
           id: authData.user.id,
           nome_completo: data.nome_completo!,
@@ -37,22 +65,30 @@ export const Step15: React.FC = () => {
           bairro: data.bairro || null,
           municipio_id: data.municipio_id || null,
           secretaria_id: data.secretaria_id || null,
-          nivel_id: data.nivel_id || null,
-          unidade_id: data.unidade_id || null,
-          superior_id: data.superior_id || null,
+          nivel_id: data.cargo_id || null,
+          superior_id: calculatedSuperiorId,
           status: 'pendente'
         };
 
-        const { error: profileError } = await supabase
+        const { error: profileError } = await (supabase as any)
           .from('perfis')
           .insert(profileInsert);
 
         if (profileError) throw profileError;
 
-        // 3. Clean and Navigate
+        // 4. Insert Units (Lotação)
+        if (data.unidades_ids && data.unidades_ids.length > 0) {
+          const lotacoes = data.unidades_ids.map((uid, index) => ({
+            perfil_id: authData?.user?.id,
+            unidade_id: uid,
+            principal: index === 0
+          }));
+          await (supabase as any).from('perfil_unidades').insert(lotacoes);
+        }
+
+        // 5. Clean and Navigate
         clear();
-        // @ts-ignore
-        navigate({ to: '/onboarding/aguardando' });
+        navigate({ to: '/onboarding/aguardando' } as any);
       }
     } catch (err: any) {
       setError(err.message || 'Erro ao enviar cadastro');
@@ -64,9 +100,8 @@ export const Step15: React.FC = () => {
     { label: 'Estado', value: data.estado_id, step: 2 },
     { label: 'Cidade', value: data.municipio_id, step: 3 },
     { label: 'Secretaria', value: data.secretaria_id, step: 4 },
-    { label: 'Cargo', value: data.nivel_id, step: 5 },
-    { label: 'Unidade', value: data.unidade_id, step: 6 },
-    { label: 'Superior', value: data.superior_id, step: 7 },
+    { label: 'Cargo', value: data.cargo_id, step: 5 },
+    { label: 'Unidades', value: data.unidades_ids?.length ? `${data.unidades_ids.length} selecionada(s)` : null, step: 6 },
     { label: 'Nome', value: data.nome_completo, step: 8 },
     { label: 'CPF', value: data.cpf, step: 9 },
     { label: 'Telefone', value: data.telefone, step: 10 },

@@ -36,14 +36,14 @@ export const getSecretarias = createServerFn({ method: "GET" })
     return data;
   });
 
-export const getNiveis = createServerFn({ method: "GET" })
+export const getCargos = createServerFn({ method: "GET" })
   .validator((secretariaId: string) => secretariaId)
   .handler(async ({ data: secretariaId }) => {
     const { data, error } = await (supabase as any)
-      .from("niveis")
+      .from("cargos")
       .select("*")
       .eq("secretaria_id", secretariaId)
-      .order("ordem", { ascending: true });
+      .order("ordem_exibicao", { ascending: true });
     if (error) throw error;
     return data;
   });
