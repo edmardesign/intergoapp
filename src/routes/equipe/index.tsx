@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getEquipe, getMe, getLotacaoCoordenadores, reatribuirLotacao } from "@/lib/equipe.functions";
-import { Users, ChevronRight, ChevronDown, School, AlertTriangle, RefreshCw, Loader2, Search } from "lucide-react";
+import { Users, ChevronRight, ChevronDown, School, AlertTriangle, RefreshCw, Loader2, Search, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfileSheet } from "@/components/equipe/ProfileSheet";
 import { Button } from "@/components/ui/button";
@@ -35,8 +35,9 @@ function EquipePage() {
       setEquipe(equipeData || []);
       setMe(meData);
       
-      if (meData?.cargos?.nome?.toLowerCase().includes("secretário")) {
-        const lotData = await fetchLotacao({ municipio_id: meData.municipio_id });
+      const isSecretarioCheck = (meData as any)?.cargos?.nome?.toLowerCase().includes("secretário");
+      if (isSecretarioCheck) {
+        const lotData = await fetchLotacao({ data: { municipio_id: meData.municipio_id } });
         setLotacao(lotData || []);
       }
     } catch (err) {

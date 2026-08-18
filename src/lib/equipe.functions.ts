@@ -33,8 +33,11 @@ export const aprovarCadastro = createServerFn({ method: "POST" })
     if (!user) throw new Error("Não autenticado");
 
     // Auditoria
-    const { data: me } = await supabase.from("perfis").select("nivel_id, cargos(delegado_do_superior)").eq("id", user.id).single();
-    const delegou_de_id = me?.cargos?.delegado_do_superior ? (await supabase.from("perfis").select("superior_id").eq("id", user.id).single()).data?.superior_id : null;
+    const { data: me, error: meError } = await supabase.from("perfis").select("superior_id, cargos(delegado_do_superior)").eq("id", user.id).single();
+    if (meError) throw meError;
+    
+    const isDelegado = (me as any)?.cargos?.delegado_do_superior;
+    const delegou_de_id = isDelegado ? (me as any).superior_id : null;
 
     const { error: updateError } = await supabase
       .from("perfis")
@@ -47,14 +50,15 @@ export const aprovarCadastro = createServerFn({ method: "POST" })
 
     if (updateError) throw updateError;
 
-    await supabase.from("auditoria").insert({
+    const { error: auditError } = await supabase.from("auditoria").insert({
       usuario_id: user.id,
-      delegou_de_id,
+      delegou_de_id: delegou_de_id as string | null,
       acao: "aprovacao",
       entidade: "perfis",
       entidade_id: perfil_id,
       detalhes: { info: delegou_de_id ? "Aprovado via delegado" : "Aprovado pelo superior" }
     });
+    if (auditError) throw auditError;
 
     return { success: true };
   });
