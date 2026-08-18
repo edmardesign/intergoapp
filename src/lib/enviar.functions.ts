@@ -80,14 +80,21 @@ export const enviarMensagem = createServerFn({ method: "POST" })
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Unauthorized");
 
+    const p = input.payload;
+
     // 1. Insert Message
     const { data: msg, error: msgError } = await (supabase as any)
       .from('mensagens')
       .insert([{
         remetente_id: session.user.id,
         tipo: input.tipo,
-        payload: input.payload,
-        exigir_confirmacao: input.exigir_confirmacao,
+        assunto: p.assunto || p.titulo,
+        corpo: p.corpo || p.o_que_precisa || p.pauta || p.descricao,
+        prazo: p.prazo,
+        data_evento: p.data_evento,
+        hora_evento: p.hora_evento,
+        local_evento: p.local_evento,
+        exige_confirmacao: input.exigir_confirmacao,
         urgente: input.urgente
       }])
       .select()
@@ -114,10 +121,10 @@ export const enviarMensagem = createServerFn({ method: "POST" })
     if (input.anexos.length > 0) {
       const anexos = input.anexos.map(a => ({
         mensagem_id: msg.id,
-        nome: a.nome,
+        nome_arquivo: a.nome,
         url: a.url,
         tamanho: a.tamanho,
-        tipo_mime: a.tipo_mime
+        tipo: a.tipo_mime
       }));
       
       const { error: anxError } = await (supabase as any)
