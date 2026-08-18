@@ -130,7 +130,8 @@ function PreencherPage() {
                 value={localPayload.o_que_precisa || ''}
                 onChange={(e) => update('o_que_precisa', e.target.value)}
               />
-              <CharCounter current={localPayload.o_que_precisa?.length || 0} max={400} />
+               <CharCounter current={localPayload.o_que_precisa?.length || 0} max={400} />
+               <p className="text-[12px] text-secondary mt-1">Precisa detalhar mais? Anexe um PDF.</p>
             </div>
             <div>
               <Label className="text-label text-secondary mb-2 block">Prazo</Label>
