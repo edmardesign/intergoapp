@@ -24,8 +24,11 @@ export const Step6: React.FC = () => {
 
         // Auto-advance logic if only 1 unit and unique scope
         if (unidadesData && unidadesData.length === 1 && currentCargo?.escopo === 'unidade') {
-          updateData({ unidades_ids: [unidadesData[0].id] });
-          nextStep();
+          const firstUnidade = unidadesData[0];
+          if (firstUnidade) {
+            updateData({ unidades_ids: [firstUnidade.id] });
+            nextStep();
+          }
         }
       } catch (e) {
         console.error(e);
