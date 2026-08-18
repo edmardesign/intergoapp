@@ -2,20 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from '@tanstack/react-router';
-import { Edit2, Loader2 } from 'lucide-react';
+import { Edit2, Loader2, Check } from 'lucide-react';
 
 export const Step15: React.FC = () => {
   const { data, goToStep, clear } = useOnboardingStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [superiorName, setSuperiorName] = useState<string>('Direção Central');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Save to localStorage as a draft
+    localStorage.setItem('intergo_onboarding_draft', JSON.stringify(data));
+    
+    // Attempt to pre-calculate superior name for review
+    const fetchSuperior = async () => {
+       if (data.cargo_id) {
+         const { data: cargos } = await supabase.from('cargos').select('*');
+         const cargo = cargos?.find(c => c.id === data.cargo_id);
+         const cargoSuperior = cargos?.find(c => c.id === cargo?.cargo_superior_id);
+         if (cargoSuperior) setSuperiorName(cargoSuperior.nome);
+       }
+    };
+    fetchSuperior();
+  }, [data]);
 
   const handleFinish = async () => {
     setLoading(true);
     setError('');
     
     try {
-      // 1. Auth SignUp
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email!,
         password: data.senha!,
@@ -24,91 +40,65 @@ export const Step15: React.FC = () => {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Fetch hierarchy to calculate superior_id
-        const { data: cargos } = await (supabase as any).from('cargos').select('*');
-        const cargo = cargos?.find((c: any) => c.id === data.cargo_id);
-        const cargoSuperior = cargos?.find((c: any) => c.id === cargo?.cargo_superior_id);
+        const { data: cargos } = await supabase.from('cargos').select('*');
+        const cargo = cargos?.find(c => c.id === data.cargo_id);
+        const cargoSuperior = cargos?.find(c => c.id === cargo?.cargo_superior_id);
         
         let calculatedSuperiorId = null;
 
         if (cargoSuperior) {
-          // EXCEÇÕES 7: Localize person by cargo and scope
-          const { data: superiors } = await (supabase as any)
+          const { data: superiors } = await supabase
             .from('perfis')
             .select('id, created_at, municipio_id')
             .eq('nivel_id', cargoSuperior.id)
             .eq('status', 'ativo');
             
-          const filteredSuperiors = superiors?.filter((s: any) => {
+          const filtered = superiors?.filter(s => {
             if (cargoSuperior.escopo === 'municipio' || cargoSuperior.escopo === 'secretaria') {
               return s.municipio_id === data.municipio_id;
             }
             return true;
           });
 
-          if (filteredSuperiors && filteredSuperiors.length > 0) {
-             // Múltiplos diretores -> o mais antigo
-             calculatedSuperiorId = filteredSuperiors.sort((a: any, b: any) => 
+          if (filtered && filtered.length > 0) {
+             calculatedSuperiorId = filtered.sort((a: any, b: any) => 
                new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
              )[0].id;
-          } else if (cargoSuperior.nome === 'Coordenador') {
-             // escola sem coordenador → diretor provisoriamente sob Secretário
-             const secEdu = cargos?.find((c: any) => c.nome === 'Secretário de Educação');
-             const { data: secretaries } = await (supabase as any)
-              .from('perfis')
-              .select('id')
-              .eq('nivel_id', secEdu?.id)
-              .eq('municipio_id', data.municipio_id);
-             calculatedSuperiorId = secretaries?.[0]?.id;
-          } else if (cargoSuperior.nome === 'Diretor') {
-             // escola sem diretor → novo cadastro pendente sob Coordenador
-             const coordCargo = cargos?.find((c: any) => c.nome === 'Coordenador');
-             const { data: coords } = await (supabase as any)
-              .from('perfis')
-              .select('id')
-              .eq('nivel_id', coordCargo?.id)
-              .eq('municipio_id', data.municipio_id);
-             calculatedSuperiorId = coords?.[0]?.id;
           }
         }
 
-
-        // 3. Insert Profile
-        const profileInsert: any = {
-          id: authData.user.id,
-          nome_completo: data.nome_completo!,
-          cpf: data.cpf!,
-          telefone: data.telefone!,
-          cep: data.cep!,
-          logradouro: data.logradouro || null,
-          numero: data.numero || null,
-          complemento: data.complemento || null,
-          bairro: data.bairro || null,
-          municipio_id: data.municipio_id || null,
-          secretaria_id: data.secretaria_id || null,
-          nivel_id: data.cargo_id || null,
-          superior_id: calculatedSuperiorId,
-          funcao: data.funcao || null,
-          status: 'pendente'
-        };
-
         const { error: profileError } = await (supabase as any)
           .from('perfis')
-          .insert(profileInsert);
+          .insert({
+            id: authData.user.id,
+            nome_completo: data.nome_completo!,
+            cpf: data.cpf!.replace(/\D/g, ''),
+            telefone: data.telefone!.replace(/\D/g, ''),
+            cep: data.cep!.replace(/\D/g, ''),
+            logradouro: data.logradouro || null,
+            numero: data.numero || null,
+            complemento: data.complemento || null,
+            bairro: data.bairro || null,
+            municipio_id: data.municipio_id || null,
+            secretaria_id: data.secretaria_id || null,
+            nivel_id: data.cargo_id || null,
+            superior_id: calculatedSuperiorId,
+            funcao: data.funcao || null,
+            status: 'pendente'
+          });
 
         if (profileError) throw profileError;
 
-        // 4. Insert Units (Lotação)
         if (data.unidades_ids && data.unidades_ids.length > 0) {
           const lotacoes = data.unidades_ids.map((uid, index) => ({
             perfil_id: authData?.user?.id,
             unidade_id: uid,
             principal: index === 0
           }));
-          await (supabase as any).from('perfil_unidades').insert(lotacoes);
+          await supabase.from('perfil_unidades').insert(lotacoes);
         }
 
-        // 5. Clean and Navigate
+        localStorage.removeItem('intergo_onboarding_draft');
         clear();
         navigate({ to: '/onboarding/aguardando' } as any);
       }
@@ -119,29 +109,24 @@ export const Step15: React.FC = () => {
   };
 
   const rows = [
-    { label: 'Estado', value: data.estado_id, step: 2 },
-    { label: 'Cidade', value: data.municipio_id, step: 3 },
-    { label: 'Secretaria', value: data.secretaria_id, step: 4 },
-    { label: 'Cargo', value: data.cargo_id, step: 5 },
-    { label: 'Unidades', value: data.unidades_ids?.length ? `${data.unidades_ids.length} selecionada(s)` : null, step: 6 },
-    { label: 'Nome', value: data.nome_completo, step: 8 },
+    { label: 'Identificação', value: data.nome_completo, step: 8 },
     { label: 'Função', value: data.funcao, step: 8 },
     { label: 'CPF', value: data.cpf, step: 9 },
-    { label: 'Telefone', value: data.telefone, step: 10 },
-    { label: 'Endereço', value: `${data.logradouro || ''}, ${data.numero || ''}`, step: 11 },
+    { label: 'Local', value: data.unidades_ids?.length ? `${data.unidades_ids.length} selecionado(s)` : null, step: 6 },
     { label: 'E-mail', value: data.email, step: 13 },
   ];
 
   return (
-    <div className="flex flex-col animate-in fade-in duration-500">
-      <h2 className="text-question mb-6">Confira seus dados</h2>
+    <div className="flex flex-col animate-in fade-in slide-in-from-right-5 duration-300 pb-40">
+      <h2 className="text-question mb-2">Tudo pronto!</h2>
+      <p className="text-body-secondary mb-6">Confira seus dados antes de enviar.</p>
       
-      <div className="space-y-3 mb-32">
+      <div className="space-y-3">
         {rows.filter(r => r.value).map((row, i) => (
           <div key={i} className="card-intergo flex items-center justify-between">
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1 min-w-0 pr-4">
               <span className="text-label text-secondary">{row.label}</span>
-              <span className="text-body font-medium truncate max-w-[200px]">{String(row.value)}</span>
+              <span className="text-body font-medium truncate">{String(row.value)}</span>
             </div>
             <button 
               onClick={() => goToStep(row.step)}
@@ -151,21 +136,30 @@ export const Step15: React.FC = () => {
             </button>
           </div>
         ))}
+        
+        <div className="card-intergo bg-primary/5 border border-primary/10">
+          <p className="text-label text-primary mb-1">SERÁ APROVADO POR</p>
+          <p className="text-body font-bold text-primary">{superiorName}</p>
+        </div>
 
         {error && (
-          <div className="p-4 bg-error/10 text-error rounded-[16px] text-label text-center">
+          <div className="p-4 bg-error/10 text-error rounded-2xl text-sm flex items-start gap-3">
+            <Loader2 className="shrink-0 mt-0.5" size={16} />
             {error}
           </div>
         )}
       </div>
 
-      <div className="fixed bottom-8 left-5 right-5">
+      <div className="fixed bottom-8 left-5 right-5 space-y-3">
+        <p className="text-[12px] text-secondary text-center px-4">
+          Ao clicar em enviar, você concorda com os termos de uso e política de privacidade.
+        </p>
         <button 
           onClick={handleFinish} 
           disabled={loading}
           className="btn-primary"
         >
-          {loading ? <Loader2 className="animate-spin" /> : 'Enviar cadastro'}
+          {loading ? <Loader2 className="animate-spin" /> : 'Confirmar e Enviar'}
         </button>
       </div>
     </div>
