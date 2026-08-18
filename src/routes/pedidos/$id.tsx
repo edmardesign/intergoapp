@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Clock, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Clock, CheckCircle2, XCircle, ArrowRight, Package } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

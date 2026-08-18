@@ -62,7 +62,7 @@ export const Step15: React.FC = () => {
 
           if (filtered && filtered.length > 0) {
              calculatedSuperiorId = filtered.sort((a: any, b: any) => 
-               new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+               new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
              )[0].id;
           }
         }
@@ -91,7 +91,7 @@ export const Step15: React.FC = () => {
 
         if (data.unidades_ids && data.unidades_ids.length > 0) {
           const lotacoes = data.unidades_ids.map((uid, index) => ({
-            perfil_id: authData?.user?.id,
+            perfil_id: authData?.user?.id as string,
             unidade_id: uid,
             principal: index === 0
           }));

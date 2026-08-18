@@ -43,7 +43,7 @@ function InicioPage() {
       const { data } = await supabase
         .from('mensagem_destinatarios')
         .select('*, mensagem:mensagem_id(*, remetente:remetente_id(*))')
-        .eq('destinatario_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('destinatario_id', (await supabase.auth.getUser()).data.user?.id ?? '')
         .order('confirmado_em', { ascending: true }); // Prioritize unconfirmed
       return data || [];
     },

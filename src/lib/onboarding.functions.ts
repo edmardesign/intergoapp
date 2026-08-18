@@ -59,3 +59,17 @@ export const getUnidades = createServerFn({ method: "GET" })
     if (error) throw error;
     return data;
   });
+
+export const addToWaitlist = createServerFn({ method: "POST" })
+  .validator((d: { email: string; estado_id: string; cidade_texto: string }) => d)
+  .handler(async ({ data }) => {
+    const { error } = await supabase
+      .from("waitlist")
+      .insert({
+        email: data.email,
+        estado_id: data.estado_id,
+        cidade_texto: data.cidade_texto
+      });
+    if (error) throw error;
+    return { success: true };
+  });
