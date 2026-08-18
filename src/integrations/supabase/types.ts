@@ -62,6 +62,57 @@ export type Database = {
           },
         ]
       }
+      cargos: {
+        Row: {
+          cargo_superior_id: string | null
+          created_at: string | null
+          delegado_do_superior: boolean | null
+          escopo: Database["public"]["Enums"]["cargo_escopo"]
+          id: string
+          nome: string
+          ordem_exibicao: number | null
+          pode_enviar_descendente: boolean | null
+          secretaria_id: string | null
+        }
+        Insert: {
+          cargo_superior_id?: string | null
+          created_at?: string | null
+          delegado_do_superior?: boolean | null
+          escopo: Database["public"]["Enums"]["cargo_escopo"]
+          id?: string
+          nome: string
+          ordem_exibicao?: number | null
+          pode_enviar_descendente?: boolean | null
+          secretaria_id?: string | null
+        }
+        Update: {
+          cargo_superior_id?: string | null
+          created_at?: string | null
+          delegado_do_superior?: boolean | null
+          escopo?: Database["public"]["Enums"]["cargo_escopo"]
+          id?: string
+          nome?: string
+          ordem_exibicao?: number | null
+          pode_enviar_descendente?: boolean | null
+          secretaria_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cargos_cargo_superior_id_fkey"
+            columns: ["cargo_superior_id"]
+            isOneToOne: false
+            referencedRelation: "cargos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cargos_secretaria_id_fkey"
+            columns: ["secretaria_id"]
+            isOneToOne: false
+            referencedRelation: "secretarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estados: {
         Row: {
           created_at: string
@@ -237,6 +288,45 @@ export type Database = {
           },
         ]
       }
+      perfil_unidades: {
+        Row: {
+          criado_em: string | null
+          id: string
+          perfil_id: string
+          principal: boolean | null
+          unidade_id: string
+        }
+        Insert: {
+          criado_em?: string | null
+          id?: string
+          perfil_id: string
+          principal?: boolean | null
+          unidade_id: string
+        }
+        Update: {
+          criado_em?: string | null
+          id?: string
+          perfil_id?: string
+          principal?: boolean | null
+          unidade_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfil_unidades_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "perfil_unidades_unidade_id_fkey"
+            columns: ["unidade_id"]
+            isOneToOne: false
+            referencedRelation: "unidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfis: {
         Row: {
           bairro: string | null
@@ -254,7 +344,6 @@ export type Database = {
           status: Database["public"]["Enums"]["perfil_status"] | null
           superior_id: string | null
           telefone: string
-          unidade_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -273,7 +362,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["perfil_status"] | null
           superior_id?: string | null
           telefone: string
-          unidade_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -292,7 +380,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["perfil_status"] | null
           superior_id?: string | null
           telefone?: string
-          unidade_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -322,13 +409,6 @@ export type Database = {
             columns: ["superior_id"]
             isOneToOne: false
             referencedRelation: "perfis"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "perfis_unidade_id_fkey"
-            columns: ["unidade_id"]
-            isOneToOne: false
-            referencedRelation: "unidades"
             referencedColumns: ["id"]
           },
         ]
@@ -532,6 +612,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_lotacao: { Args: { target_perfil_id: string }; Returns: boolean }
+      get_subarvore: {
+        Args: { root_id: string }
+        Returns: {
+          profile_id: string
+        }[]
+      }
+      is_secretario: { Args: { user_id: string }; Returns: boolean }
       msg_e_meu_envio: { Args: { msg_id: string }; Returns: boolean }
       msg_e_meu_recebimento: { Args: { msg_id: string }; Returns: boolean }
       painel_is_prefeito: { Args: { _user_id: string }; Returns: boolean }
@@ -569,6 +657,7 @@ export type Database = {
       }
     }
     Enums: {
+      cargo_escopo: "municipio" | "secretaria" | "multi_unidade" | "unidade"
       mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
       solicitacao_acao:
@@ -711,6 +800,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      cargo_escopo: ["municipio", "secretaria", "multi_unidade", "unidade"],
       mensagem_tipo: ["comunicado", "demanda", "reuniao", "evento"],
       perfil_status: ["pendente", "ativo", "negado", "inativo"],
       solicitacao_acao: ["criou", "encaminhou", "aprovou", "negou", "entregou"],

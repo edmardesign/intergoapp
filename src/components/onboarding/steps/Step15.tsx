@@ -32,25 +32,46 @@ export const Step15: React.FC = () => {
         let calculatedSuperiorId = null;
 
         if (cargoSuperior) {
-          // Localize person by cargo and scope
+          // EXCEÇÕES 7: Localize person by cargo and scope
           const { data: superiors } = await (supabase as any)
             .from('perfis')
-            .select('id, created_at')
+            .select('id, created_at, municipio_id')
             .eq('nivel_id', cargoSuperior.id)
             .eq('status', 'ativo');
             
-          if (superiors && superiors.length > 0) {
-             // Logic for multiple superiors: oldest one for Diretor, etc.
-             calculatedSuperiorId = superiors.sort((a: any, b: any) => 
+          const filteredSuperiors = superiors?.filter((s: any) => {
+            if (cargoSuperior.escopo === 'municipio' || cargoSuperior.escopo === 'secretaria') {
+              return s.municipio_id === data.municipio_id;
+            }
+            return true;
+          });
+
+          if (filteredSuperiors && filteredSuperiors.length > 0) {
+             // Múltiplos diretores -> o mais antigo
+             calculatedSuperiorId = filteredSuperiors.sort((a: any, b: any) => 
                new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
              )[0].id;
           } else if (cargoSuperior.nome === 'Coordenador') {
-             // fallback: Diretor under Secretary if no Coord
+             // escola sem coordenador → diretor provisoriamente sob Secretário
              const secEdu = cargos?.find((c: any) => c.nome === 'Secretário de Educação');
-             const { data: secretaries } = await (supabase as any).from('perfis').select('id').eq('nivel_id', secEdu?.id);
+             const { data: secretaries } = await (supabase as any)
+              .from('perfis')
+              .select('id')
+              .eq('nivel_id', secEdu?.id)
+              .eq('municipio_id', data.municipio_id);
              calculatedSuperiorId = secretaries?.[0]?.id;
+          } else if (cargoSuperior.nome === 'Diretor') {
+             // escola sem diretor → novo cadastro pendente sob Coordenador
+             const coordCargo = cargos?.find((c: any) => c.nome === 'Coordenador');
+             const { data: coords } = await (supabase as any)
+              .from('perfis')
+              .select('id')
+              .eq('nivel_id', coordCargo?.id)
+              .eq('municipio_id', data.municipio_id);
+             calculatedSuperiorId = coords?.[0]?.id;
           }
         }
+
 
         // 3. Insert Profile
         const profileInsert: any = {
