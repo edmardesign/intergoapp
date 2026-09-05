@@ -102,6 +102,7 @@ export type Database = {
           delegado_do_superior: boolean | null
           escopo: Database["public"]["Enums"]["cargo_escopo"]
           id: string
+          municipio_id: string | null
           nome: string
           ordem_exibicao: number | null
           pode_enviar_descendente: boolean | null
@@ -113,6 +114,7 @@ export type Database = {
           delegado_do_superior?: boolean | null
           escopo: Database["public"]["Enums"]["cargo_escopo"]
           id?: string
+          municipio_id?: string | null
           nome: string
           ordem_exibicao?: number | null
           pode_enviar_descendente?: boolean | null
@@ -124,6 +126,7 @@ export type Database = {
           delegado_do_superior?: boolean | null
           escopo?: Database["public"]["Enums"]["cargo_escopo"]
           id?: string
+          municipio_id?: string | null
           nome?: string
           ordem_exibicao?: number | null
           pode_enviar_descendente?: boolean | null
@@ -135,6 +138,13 @@ export type Database = {
             columns: ["cargo_superior_id"]
             isOneToOne: false
             referencedRelation: "cargos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cargos_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
             referencedColumns: ["id"]
           },
           {
@@ -707,6 +717,10 @@ export type Database = {
         Returns: {
           id: string
         }[]
+      }
+      registrar_lotacao_inicial: {
+        Args: { p_unidades: string[] }
+        Returns: undefined
       }
       solic_envolvido: {
         Args: { _solicitacao_id: string; _user_id: string }
