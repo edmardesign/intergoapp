@@ -122,11 +122,11 @@ export const Step5: React.FC = () => {
 
   const selecionar = (nome: string) => {
     const doBanco = cargos.find((c) => c.nome.toLowerCase() === nome.toLowerCase());
-    updateData({
-      cargo_id: doBanco?.id,
-      funcao: nome,
-      ...(doBanco ? {} : { unidades_ids: [] }),
-    });
+    updateData(
+      doBanco
+        ? { cargo_id: doBanco.id, funcao: nome }
+        : { funcao: nome, unidades_ids: [] }
+    );
     nextStep();
   };
 
