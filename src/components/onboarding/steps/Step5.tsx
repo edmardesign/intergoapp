@@ -125,7 +125,7 @@ export const Step5: React.FC = () => {
     updateData(
       doBanco
         ? { cargo_id: doBanco.id, funcao: nome }
-        : { funcao: nome, unidades_ids: [] }
+        : { cargo_id: '', funcao: nome, unidades_ids: [] }
     );
     nextStep();
   };
