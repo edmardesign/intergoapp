@@ -8,6 +8,7 @@ export const Step11: React.FC = () => {
   const [rua, setRua] = useState(data.logradouro || '');
   const [bairro, setBairro] = useState(data.bairro || '');
   const [num, setNum] = useState(data.numero || '');
+  const [complemento, setComplemento] = useState(data.complemento || '');
   const [loading, setLoading] = useState(false);
   const [cepErro, setCepErro] = useState(false);
 
@@ -42,6 +43,7 @@ export const Step11: React.FC = () => {
         logradouro: rua,
         bairro,
         numero: num,
+        complemento,
       });
       nextStep();
     }
@@ -93,6 +95,14 @@ export const Step11: React.FC = () => {
             onChange={(e) => setBairro(e.target.value)}
           />
         </div>
+
+        <input
+          type="text"
+          placeholder="Complemento (opcional)"
+          className="input-field"
+          value={complemento}
+          onChange={(e) => setComplemento(e.target.value)}
+        />
       </div>
 
       <div className="fixed bottom-8 left-5 right-5">

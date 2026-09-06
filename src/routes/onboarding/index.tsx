@@ -12,7 +12,7 @@ import { Step8 } from '@/components/onboarding/steps/Step8'
 import { Step9 } from '@/components/onboarding/steps/Step9'
 import { Step10 } from '@/components/onboarding/steps/Step10'
 import { Step11 } from '@/components/onboarding/steps/Step11'
-import { Step12 } from '@/components/onboarding/steps/Step12'
+// Step12 removida (endereço duplicado)
 import { Step13 } from '@/components/onboarding/steps/Step13'
 import { Step14 } from '@/components/onboarding/steps/Step14'
 import { Step15 } from '@/components/onboarding/steps/Step15'
@@ -30,10 +30,15 @@ function OnboardingComponent() {
   React.useEffect(() => {
     const checkSkip = async () => {
       if (step === 6) {
+        // Função livre (sem cargo cadastrado): não há lotação a escolher
+        if (!data.cargo_id) {
+          goToStep(8)
+          return
+        }
         const { getCargos } = await import('@/lib/onboarding.functions')
         const cargos = await getCargos({ data: data.secretaria_id! })
         const currentCargo = cargos?.find((c: any) => c.id === data.cargo_id)
-        
+
         if (currentCargo) {
           // Rule: If secretaria has NO units, skip Step 6
           const { getUnidades } = await import('@/lib/onboarding.functions')
@@ -51,9 +56,12 @@ function OnboardingComponent() {
           }
         }
       }
-      // Step 7 is officially removed/skipped
+      // Telas removidas: 7 (antiga) e 12 (endereço duplicado)
       if (step === 7) {
         goToStep(8)
+      }
+      if (step === 12) {
+        goToStep(13)
       }
     }
     
@@ -73,7 +81,7 @@ function OnboardingComponent() {
       case 9: return <Step9 />
       case 10: return <Step10 />
       case 11: return <Step11 />
-      case 12: return <Step12 />
+      case 12: return null // Removida
       case 13: return <Step13 />
       case 14: return <Step14 />
       case 15: return <Step15 />
@@ -82,7 +90,7 @@ function OnboardingComponent() {
   }
 
   return (
-    <OnboardingLayout currentStep={step} totalSteps={15}>
+    <OnboardingLayout currentStep={step} totalSteps={13}>
       {renderStep()}
     </OnboardingLayout>
   )

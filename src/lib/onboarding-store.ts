@@ -6,6 +6,7 @@ export type OnboardingData = {
   estado_id?: string;
   municipio_id?: string;
   secretaria_id?: string;
+  secretaria_nome?: string;
   cargo_id?: string;
   unidades_ids?: string[]; // Multiple units for Coordenador
   superior_id?: string;
@@ -22,6 +23,9 @@ export type OnboardingData = {
   email?: string;
   senha?: string;
 };
+
+/** Telas descontinuadas no fluxo (7 antiga, 12 endereço duplicado). */
+const PASSOS_REMOVIDOS = [7, 12];
 
 interface OnboardingState {
   data: OnboardingData;
@@ -41,13 +45,17 @@ export const useOnboardingStore = create<OnboardingState>()(
           data: { ...state.data, ...newData },
         })),
       nextStep: () =>
-        set((state) => ({
-          data: { ...state.data, step: state.data.step + 1 },
-        })),
+        set((state) => {
+          let next = state.data.step + 1;
+          while (PASSOS_REMOVIDOS.includes(next)) next += 1;
+          return { data: { ...state.data, step: next } };
+        }),
       prevStep: () =>
-        set((state) => ({
-          data: { ...state.data, step: Math.max(1, state.data.step - 1) },
-        })),
+        set((state) => {
+          let prev = state.data.step - 1;
+          while (PASSOS_REMOVIDOS.includes(prev)) prev -= 1;
+          return { data: { ...state.data, step: Math.max(1, prev) } };
+        }),
       goToStep: (step) =>
         set((state) => ({
           data: { ...state.data, step },

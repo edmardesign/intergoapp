@@ -75,17 +75,11 @@ function WaitingApproval() {
       
       <h1 className="text-question mb-4">Quase lá!</h1>
       <p className="text-body text-secondary mb-8">
-        Seu cadastro foi enviado com sucesso e está aguardando a liberação de:
+        Seu cadastro está em análise.
       </p>
-      
-      <div className="card-intergo w-full mb-8">
-        <p className="text-body font-bold text-primary">{aprovador}</p>
-        <p className="text-label text-secondary mt-1">Responsável pela aprovação</p>
-      </div>
-      
+
       <p className="text-body-secondary mb-12">
-        Você receberá uma notificação assim que seu acesso for liberado. 
-        Este processo geralmente leva alguns minutos.
+        Você receberá uma notificação assim que seu acesso for liberado.
       </p>
 
       <button 
