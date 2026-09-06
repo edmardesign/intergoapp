@@ -56,9 +56,12 @@ function OnboardingComponent() {
           }
         }
       }
-      // Step 7 is officially removed/skipped
+      // Telas removidas: 7 (antiga) e 12 (endereço duplicado)
       if (step === 7) {
         goToStep(8)
+      }
+      if (step === 12) {
+        goToStep(13)
       }
     }
     
