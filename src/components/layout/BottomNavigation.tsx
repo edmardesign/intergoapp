@@ -44,7 +44,7 @@ export const BottomNavigation = () => {
   if (hidePaths.some(p => location.pathname.startsWith(p))) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-border px-2 pb-safe z-40">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-border px-2 pb-safe-bottom z-40">
       <div className="flex items-center justify-around h-[56px] max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.to);

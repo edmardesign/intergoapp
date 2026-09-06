@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "INTERGO - Gestão Pública" },
       { name: "description", content: "App de comunicação hierárquica para prefeituras." },
       { property: "og:title", content: "INTERGO" },
@@ -107,7 +107,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <main className="pb-[56px]">
+        <main className="pb-[56px] pt-safe-top">
           {children}
         </main>
         <BottomNavigation />

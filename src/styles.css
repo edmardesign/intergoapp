@@ -99,6 +99,15 @@
     display: none !important;
   }
 
+  /* Safe areas do iOS (usa viewport-fit=cover no meta viewport) */
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
   h1, .text-screen-title {
     font-size: 34px;
     line-height: 41px;

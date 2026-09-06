@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, ChevronLeft, Eye, EyeOff } from 'lucide-react';
+import { translateAuthError } from '@/lib/auth-errors';
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -30,8 +31,8 @@ function LoginPage() {
       
       // Redirect logic is handled by the root '/' route
       navigate({ to: '/' } as any);
-    } catch (err: any) {
-      setError(err.message || 'Credenciais inválidas');
+    } catch (err: unknown) {
+      setError(translateAuthError(err));
       setLoading(false);
     }
   };
