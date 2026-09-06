@@ -30,10 +30,15 @@ function OnboardingComponent() {
   React.useEffect(() => {
     const checkSkip = async () => {
       if (step === 6) {
+        // Função livre (sem cargo cadastrado): não há lotação a escolher
+        if (!data.cargo_id) {
+          goToStep(8)
+          return
+        }
         const { getCargos } = await import('@/lib/onboarding.functions')
         const cargos = await getCargos({ data: data.secretaria_id! })
         const currentCargo = cargos?.find((c: any) => c.id === data.cargo_id)
-        
+
         if (currentCargo) {
           // Rule: If secretaria has NO units, skip Step 6
           const { getUnidades } = await import('@/lib/onboarding.functions')
