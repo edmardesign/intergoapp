@@ -73,7 +73,7 @@ function OnboardingComponent() {
       case 9: return <Step9 />
       case 10: return <Step10 />
       case 11: return <Step11 />
-      case 12: return <Step12 />
+      case 12: return null // Removida
       case 13: return <Step13 />
       case 14: return <Step14 />
       case 15: return <Step15 />
