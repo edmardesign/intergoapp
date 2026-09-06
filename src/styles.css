@@ -92,7 +92,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+  overflow-x: hidden;
+  }
+
+  #lovable-badge {
+    display: none !important;
   }
 
   h1, .text-screen-title {
