@@ -18,13 +18,15 @@ export const BottomNavigation = () => {
         .select('*, cargo:nivel_id(*)')
         .eq('id', session.user.id)
         .single();
+      if (!profile) return;
 
-      if (profile) {
-        // Show Equipe if has subordinates or is Secretary/Mayor
-        const hasSubordinates = !!profile.superior_id; // Simple check for now, ideally check if others have profile.id as superior
-        setShowEquipe(profile.cargo?.nome === 'Secretário de Educação' || profile.cargo?.nome === 'Prefeito' || hasSubordinates);
-        setShowEnviar(!!(profile.cargo as any)?.pode_enviar_descendente);
-      }
+      const { count } = await supabase
+        .from('perfis')
+        .select('id', { count: 'exact', head: true })
+        .eq('superior_id', session.user.id);
+
+      setShowEquipe((count ?? 0) > 0);
+      setShowEnviar(!!(profile.cargo as any)?.pode_enviar_descendente);
     };
     checkPerms();
   }, []);

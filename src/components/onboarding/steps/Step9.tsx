@@ -42,10 +42,10 @@ export const Step9: React.FC = () => {
   const formatCPF = (val: string) => {
     const clean = val.replace(/\D/g, '').substring(0, 11);
     return clean
-      .replace(/(\d{3})(\d)/, '.')
-      .replace(/(\d{3})(\d)/, '.')
-      .replace(/(\d{3})(\d{1,2})/, '-')
-      .replace(/(-\d{2})\d+?$/, '');
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1');
   };
 
   return (

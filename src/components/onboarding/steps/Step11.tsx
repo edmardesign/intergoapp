@@ -9,6 +9,7 @@ export const Step11: React.FC = () => {
   const [bairro, setBairro] = useState(data.bairro || '');
   const [num, setNum] = useState(data.numero || '');
   const [loading, setLoading] = useState(false);
+  const [cepErro, setCepErro] = useState(false);
 
   useEffect(() => {
     if (cep.length === 9) {
@@ -17,12 +18,15 @@ export const Step11: React.FC = () => {
         try {
           const res = await fetch(`https://viacep.com.br/ws/${cep.replace('-', '')}/json/`);
           const json = await res.json();
-          if (!json.erro) {
+          if (json.erro === true) {
+            setCepErro(true);
+          } else {
+            setCepErro(false);
             setRua(json.logradouro);
             setBairro(json.bairro);
           }
         } catch (e) {
-          console.error(e);
+          setCepErro(true);
         } finally {
           setLoading(false);
         }
@@ -33,27 +37,26 @@ export const Step11: React.FC = () => {
 
   const handleNext = () => {
     if (cep.length === 9 && rua && num) {
-      updateData({ 
-        cep, 
-        logradouro: rua, 
-        bairro, 
-        numero: num 
+      updateData({
+        cep,
+        logradouro: rua,
+        bairro,
+        numero: num,
       });
       nextStep();
     }
   };
 
-  const formatCEP = (val: string) => {
-    return val.replace(/\D/g, '').substring(0, 8).replace(/(\d{5})(\d)/, '-');
-  };
+  const formatCEP = (val: string) =>
+    val.replace(/\D/g, '').substring(0, 8).replace(/(\d{5})(\d)/, '$1-$2');
 
   return (
     <div className="flex flex-col animate-in fade-in slide-in-from-right-5 duration-300 pb-32">
       <h2 className="text-question mb-6">Onde você mora?</h2>
-      
+
       <div className="space-y-4">
         <div className="relative">
-          <input 
+          <input
             type="tel"
             placeholder="CEP: 00000-000"
             className="input-field"
@@ -62,8 +65,11 @@ export const Step11: React.FC = () => {
           />
           {loading && <Loader2 className="absolute right-4 top-4 animate-spin text-primary" size={20} />}
         </div>
-        
-        <input 
+        {cepErro && (
+          <p className="text-error text-sm mt-1">CEP não encontrado. Preencha rua e bairro manualmente.</p>
+        )}
+
+        <input
           type="text"
           placeholder="Rua / Logradouro"
           className="input-field"
@@ -72,14 +78,14 @@ export const Step11: React.FC = () => {
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <input 
+          <input
             type="text"
             placeholder="Número"
             className="input-field"
             value={num}
             onChange={(e) => setNum(e.target.value)}
           />
-          <input 
+          <input
             type="text"
             placeholder="Bairro"
             className="input-field"
@@ -90,8 +96,8 @@ export const Step11: React.FC = () => {
       </div>
 
       <div className="fixed bottom-8 left-5 right-5">
-        <button 
-          onClick={handleNext} 
+        <button
+          onClick={handleNext}
           disabled={!rua || !num || cep.length < 9}
           className="btn-primary"
         >
