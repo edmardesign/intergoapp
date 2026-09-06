@@ -25,7 +25,10 @@ export const Step6: React.FC = () => {
         // Auto-advance logic if only 1 unit and unique scope
         if (unidadesData && unidadesData.length === 1 && currentCargo?.escopo === 'unidade') {
           const firstUnidade = unidadesData[0];
-          if (firstUnidade) {
+          // Guarda: em dev o StrictMode executa o efeito duas vezes; só avança
+          // se ainda estivermos na etapa 6, senão pularia a tela de nome (8).
+          const passoAtual = useOnboardingStore.getState().data.step;
+          if (firstUnidade && passoAtual === 6) {
             updateData({ unidades_ids: [firstUnidade.id] });
             nextStep();
           }

@@ -449,7 +449,7 @@ export type Database = {
             foreignKeyName: "perfis_nivel_id_fkey"
             columns: ["nivel_id"]
             isOneToOne: false
-            referencedRelation: "niveis"
+            referencedRelation: "cargos"
             referencedColumns: ["id"]
           },
           {
