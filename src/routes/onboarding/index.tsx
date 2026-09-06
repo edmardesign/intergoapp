@@ -12,7 +12,7 @@ import { Step8 } from '@/components/onboarding/steps/Step8'
 import { Step9 } from '@/components/onboarding/steps/Step9'
 import { Step10 } from '@/components/onboarding/steps/Step10'
 import { Step11 } from '@/components/onboarding/steps/Step11'
-import { Step12 } from '@/components/onboarding/steps/Step12'
+// Step12 removida (endereço duplicado)
 import { Step13 } from '@/components/onboarding/steps/Step13'
 import { Step14 } from '@/components/onboarding/steps/Step14'
 import { Step15 } from '@/components/onboarding/steps/Step15'
