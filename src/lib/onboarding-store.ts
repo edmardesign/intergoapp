@@ -6,6 +6,7 @@ export type OnboardingData = {
   estado_id?: string;
   municipio_id?: string;
   secretaria_id?: string;
+  secretaria_nome?: string;
   cargo_id?: string;
   unidades_ids?: string[]; // Multiple units for Coordenador
   superior_id?: string;
