@@ -42,13 +42,17 @@ export const useOnboardingStore = create<OnboardingState>()(
           data: { ...state.data, ...newData },
         })),
       nextStep: () =>
-        set((state) => ({
-          data: { ...state.data, step: state.data.step + 1 },
-        })),
+        set((state) => {
+          let next = state.data.step + 1;
+          while (PASSOS_REMOVIDOS.includes(next)) next += 1;
+          return { data: { ...state.data, step: next } };
+        }),
       prevStep: () =>
-        set((state) => ({
-          data: { ...state.data, step: Math.max(1, state.data.step - 1) },
-        })),
+        set((state) => {
+          let prev = state.data.step - 1;
+          while (PASSOS_REMOVIDOS.includes(prev)) prev -= 1;
+          return { data: { ...state.data, step: Math.max(1, prev) } };
+        }),
       goToStep: (step) =>
         set((state) => ({
           data: { ...state.data, step },
