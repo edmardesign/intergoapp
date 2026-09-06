@@ -24,6 +24,9 @@ export type OnboardingData = {
   senha?: string;
 };
 
+/** Telas descontinuadas no fluxo (7 antiga, 12 endereço duplicado). */
+const PASSOS_REMOVIDOS = [7, 12];
+
 interface OnboardingState {
   data: OnboardingData;
   updateData: (newData: Partial<OnboardingData>) => void;
