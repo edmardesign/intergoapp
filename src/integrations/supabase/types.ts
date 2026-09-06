@@ -730,6 +730,10 @@ export type Database = {
         Args: { p_unidades: string[] }
         Returns: undefined
       }
+      resolver_secretaria: {
+        Args: { p_municipio_id: string; p_nome: string }
+        Returns: string
+      }
       solic_envolvido: {
         Args: { _solicitacao_id: string; _user_id: string }
         Returns: boolean
