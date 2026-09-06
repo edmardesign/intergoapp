@@ -90,7 +90,7 @@ function OnboardingComponent() {
   }
 
   return (
-    <OnboardingLayout currentStep={step} totalSteps={15}>
+    <OnboardingLayout currentStep={step} totalSteps={13}>
       {renderStep()}
     </OnboardingLayout>
   )
