@@ -3,6 +3,7 @@ import { useOnboardingStore } from '@/lib/onboarding-store';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from '@tanstack/react-router';
 import { Edit2, Loader2, Check } from 'lucide-react';
+import { translateAuthError } from '@/lib/auth-errors';
 
 export const Step15: React.FC = () => {
   const { data, goToStep, clear } = useOnboardingStore();
@@ -93,20 +94,23 @@ export const Step15: React.FC = () => {
         if (profileError) throw profileError;
 
         if (data.unidades_ids && data.unidades_ids.length > 0) {
-          const lotacoes = data.unidades_ids.map((uid, index) => ({
-            perfil_id: authData?.user?.id as string,
-            unidade_id: uid,
-            principal: index === 0
-          }));
-          await supabase.from('perfil_unidades').insert(lotacoes);
+          // Escrita via função SECURITY DEFINER (o cliente não insere direto em perfil_unidades)
+          for (let i = 0; i < data.unidades_ids.length; i++) {
+            const { error: lotacaoError } = await (supabase as any).rpc('criar_lotacao_inicial', {
+              p_perfil_id: authData.user.id,
+              p_unidade_id: data.unidades_ids[i],
+              p_principal: i === 0,
+            });
+            if (lotacaoError) throw lotacaoError;
+          }
         }
 
         localStorage.removeItem('intergo_onboarding_draft');
         clear();
         navigate({ to: '/onboarding/aguardando' } as any);
       }
-    } catch (err: any) {
-      setError(err.message || 'Erro ao enviar cadastro');
+    } catch (err: unknown) {
+      setError(translateAuthError(err));
       setLoading(false);
     }
   };
