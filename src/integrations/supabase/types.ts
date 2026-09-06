@@ -668,6 +668,14 @@ export type Database = {
     }
     Functions: {
       can_edit_lotacao: { Args: { target_perfil_id: string }; Returns: boolean }
+      criar_lotacao_inicial: {
+        Args: {
+          p_perfil_id: string
+          p_principal?: boolean
+          p_unidade_id: string
+        }
+        Returns: undefined
+      }
       get_equipe_detalhada: { Args: { _user_id: string }; Returns: Json }
       get_lotacao_coordenadores: {
         Args: { _municipio_id: string }
