@@ -7,9 +7,9 @@ export const Step14: React.FC = () => {
   const [senha, setSenha] = useState(onboardingData.senha || '');
   const [show, setShow] = useState(false);
 
-  // MVP: única regra é ter pelo menos 4 caracteres.
-  const senhaValida = senha.length >= 4;
-  const erroSenha = senha.length > 0 && !senhaValida ? 'A senha deve ter pelo menos 4 caracteres.' : null;
+  // MVP: única regra é ter pelo menos 6 caracteres.
+  const senhaValida = senha.length >= 6;
+  const erroSenha = senha.length > 0 && !senhaValida ? 'A senha deve ter pelo menos 6 caracteres.' : null;
 
   const handleNext = () => {
     if (senhaValida) {
@@ -24,11 +24,11 @@ export const Step14: React.FC = () => {
 
       <div className="space-y-6">
         <div>
-          <label className="text-label text-secondary ml-1 mb-2 block">Senha (mín. 4 caracteres)</label>
+          <label className="text-label text-secondary ml-1 mb-2 block">Senha (mín. 6 caracteres)</label>
           <div className="relative">
             <input
               type={show ? 'text' : 'password'}
-              placeholder="••••"
+              placeholder="••••••"
               className="input-field pr-12"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
