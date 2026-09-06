@@ -16,8 +16,22 @@ export const Step14: React.FC = () => {
 
   const strength = getStrength(senha);
 
+  const SENHAS_FRACAS = ['12345678', 'password', 'senha123', 'qwerty123', 'abc12345'];
+
+  const validarSenha = (val: string): string | null => {
+    if (val.length < 8) return 'A senha deve ter pelo menos 8 caracteres.';
+    if (!/[a-zA-Z]/.test(val)) return 'A senha deve conter ao menos uma letra.';
+    if (!/[0-9]/.test(val)) return 'A senha deve conter ao menos um número.';
+    if (SENHAS_FRACAS.includes(val.toLowerCase()))
+      return 'Esta senha é muito comum. Escolha uma senha mais forte.';
+    return null;
+  };
+
+  const erroSenha = senha.length > 0 ? validarSenha(senha) : null;
+  const senhaValida = validarSenha(senha) === null;
+
   const handleNext = () => {
-    if (senha.length >= 8) {
+    if (senhaValida) {
       updateData({ senha });
       nextStep();
     }
@@ -47,6 +61,10 @@ export const Step14: React.FC = () => {
             </button>
           </div>
           
+          {erroSenha && (
+            <span className="text-error text-label mt-2 block ml-1">{erroSenha}</span>
+          )}
+
           <div className="mt-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-label text-secondary">Força da senha</span>
@@ -67,7 +85,7 @@ export const Step14: React.FC = () => {
       <div className="fixed bottom-8 left-5 right-5">
         <button 
           onClick={handleNext} 
-          disabled={senha.length < 8}
+          disabled={!senhaValida}
           className="btn-primary"
         >
           Continuar
