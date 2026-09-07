@@ -6,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 export const BottomNavigation = () => {
   const location = useLocation();
   const [showEquipe, setShowEquipe] = useState(false);
-  const [showEnviar, setShowEnviar] = useState(false);
 
   useEffect(() => {
     const checkPerms = async () => {
@@ -27,16 +26,13 @@ export const BottomNavigation = () => {
 
       const temSubordinados = (count ?? 0) > 0;
       setShowEquipe(temSubordinados);
-      // Quem tem subordinados sempre pode enviar, mesmo que o cargo ainda não
-      // tenha a permissão marcada (cargos criados no cadastro).
-      setShowEnviar(temSubordinados || !!(profile.cargo as any)?.pode_enviar_descendente);
     };
     checkPerms();
   }, []);
 
   const navItems = [
     { to: '/inicio', icon: Home, label: 'Início' },
-    ...(showEnviar ? [{ to: '/enviar', icon: Send, label: 'Enviar' }] : []),
+    { to: '/enviar', icon: Send, label: 'Enviar' },
     { to: '/pedidos', icon: Package, label: 'Pedidos' },
     ...(showEquipe ? [{ to: '/equipe', icon: Users, label: 'Equipe' }] : []),
     { to: '/perfil', icon: User, label: 'Perfil' },
