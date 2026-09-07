@@ -676,7 +676,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      criar_mensagem_boas_vindas: { Args: never; Returns: undefined }
       get_equipe_detalhada: { Args: { _user_id: string }; Returns: Json }
+      get_equipe_stats: {
+        Args: { p_superior_id: string }
+        Returns: {
+          enviadas: number
+          lidas: number
+          nome: string
+          perfil_id: string
+          recebidas: number
+          solicitacoes: number
+        }[]
+      }
       get_lotacao_coordenadores: {
         Args: { _municipio_id: string }
         Returns: Json
@@ -746,7 +758,12 @@ export type Database = {
     Enums: {
       auditoria_acao: "aprovacao" | "negativa" | "reatribuicao_lotacao"
       cargo_escopo: "municipio" | "secretaria" | "multi_unidade" | "unidade"
-      mensagem_tipo: "comunicado" | "demanda" | "reuniao" | "evento"
+      mensagem_tipo:
+        | "comunicado"
+        | "demanda"
+        | "reuniao"
+        | "evento"
+        | "boas_vindas"
       perfil_status: "pendente" | "ativo" | "negado" | "inativo"
       solicitacao_acao:
         | "criou"
@@ -890,7 +907,13 @@ export const Constants = {
     Enums: {
       auditoria_acao: ["aprovacao", "negativa", "reatribuicao_lotacao"],
       cargo_escopo: ["municipio", "secretaria", "multi_unidade", "unidade"],
-      mensagem_tipo: ["comunicado", "demanda", "reuniao", "evento"],
+      mensagem_tipo: [
+        "comunicado",
+        "demanda",
+        "reuniao",
+        "evento",
+        "boas_vindas",
+      ],
       perfil_status: ["pendente", "ativo", "negado", "inativo"],
       solicitacao_acao: ["criou", "encaminhou", "aprovou", "negou", "entregou"],
       solicitacao_status: [

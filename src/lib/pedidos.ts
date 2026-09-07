@@ -319,3 +319,55 @@ export function assinarPedidos(userId: string, onChange: (row: any, tipo: string
     supabase.removeChannel(canal)
   }
 }
+
+/* Criação de solicitação (client-side, respeita RLS) ----------------- */
+
+export const HIERARQUIA_PENDENTE = 'HIERARQUIA_PENDENTE'
+
+export async function criarSolicitacao(input: {
+  item: string
+  quantidade: number
+  unidade_medida: string
+  justificativa: string
+  urgencia: string
+}) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) throw new Error('Unauthorized')
+
+  const { data: perfil } = await (supabase as any)
+    .from('perfis')
+    .select('superior_id')
+    .eq('id', session.user.id)
+    .maybeSingle()
+
+  if (!perfil?.superior_id) throw new Error(HIERARQUIA_PENDENTE)
+
+  const urgencia = ['alta', 'critica', 'urgente'].includes(input.urgencia) ? 'urgente' : 'normal'
+
+  const { data: solicitacao, error } = await (supabase as any)
+    .from('solicitacoes')
+    .insert({
+      solicitante_id: session.user.id,
+      responsavel_atual_id: perfil.superior_id,
+      item: input.item,
+      quantidade: input.quantidade,
+      unidade_medida: input.unidade_medida,
+      justificativa: input.justificativa,
+      urgencia,
+      status: 'solicitado',
+    })
+    .select()
+    .single()
+  if (error) throw error
+
+  await (supabase as any).from('solicitacao_eventos').insert({
+    solicitacao_id: solicitacao.id,
+    autor_id: session.user.id,
+    acao: 'criou',
+    observacao: 'Solicitação inicial',
+  })
+
+  return solicitacao
+}

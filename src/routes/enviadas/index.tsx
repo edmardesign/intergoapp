@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { ArrowLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { TipoBadge } from '@/components/mensagens/TipoBadge'
 import { assuntoDe, listarEnviadas, tempoRelativo, type MensagemEnviada } from '@/lib/mensagens'
@@ -14,6 +14,7 @@ function EnviadasPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [itens, setItens] = useState<MensagemEnviada[]>([])
+  const [aberta, setAberta] = useState<string | null>(null)
 
   useEffect(() => {
     const carregar = async () => {
@@ -61,26 +62,54 @@ function EnviadasPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {itens.map(({ mensagem, total, confirmados }) => (
-            <button
-              key={mensagem.id}
-              type="button"
-              onClick={() => navigate({ to: '/enviadas/$id', params: { id: mensagem.id } })}
-              className="flex w-full items-center gap-3 rounded-2xl bg-card p-4 text-left active:opacity-70"
-            >
-              <span className="flex-1">
-                <TipoBadge tipo={mensagem.tipo} />
-                <span className="mt-2 block text-[17px] leading-[22px] font-semibold text-foreground">
-                  {assuntoDe(mensagem)}
+          {itens.map(({ mensagem, total, confirmados, lidos, leitores }) => (
+            <div key={mensagem.id} className="rounded-2xl bg-card p-4">
+              <button
+                type="button"
+                onClick={() => navigate({ to: '/enviadas/$id', params: { id: mensagem.id } })}
+                className="flex w-full items-center gap-3 text-left active:opacity-70"
+              >
+                <span className="flex-1">
+                  <TipoBadge tipo={mensagem.tipo} />
+                  <span className="mt-2 block text-[17px] leading-[22px] font-semibold text-foreground">
+                    {assuntoDe(mensagem)}
+                  </span>
+                  <span className="mt-1 block text-[13px] leading-[18px] text-secondary">
+                    Enviada para {total} pessoa{total === 1 ? '' : 's'} ·{' '}
+                    {tempoRelativo(mensagem.created_at)}
+                    {mensagem.exigir_confirmacao ? ` · ${confirmados} de ${total} confirmaram` : ''}
+                  </span>
                 </span>
-                <span className="mt-1 block text-[13px] leading-[18px] text-secondary">
-                  Enviada para {total} pessoa{total === 1 ? '' : 's'} ·{' '}
-                  {tempoRelativo(mensagem.created_at)}
-                  {mensagem.exigir_confirmacao ? ` · ${confirmados} de ${total} confirmaram` : ''}
-                </span>
-              </span>
-              <ChevronRight size={18} style={{ color: '#AEAEB2' }} />
-            </button>
+                <ChevronRight size={18} style={{ color: '#AEAEB2' }} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAberta(aberta === mensagem.id ? null : mensagem.id)}
+                className="mt-3 flex w-full items-center justify-between border-t border-border pt-3 text-[13px] font-semibold text-primary"
+              >
+                {lidos} de {total} leram
+                <ChevronDown
+                  size={16}
+                  className={aberta === mensagem.id ? 'rotate-180 transition-transform' : 'transition-transform'}
+                />
+              </button>
+
+              {aberta === mensagem.id && (
+                <ul className="mt-2 space-y-1">
+                  {leitores.map((l) => (
+                    <li key={l.id} className="flex justify-between text-[13px]">
+                      <span className="text-foreground">{l.nome}</span>
+                      <span className="text-secondary">
+                        {l.lido_em
+                          ? `Leu em ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(l.lido_em))}`
+                          : 'Não leu'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ))}
         </div>
       )}

@@ -10,13 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EnviadasIndexRouteImport } from './routes/enviadas/index'
 import { Route as EnviadasIdRouteImport } from './routes/enviadas/$id'
 import { Route as EnviarIndexRouteImport } from './routes/enviar/index'
+import { Route as EnviarMensagemRouteImport } from './routes/enviar/mensagem'
 import { Route as EnviarSucessoRouteImport } from './routes/enviar/sucesso'
 import { Route as EquipeIndexRouteImport } from './routes/equipe/index'
+import { Route as EquipePerfilIdRouteImport } from './routes/equipe/$perfilId'
 import { Route as InicioIndexRouteImport } from './routes/inicio/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as OnboardingAguardandoRouteImport } from './routes/onboarding/aguardando'
@@ -35,11 +36,6 @@ import { Route as PainelSecretariaIdRouteImport } from './routes/painel/secretar
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EquipeRoute = EquipeRouteImport.update({
-  id: '/equipe',
-  path: '/equipe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -62,15 +58,25 @@ const EnviarIndexRoute = EnviarIndexRouteImport.update({
   path: '/enviar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnviarMensagemRoute = EnviarMensagemRouteImport.update({
+  id: '/enviar/mensagem',
+  path: '/enviar/mensagem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnviarSucessoRoute = EnviarSucessoRouteImport.update({
   id: '/enviar/sucesso',
   path: '/enviar/sucesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EquipeIndexRoute = EquipeIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => EquipeRoute,
+  id: '/equipe/',
+  path: '/equipe/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipePerfilIdRoute = EquipePerfilIdRouteImport.update({
+  id: '/equipe/$perfilId',
+  path: '/equipe/$perfilId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InicioIndexRoute = InicioIndexRouteImport.update({
   id: '/inicio/',
@@ -145,10 +151,11 @@ const PainelSecretariaIdRoute = PainelSecretariaIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/equipe': typeof EquipeRouteWithChildren
   '/login': typeof LoginRoute
   '/enviadas/$id': typeof EnviadasIdRoute
+  '/enviar/mensagem': typeof EnviarMensagemRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
+  '/equipe/$perfilId': typeof EquipePerfilIdRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
   '/pedidos/$id': typeof PedidosIdRoute
@@ -171,7 +178,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/enviadas/$id': typeof EnviadasIdRoute
+  '/enviar/mensagem': typeof EnviarMensagemRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
+  '/equipe/$perfilId': typeof EquipePerfilIdRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
   '/pedidos/$id': typeof PedidosIdRoute
@@ -193,10 +202,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/equipe': typeof EquipeRouteWithChildren
   '/login': typeof LoginRoute
   '/enviadas/$id': typeof EnviadasIdRoute
+  '/enviar/mensagem': typeof EnviarMensagemRoute
   '/enviar/sucesso': typeof EnviarSucessoRoute
+  '/equipe/$perfilId': typeof EquipePerfilIdRoute
   '/onboarding/aguardando': typeof OnboardingAguardandoRoute
   '/onboarding/negado': typeof OnboardingNegadoRoute
   '/pedidos/$id': typeof PedidosIdRoute
@@ -219,10 +229,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/equipe'
     | '/login'
     | '/enviadas/$id'
+    | '/enviar/mensagem'
     | '/enviar/sucesso'
+    | '/equipe/$perfilId'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
     | '/pedidos/$id'
@@ -245,7 +256,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/enviadas/$id'
+    | '/enviar/mensagem'
     | '/enviar/sucesso'
+    | '/equipe/$perfilId'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
     | '/pedidos/$id'
@@ -266,10 +279,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/equipe'
     | '/login'
     | '/enviadas/$id'
+    | '/enviar/mensagem'
     | '/enviar/sucesso'
+    | '/equipe/$perfilId'
     | '/onboarding/aguardando'
     | '/onboarding/negado'
     | '/pedidos/$id'
@@ -291,16 +305,18 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EquipeRoute: typeof EquipeRouteWithChildren
   LoginRoute: typeof LoginRoute
   EnviadasIdRoute: typeof EnviadasIdRoute
+  EnviarMensagemRoute: typeof EnviarMensagemRoute
   EnviarSucessoRoute: typeof EnviarSucessoRoute
+  EquipePerfilIdRoute: typeof EquipePerfilIdRoute
   OnboardingAguardandoRoute: typeof OnboardingAguardandoRoute
   OnboardingNegadoRoute: typeof OnboardingNegadoRoute
   PedidosIdRoute: typeof PedidosIdRoute
   PedidosNovoRoute: typeof PedidosNovoRoute
   EnviadasIndexRoute: typeof EnviadasIndexRoute
   EnviarIndexRoute: typeof EnviarIndexRoute
+  EquipeIndexRoute: typeof EquipeIndexRoute
   InicioIndexRoute: typeof InicioIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
   PainelIndexRoute: typeof PainelIndexRoute
@@ -320,13 +336,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/equipe': {
-      id: '/equipe'
-      path: '/equipe'
-      fullPath: '/equipe'
-      preLoaderRoute: typeof EquipeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -357,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnviarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/enviar/mensagem': {
+      id: '/enviar/mensagem'
+      path: '/enviar/mensagem'
+      fullPath: '/enviar/mensagem'
+      preLoaderRoute: typeof EnviarMensagemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enviar/sucesso': {
       id: '/enviar/sucesso'
       path: '/enviar/sucesso'
@@ -366,10 +382,17 @@ declare module '@tanstack/react-router' {
     }
     '/equipe/': {
       id: '/equipe/'
-      path: '/'
+      path: '/equipe'
       fullPath: '/equipe/'
       preLoaderRoute: typeof EquipeIndexRouteImport
-      parentRoute: typeof EquipeRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipe/$perfilId': {
+      id: '/equipe/$perfilId'
+      path: '/equipe/$perfilId'
+      fullPath: '/equipe/$perfilId'
+      preLoaderRoute: typeof EquipePerfilIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/inicio/': {
       id: '/inicio/'
@@ -472,29 +495,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface EquipeRouteChildren {
-  EquipeIndexRoute: typeof EquipeIndexRoute
-}
-
-const EquipeRouteChildren: EquipeRouteChildren = {
-  EquipeIndexRoute: EquipeIndexRoute,
-}
-
-const EquipeRouteWithChildren =
-  EquipeRoute._addFileChildren(EquipeRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  EquipeRoute: EquipeRouteWithChildren,
   LoginRoute: LoginRoute,
   EnviadasIdRoute: EnviadasIdRoute,
+  EnviarMensagemRoute: EnviarMensagemRoute,
   EnviarSucessoRoute: EnviarSucessoRoute,
+  EquipePerfilIdRoute: EquipePerfilIdRoute,
   OnboardingAguardandoRoute: OnboardingAguardandoRoute,
   OnboardingNegadoRoute: OnboardingNegadoRoute,
   PedidosIdRoute: PedidosIdRoute,
   PedidosNovoRoute: PedidosNovoRoute,
   EnviadasIndexRoute: EnviadasIndexRoute,
   EnviarIndexRoute: EnviarIndexRoute,
+  EquipeIndexRoute: EquipeIndexRoute,
   InicioIndexRoute: InicioIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
   PainelIndexRoute: PainelIndexRoute,

@@ -62,6 +62,9 @@ export const Step15: React.FC = () => {
           }
         }
 
+        // Mensagem automática de boas-vindas na caixa de entrada do novo usuário
+        await (supabase as any).rpc('criar_mensagem_boas_vindas');
+
         localStorage.removeItem('intergo_onboarding_draft');
         clear();
         navigate({ to: '/inicio' } as any);

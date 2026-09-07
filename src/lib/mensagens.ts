@@ -288,6 +288,8 @@ export interface MensagemEnviada {
   mensagem: Mensagem
   total: number
   confirmados: number
+  lidos: number
+  leitores: Array<{ id: string; nome: string; lido_em: string | null }>
 }
 
 export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]> {
@@ -299,13 +301,22 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
   if (error) throw error
   if (!msgs?.length) return []
 
-  const { data: dests } = await (supabase as any)
+  const [{ data: dests }, diretorio] = await Promise.all([
+    (supabase as any)
     .from('mensagem_destinatarios')
-    .select('mensagem_id, confirmado_em')
+    .select('mensagem_id, destinatario_id, confirmado_em, lido_em')
     .in(
       'mensagem_id',
       msgs.map((m: any) => m.id),
-    )
+    ),
+    getDiretorio(),
+  ])
+
+  const idsDest = Array.from(new Set((dests ?? []).map((d: any) => d.destinatario_id)))
+  const { data: pessoas } = idsDest.length
+    ? await (supabase as any).from('perfis').select('id, nome_completo').in('id', idsDest)
+    : { data: [] }
+  const nomes = new Map<string, string>((pessoas ?? []).map((p: any) => [p.id, p.nome_completo]))
 
   return msgs.map((m: any) => {
     const linhas = (dests ?? []).filter((d: any) => d.mensagem_id === m.id)
@@ -313,6 +324,12 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
       mensagem: m as Mensagem,
       total: linhas.length,
       confirmados: linhas.filter((d: any) => d.confirmado_em).length,
+      lidos: linhas.filter((d: any) => d.lido_em).length,
+      leitores: linhas.map((d: any) => ({
+        id: d.destinatario_id,
+        nome: nomes.get(d.destinatario_id) ?? diretorio.get(d.destinatario_id)?.nome ?? 'Usuário',
+        lido_em: d.lido_em ?? null,
+      })),
     }
   })
 }
@@ -331,6 +348,7 @@ export async function listarDestinatarios(mensagemId: string): Promise<Destinata
       .eq('mensagem_id', mensagemId),
     getDiretorio(),
   ])
+
   if (error) throw error
   return (data ?? []).map((d: any) => ({
     destinatario_id: d.destinatario_id,

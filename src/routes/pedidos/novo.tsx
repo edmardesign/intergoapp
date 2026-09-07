@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, Loader2, Package, AlertCircle } from 'lucide-react';
-import { createSolicitacao } from '@/lib/solicitacoes.functions';
+import { criarSolicitacao } from '@/lib/pedidos';
 
 export const Route = createFileRoute('/pedidos/novo')({
   component: NovoPedido,
@@ -11,6 +11,7 @@ export const Route = createFileRoute('/pedidos/novo')({
 function NovoPedido() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState('');
   const [form, setForm] = useState({
     item: '',
     quantidade: 1,
@@ -22,12 +23,18 @@ function NovoPedido() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErro('');
     try {
-      await createSolicitacao({ data: form });
+      await criarSolicitacao(form);
       navigate({ to: '/pedidos' } as any);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao enviar pedido. Verifique se você tem um superior cadastrado.');
+      const msg = String(err?.message ?? '');
+      setErro(
+        msg.includes('HIERARQUIA_PENDENTE')
+          ? 'Aguarde: sua hierarquia está sendo configurada. Tente novamente em instantes.'
+          : 'Não foi possível enviar agora. Tente novamente em instantes.'
+      );
     } finally {
       setLoading(false);
     }
@@ -117,6 +124,11 @@ function NovoPedido() {
             Sua solicitação será enviada automaticamente para seu superior imediato para análise.
           </p>
         </div>
+
+        {erro && (
+          <div className="rounded-xl bg-error/10 p-4 text-[13px] text-error">{erro}</div>
+        )}
+
 
         <div className="fixed bottom-8 left-5 right-5">
           <button 
