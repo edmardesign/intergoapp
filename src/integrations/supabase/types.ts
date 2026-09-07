@@ -742,6 +742,10 @@ export type Database = {
         Args: { p_unidades: string[] }
         Returns: undefined
       }
+      resolver_cargo: {
+        Args: { p_nome: string; p_secretaria_id: string }
+        Returns: string
+      }
       resolver_secretaria: {
         Args: { p_municipio_id: string; p_nome: string }
         Returns: string
