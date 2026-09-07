@@ -312,6 +312,12 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
     getDiretorio(),
   ])
 
+  const idsDest = Array.from(new Set((dests ?? []).map((d: any) => d.destinatario_id)))
+  const { data: pessoas } = idsDest.length
+    ? await (supabase as any).from('perfis').select('id, nome_completo').in('id', idsDest)
+    : { data: [] }
+  const nomes = new Map<string, string>((pessoas ?? []).map((p: any) => [p.id, p.nome_completo]))
+
   return msgs.map((m: any) => {
     const linhas = (dests ?? []).filter((d: any) => d.mensagem_id === m.id)
     return {
@@ -321,7 +327,7 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
       lidos: linhas.filter((d: any) => d.lido_em).length,
       leitores: linhas.map((d: any) => ({
         id: d.destinatario_id,
-        nome: diretorio.get(d.destinatario_id)?.nome ?? 'Usuário',
+        nome: nomes.get(d.destinatario_id) ?? diretorio.get(d.destinatario_id)?.nome ?? 'Usuário',
         lido_em: d.lido_em ?? null,
       })),
     }
@@ -342,6 +348,12 @@ export async function listarDestinatarios(mensagemId: string): Promise<Destinata
       .eq('mensagem_id', mensagemId),
     getDiretorio(),
   ])
+
+  const idsDest = Array.from(new Set((dests ?? []).map((d: any) => d.destinatario_id)))
+  const { data: pessoas } = idsDest.length
+    ? await (supabase as any).from('perfis').select('id, nome_completo').in('id', idsDest)
+    : { data: [] }
+  const nomes = new Map<string, string>((pessoas ?? []).map((p: any) => [p.id, p.nome_completo]))
   if (error) throw error
   return (data ?? []).map((d: any) => ({
     destinatario_id: d.destinatario_id,

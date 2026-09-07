@@ -119,13 +119,18 @@ function InicioPage() {
           ) : (
             <div className="space-y-3">
               {mensagensHoje.map(m => (
-                <div key={m.mensagem_id} className="card-intergo flex items-center justify-between">
+                <button
+                  key={m.mensagem_id}
+                  type="button"
+                  onClick={() => navigate({ to: '/inicio/msg/$id', params: { id: m.mensagem_id } })}
+                  className="card-intergo flex w-full items-center justify-between text-left active:opacity-70"
+                >
                   <div className="flex-1 min-w-0 pr-4">
                     <p className="text-body font-medium truncate">{(m.mensagem.payload as any).assunto}</p>
                     <p className="text-label text-secondary truncate">{m.mensagem.remetente?.nome_completo}</p>
                   </div>
                   <ChevronRight size={20} className="text-muted-foreground" />
-                </div>
+                </button>
               ))}
             </div>
           )}
