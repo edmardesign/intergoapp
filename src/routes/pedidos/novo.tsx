@@ -27,14 +27,9 @@ function NovoPedido() {
     try {
       await criarSolicitacao(form);
       navigate({ to: '/pedidos' } as any);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const msg = String(err?.message ?? '');
-      setErro(
-        msg.includes('HIERARQUIA_PENDENTE')
-          ? 'Aguarde: sua hierarquia está sendo configurada. Tente novamente em instantes.'
-          : 'Não foi possível enviar agora. Tente novamente em instantes.'
-      );
+      setErro(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }

@@ -322,8 +322,6 @@ export function assinarPedidos(userId: string, onChange: (row: any, tipo: string
 
 /* Criação de solicitação (client-side, respeita RLS) ----------------- */
 
-export const HIERARQUIA_PENDENTE = 'HIERARQUIA_PENDENTE'
-
 export async function criarSolicitacao(input: {
   item: string
   quantidade: number
@@ -341,8 +339,6 @@ export async function criarSolicitacao(input: {
     .select('superior_id')
     .eq('id', session.user.id)
     .maybeSingle()
-
-  if (!perfil?.superior_id) throw new Error(HIERARQUIA_PENDENTE)
 
   const urgencia = ['alta', 'critica', 'urgente'].includes(input.urgencia) ? 'urgente' : 'normal'
 

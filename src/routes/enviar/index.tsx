@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Megaphone, ListChecks, Users, Calendar } from "lucide-react";
-import { canUserSend } from "@/lib/enviar.functions";
+import { Megaphone, ListChecks, Users, Calendar, UserRoundPlus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/enviar/")({
   component: EnviarTipoPage,
@@ -9,19 +9,38 @@ export const Route = createFileRoute("/enviar/")({
 
 function EnviarTipoPage() {
   const navigate = useNavigate();
-  const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [subordinados, setSubordinados] = useState<number | null>(null);
 
   useEffect(() => {
-    canUserSend().then((res) => {
-      setAllowed(res.canSend);
-      if (res.canSend === false) {
-        navigate({ to: '/inicio' });
+    const carregarSubordinados = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setSubordinados(0);
+        return;
       }
-    });
-  }, [navigate]);
 
-  if (allowed === null) return null;
-  if (allowed === false) return null;
+      const { count } = await supabase
+        .from('perfis')
+        .select('id', { count: 'exact', head: true })
+        .eq('superior_id', session.user.id);
+      setSubordinados(count ?? 0);
+    };
+    carregarSubordinados();
+  }, []);
+
+  if (subordinados === null) return null;
+
+  if (subordinados === 0) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-8 text-center">
+        <UserRoundPlus className="mb-4 text-primary" size={44} strokeWidth={1.5} />
+        <h1 className="text-screen-title mb-2">Enviar</h1>
+        <p className="text-body-secondary text-secondary max-w-sm">
+          Você ainda não tem subordinados. Quando pessoas se cadastrarem sob sua chefia, elas aparecerão aqui.
+        </p>
+      </div>
+    );
+  }
 
   const tipos = [
     { id: 'comunicado', title: 'Comunicado', desc: 'Informar algo sem prazo', icon: Megaphone },
