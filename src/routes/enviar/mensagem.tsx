@@ -150,7 +150,14 @@ function EnviarMensagemPage() {
                   onChange={() => alternar(p.id)}
                 />
                 <span className="flex flex-col">
-                  <span className="text-[15px]">{p.nome_completo}</span>
+                  <span className="text-[15px]">
+                    {p.nome_completo}
+                    {/demo$/i.test(p.nome_completo.trim()) && (
+                      <span className="ml-2 rounded-full bg-secondary/10 px-2 py-0.5 text-[11px] text-secondary">
+                        demo
+                      </span>
+                    )}
+                  </span>
                   {p.cargo?.nome && (
                     <span className="text-[13px] text-secondary">{p.cargo.nome}</span>
                   )}
