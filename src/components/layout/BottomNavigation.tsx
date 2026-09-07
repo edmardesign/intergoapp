@@ -25,8 +25,11 @@ export const BottomNavigation = () => {
         .select('id', { count: 'exact', head: true })
         .eq('superior_id', session.user.id);
 
-      setShowEquipe((count ?? 0) > 0);
-      setShowEnviar(!!(profile.cargo as any)?.pode_enviar_descendente);
+      const temSubordinados = (count ?? 0) > 0;
+      setShowEquipe(temSubordinados);
+      // Quem tem subordinados sempre pode enviar, mesmo que o cargo ainda não
+      // tenha a permissão marcada (cargos criados no cadastro).
+      setShowEnviar(temSubordinados || !!(profile.cargo as any)?.pode_enviar_descendente);
     };
     checkPerms();
   }, []);

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useOnboardingStore } from '@/lib/onboarding-store';
 import { getCargos } from '@/lib/onboarding.functions';
+import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 type Cargo = { id: string; nome: string; escopo: string };
@@ -120,13 +121,27 @@ export const Step5: React.FC = () => {
     return [...doBanco, ...extras];
   }, [cargos, onboardingData.secretaria_nome]);
 
-  const selecionar = (nome: string) => {
+  const selecionar = async (nome: string) => {
     const doBanco = cargos.find((c) => c.nome.toLowerCase() === nome.toLowerCase());
-    updateData(
-      doBanco
-        ? { cargo_id: doBanco.id, funcao: nome }
-        : { cargo_id: '', funcao: nome, unidades_ids: [] }
-    );
+    if (doBanco) {
+      updateData({ cargo_id: doBanco.id, funcao: nome });
+      nextStep();
+      return;
+    }
+    // Cargo digitado/típico ainda não cadastrado: registra na secretaria e já
+    // vincula ao cargo superior correto, para o perfil nunca ficar sem chefia.
+    let novoId = '';
+    try {
+      const { data, error } = await (supabase as any).rpc('resolver_cargo', {
+        p_secretaria_id: onboardingData.secretaria_id,
+        p_nome: nome,
+      });
+      if (error) throw error;
+      novoId = (data as string) || '';
+    } catch (e) {
+      console.error('resolver_cargo falhou', e);
+    }
+    updateData({ cargo_id: novoId, funcao: nome, unidades_ids: [] });
     nextStep();
   };
 
