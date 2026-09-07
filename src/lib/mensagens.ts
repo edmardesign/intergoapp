@@ -349,11 +349,6 @@ export async function listarDestinatarios(mensagemId: string): Promise<Destinata
     getDiretorio(),
   ])
 
-  const idsDest = Array.from(new Set((dests ?? []).map((d: any) => d.destinatario_id)))
-  const { data: pessoas } = idsDest.length
-    ? await (supabase as any).from('perfis').select('id, nome_completo').in('id', idsDest)
-    : { data: [] }
-  const nomes = new Map<string, string>((pessoas ?? []).map((p: any) => [p.id, p.nome_completo]))
   if (error) throw error
   return (data ?? []).map((d: any) => ({
     destinatario_id: d.destinatario_id,
