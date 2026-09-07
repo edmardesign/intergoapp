@@ -7,8 +7,11 @@ const solicitacaoSchema = z.object({
   quantidade: z.number().positive(),
   unidade_medida: z.string(),
   justificativa: z.string().optional(),
-  urgencia: z.enum(['baixa', 'media', 'alta', 'critica']),
+  urgencia: z.enum(['baixa', 'media', 'alta', 'critica', 'normal', 'urgente']),
 });
+
+/** Erro sinalizando que a hierarquia do usuário ainda não foi configurada. */
+export const HIERARQUIA_PENDENTE = 'HIERARQUIA_PENDENTE';
 
 export const createSolicitacao = createServerFn({ method: "POST" })
   .validator((d: z.infer<typeof solicitacaoSchema>) => solicitacaoSchema.parse(d))
@@ -23,16 +26,22 @@ export const createSolicitacao = createServerFn({ method: "POST" })
       .single();
 
     if (!profile?.superior_id) {
-      throw new Error("Superior não encontrado. Você precisa ter um superior para enviar solicitações.");
+      throw new Error(HIERARQUIA_PENDENTE);
     }
+
+    const urgencia = ['alta', 'critica', 'urgente'].includes(data.urgencia) ? 'urgente' : 'normal';
 
     const { data: solicitacao, error } = await (supabase as any)
       .from("solicitacoes")
       .insert([{
         solicitante_id: session.user.id,
         responsavel_atual_id: profile.superior_id,
-        ...data,
-        status: 'pendente'
+        item: data.item,
+        quantidade: data.quantidade,
+        unidade_medida: data.unidade_medida,
+        justificativa: data.justificativa ?? '',
+        urgencia,
+        status: 'solicitado'
       }])
       .select()
       .single();

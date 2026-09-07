@@ -8,6 +8,7 @@ import { ProfileSheet } from "@/components/equipe/ProfileSheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/equipe/")({
   component: EquipePage,
@@ -22,6 +23,8 @@ function EquipePage() {
   const [expandedSchools, setExpandedSchools] = useState<Set<string>>(new Set());
   const [lotacao, setLotacao] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [stats, setStats] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   const fetchEquipe = useServerFn(getEquipe);
   const fetchMe = useServerFn(getMe);
@@ -34,6 +37,12 @@ function EquipePage() {
       const [equipeData, meData] = await Promise.all([fetchEquipe(), fetchMe()]);
       setEquipe(equipeData || []);
       setMe(meData);
+
+      // Estatísticas agregadas dos subordinados diretos (1 round-trip)
+      const { data: statsData } = await (supabase as any).rpc('get_equipe_stats', {
+        p_superior_id: (meData as any)?.id,
+      });
+      setStats(statsData || []);
       
       const isSecretarioCheck = (meData as any)?.cargos?.nome?.toLowerCase().includes("secretário");
       if (isSecretarioCheck && meData.municipio_id) {
@@ -178,6 +187,27 @@ function EquipePage() {
               )}
             </div>
           ))
+        )}
+
+        {stats.length > 0 && (
+          <div className="pt-8 space-y-3">
+            <h2 className="text-lg font-bold">Atividade da equipe</h2>
+            {stats.map((s: any) => (
+              <button
+                key={s.perfil_id}
+                onClick={() => navigate({ to: '/equipe/$perfilId', params: { perfilId: s.perfil_id } })}
+                className="w-full bg-card border border-border rounded-2xl p-4 text-left active:opacity-70"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-bold">{s.nome}</p>
+                  <ChevronRight size={18} className="text-secondary/50" />
+                </div>
+                <p className="text-xs text-secondary mt-1">
+                  {s.recebidas} recebidas · {s.lidas} lidas · {s.enviadas} enviadas · {s.solicitacoes} pedidos
+                </p>
+              </button>
+            ))}
+          </div>
         )}
 
         {isSecretario && (

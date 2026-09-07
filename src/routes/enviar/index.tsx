@@ -33,6 +33,17 @@ function EnviarTipoPage() {
   return (
     <div className="p-6">
       <h1 className="text-screen-title mb-6">O que você vai enviar?</h1>
+      <button
+        onClick={() => navigate({ to: '/enviar/mensagem' })}
+        className="w-full mb-4 card-intergo flex items-center justify-between p-4 border border-primary/20 bg-primary/5 active:scale-[0.98] transition-transform"
+      >
+        <span className="text-left">
+          <span className="block text-body font-semibold text-primary">Mensagem rápida</span>
+          <span className="block text-body-secondary text-secondary">
+            Texto e imagem para a sua equipe direta
+          </span>
+        </span>
+      </button>
       <div className="space-y-4">
         {tipos.map((tipo) => (
           <button
