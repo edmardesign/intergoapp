@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { getEquipe, getMe, getLotacaoCoordenadores, reatribuirLotacao } from "@/lib/equipe.functions";
+import { getEquipeClient, getMeClient, getEquipeStatsClient, getLotacaoCoordenadoresClient, reatribuirLotacaoClient } from "@/lib/equipe";
 import { Users, ChevronRight, ChevronDown, School, AlertTriangle, RefreshCw, Loader2, Search, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfileSheet } from "@/components/equipe/ProfileSheet";
@@ -26,10 +25,8 @@ function EquipePage() {
   const [stats, setStats] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const fetchEquipe = useServerFn(getEquipe);
-  const fetchMe = useServerFn(getMe);
-  const fetchLotacao = useServerFn(getLotacaoCoordenadores);
-  const doReatribuir = useServerFn(reatribuirLotacao);
+  const fetchEquipe = getEquipeClient;
+  const fetchMe = getMeClient;
 
   const loadData = async () => {
     setLoading(true);
@@ -39,14 +36,11 @@ function EquipePage() {
       setMe(meData);
 
       // Estatísticas agregadas dos subordinados diretos (1 round-trip)
-      const { data: statsData } = await (supabase as any).rpc('get_equipe_stats', {
-        p_superior_id: (meData as any)?.id,
-      });
-      setStats(statsData || []);
+      setStats(await getEquipeStatsClient().catch(() => []));
       
       const isSecretarioCheck = (meData as any)?.cargos?.nome?.toLowerCase().includes("secretário");
       if (isSecretarioCheck && meData.municipio_id) {
-        const lotData = await fetchLotacao({ data: { municipio_id: meData.municipio_id } });
+        const lotData = await getLotacaoCoordenadoresClient(meData.municipio_id);
         setLotacao(lotData || []);
       }
     } catch (err) {
