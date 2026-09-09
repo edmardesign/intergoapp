@@ -9,12 +9,6 @@ export const Route = createFileRoute('/enviar/mensagem')({
   component: EnviarMensagemPage,
 });
 
-interface Subordinado {
-  id: string;
-  nome_completo: string;
-  cargo?: { nome: string } | null;
-}
-
 function EnviarMensagemPage() {
   const navigate = useNavigate();
   const [carregando, setCarregando] = useState(true);
@@ -67,13 +61,15 @@ function EnviarMensagemPage() {
         imagem_url = caminho;
       }
 
+       const payload = {
+         assunto: (texto.trim().split('\n')[0] ?? 'Mensagem').slice(0, 60),
+         corpo: texto.trim(),
+         ...(imagem_url ? { imagem: imagem_url } : {}),
+       };
+
        await enviarMensagemHierarquica({
          tipo: 'comunicado',
-         payload: {
-            assunto: (texto.trim().split('\n')[0] ?? 'Mensagem').slice(0, 60),
-            corpo: texto.trim(),
-            imagem: imagem_url,
-         },
+         payload,
          cargos: selecionados,
        });
 
