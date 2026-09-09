@@ -62,7 +62,7 @@ function EnviadasPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {itens.map(({ mensagem, total, confirmados, lidos, leitores }) => (
+          {itens.map(({ mensagem, total, cargos, confirmados, lidos, leitores }) => (
             <div key={mensagem.id} className="rounded-2xl bg-card p-4">
               <button
                 type="button"
@@ -75,7 +75,9 @@ function EnviadasPage() {
                     {assuntoDe(mensagem)}
                   </span>
                   <span className="mt-1 block text-[13px] leading-[18px] text-secondary">
-                    Enviada para {total} pessoa{total === 1 ? '' : 's'} ·{' '}
+                    {total > 0
+                      ? `Enviada para ${total} pessoa${total === 1 ? '' : 's'}`
+                      : `Enviada para ${cargos} cargo${cargos === 1 ? '' : 's'} (entrega aos futuros ocupantes)`}{' · '}
                     {tempoRelativo(mensagem.created_at)}
                     {mensagem.exigir_confirmacao ? ` · ${confirmados} de ${total} confirmaram` : ''}
                   </span>
@@ -83,17 +85,23 @@ function EnviadasPage() {
                 <ChevronRight size={18} style={{ color: '#AEAEB2' }} />
               </button>
 
-              <button
-                type="button"
-                onClick={() => setAberta(aberta === mensagem.id ? null : mensagem.id)}
-                className="mt-3 flex w-full items-center justify-between border-t border-border pt-3 text-[13px] font-semibold text-primary"
-              >
-                {lidos} de {total} leram
-                <ChevronDown
-                  size={16}
-                  className={aberta === mensagem.id ? 'rotate-180 transition-transform' : 'transition-transform'}
-                />
-              </button>
+              {total > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setAberta(aberta === mensagem.id ? null : mensagem.id)}
+                  className="mt-3 flex w-full items-center justify-between border-t border-border pt-3 text-[13px] font-semibold text-primary"
+                >
+                  {lidos} de {total} leram
+                  <ChevronDown
+                    size={16}
+                    className={aberta === mensagem.id ? 'rotate-180 transition-transform' : 'transition-transform'}
+                  />
+                </button>
+              ) : (
+                <p className="mt-3 border-t border-border pt-3 text-[13px] text-secondary">
+                  Aguardando o cadastro de ocupantes desses cargos.
+                </p>
+              )}
 
               {aberta === mensagem.id && (
                 <ul className="mt-2 space-y-1">

@@ -61,17 +61,17 @@ function EnviarMensagemPage() {
         imagem_url = caminho;
       }
 
-       const payload = {
-         assunto: (texto.trim().split('\n')[0] ?? 'Mensagem').slice(0, 60),
-         corpo: texto.trim(),
-         ...(imagem_url ? { imagem: imagem_url } : {}),
-       };
+      const payload = {
+        assunto: (texto.trim().split('\n')[0] ?? 'Mensagem').slice(0, 60),
+        corpo: texto.trim(),
+        ...(imagem_url ? { imagem: imagem_url } : {}),
+      };
 
-       await enviarMensagemHierarquica({
-         tipo: 'comunicado',
-         payload,
-         cargos: selecionados,
-       });
+      await enviarMensagemHierarquica({
+        tipo: 'comunicado',
+        payload,
+        cargos: selecionados,
+      });
 
       toast.success('Mensagem enviada.');
       navigate({ to: '/enviadas' });
@@ -102,9 +102,9 @@ function EnviarMensagemPage() {
 
       <h1 className="mb-5 text-[28px] font-bold leading-[34px]">Enviar mensagem</h1>
 
-       {cargos.length === 0 ? (
+      {cargos.length === 0 ? (
         <div className="rounded-2xl bg-card p-4 text-[15px] text-secondary">
-           Seu cargo ainda não possui funções subordinadas configuradas.
+          Seu cargo ainda não possui funções subordinadas configuradas.
         </div>
       ) : (
         <div className="space-y-5">
@@ -114,23 +114,23 @@ function EnviarMensagemPage() {
                 type="checkbox"
                 className="h-5 w-5 accent-primary"
                 checked={todos}
-                 onChange={() => setSelecionados(todos ? [] : cargos.map((cargo) => cargo.id))}
+                onChange={() => setSelecionados(todos ? [] : cargos.map((cargo) => cargo.id))}
               />
               <span className="text-[15px] font-semibold">Selecionar todos</span>
             </label>
-             {cargos.map((cargo) => (
-               <label key={cargo.id} className="flex items-center gap-3 rounded-xl p-3">
+            {cargos.map((cargo) => (
+              <label key={cargo.id} className="flex items-center gap-3 rounded-xl p-3">
                 <input
                   type="checkbox"
                   className="h-5 w-5 accent-primary"
-                   checked={cargosSelecionados.has(cargo.id)}
-                   onChange={() => alternar(cargo.id)}
+                  checked={cargosSelecionados.has(cargo.id)}
+                  onChange={() => alternar(cargo.id)}
                 />
                 <span className="flex flex-col">
                   <span className="text-[15px]">
-                     {cargo.nome}
+                    {cargo.nome}
                   </span>
-                   <span className="text-[13px] text-secondary">Ocupantes atuais e futuros</span>
+                  <span className="text-[13px] text-secondary">Ocupantes atuais e futuros</span>
                 </span>
               </label>
             ))}
