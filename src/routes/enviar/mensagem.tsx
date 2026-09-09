@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ArrowLeft, ImagePlus, Loader2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { enviarMensagemHierarquica, getDestinosHierarquicos, type CargoDestino } from '@/lib/hierarquia-mensagens';
 
 export const Route = createFileRoute('/enviar/mensagem')({
   component: EnviarMensagemPage,
@@ -18,7 +19,7 @@ function EnviarMensagemPage() {
   const navigate = useNavigate();
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
-  const [pessoas, setPessoas] = useState<Subordinado[]>([]);
+  const [cargos, setCargos] = useState<CargoDestino[]>([]);
   const [selecionados, setSelecionados] = useState<string[]>([]);
   const [texto, setTexto] = useState('');
   const [imagem, setImagem] = useState<File | null>(null);
@@ -31,19 +32,15 @@ function EnviarMensagemPage() {
         navigate({ to: '/login' });
         return;
       }
-      const { data } = await (supabase as any)
-        .from('perfis')
-        .select('id, nome_completo, cargo:nivel_id(nome)')
-        .eq('superior_id', session.user.id)
-        .eq('status', 'ativo')
-        .order('nome_completo');
-      setPessoas(data ?? []);
+      const destinos = await getDestinosHierarquicos();
+      setCargos(destinos.cargos);
       setCarregando(false);
     };
     carregar();
   }, [navigate]);
 
-  const todos = pessoas.length > 0 && selecionados.length === pessoas.length;
+  const todos = cargos.length > 0 && selecionados.length === cargos.length;
+  const cargosSelecionados = useMemo(() => new Set(selecionados), [selecionados]);
 
   const alternar = (id: string) =>
     setSelecionados((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -70,31 +67,15 @@ function EnviarMensagemPage() {
         imagem_url = caminho;
       }
 
-      const { data: msg, error } = await (supabase as any)
-        .from('mensagens')
-        .insert({
-          remetente_id: session.user.id,
-          tipo: 'comunicado',
-          payload: {
+       await enviarMensagemHierarquica({
+         tipo: 'comunicado',
+         payload: {
             assunto: (texto.trim().split('\n')[0] ?? 'Mensagem').slice(0, 60),
             corpo: texto.trim(),
             imagem: imagem_url,
-          },
-        })
-        .select('id')
-        .single();
-      if (error) throw error;
-
-      const { error: destErr } = await (supabase as any)
-        .from('mensagem_destinatarios')
-        .insert(
-          selecionados.map((id) => ({
-            mensagem_id: msg.id,
-            destinatario_id: id,
-            entregue_em: new Date().toISOString(),
-          })),
-        );
-      if (destErr) throw destErr;
+         },
+         cargos: selecionados,
+       });
 
       toast.success('Mensagem enviada.');
       navigate({ to: '/enviadas' });
@@ -125,9 +106,9 @@ function EnviarMensagemPage() {
 
       <h1 className="mb-5 text-[28px] font-bold leading-[34px]">Enviar mensagem</h1>
 
-      {pessoas.length === 0 ? (
+       {cargos.length === 0 ? (
         <div className="rounded-2xl bg-card p-4 text-[15px] text-secondary">
-          Você ainda não tem pessoas na sua equipe, então não há para quem enviar.
+           Seu cargo ainda não possui funções subordinadas configuradas.
         </div>
       ) : (
         <div className="space-y-5">
@@ -137,30 +118,23 @@ function EnviarMensagemPage() {
                 type="checkbox"
                 className="h-5 w-5 accent-primary"
                 checked={todos}
-                onChange={() => setSelecionados(todos ? [] : pessoas.map((p) => p.id))}
+                 onChange={() => setSelecionados(todos ? [] : cargos.map((cargo) => cargo.id))}
               />
               <span className="text-[15px] font-semibold">Selecionar todos</span>
             </label>
-            {pessoas.map((p) => (
-              <label key={p.id} className="flex items-center gap-3 rounded-xl p-3">
+             {cargos.map((cargo) => (
+               <label key={cargo.id} className="flex items-center gap-3 rounded-xl p-3">
                 <input
                   type="checkbox"
                   className="h-5 w-5 accent-primary"
-                  checked={selecionados.includes(p.id)}
-                  onChange={() => alternar(p.id)}
+                   checked={cargosSelecionados.has(cargo.id)}
+                   onChange={() => alternar(cargo.id)}
                 />
                 <span className="flex flex-col">
                   <span className="text-[15px]">
-                    {p.nome_completo}
-                    {/demo$/i.test(p.nome_completo.trim()) && (
-                      <span className="ml-2 rounded-full bg-secondary/10 px-2 py-0.5 text-[11px] text-secondary">
-                        demo
-                      </span>
-                    )}
+                     {cargo.nome}
                   </span>
-                  {p.cargo?.nome && (
-                    <span className="text-[13px] text-secondary">{p.cargo.nome}</span>
-                  )}
+                   <span className="text-[13px] text-secondary">Ocupantes atuais e futuros</span>
                 </span>
               </label>
             ))}

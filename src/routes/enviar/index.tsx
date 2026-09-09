@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { Megaphone, ListChecks, Users, Calendar, UserRoundPlus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { Megaphone, ListChecks, Users, Calendar, Loader2 } from "lucide-react";
+import { getDestinosHierarquicos } from "@/lib/hierarquia-mensagens";
 
 export const Route = createFileRoute("/enviar/")({
   component: EnviarTipoPage,
@@ -9,35 +9,18 @@ export const Route = createFileRoute("/enviar/")({
 
 function EnviarTipoPage() {
   const navigate = useNavigate();
-  const [subordinados, setSubordinados] = useState<number | null>(null);
+  const [cargosAbaixo, setCargosAbaixo] = useState<number | null>(null);
 
   useEffect(() => {
-    const carregarSubordinados = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setSubordinados(0);
-        return;
-      }
-
-      const { count } = await supabase
-        .from('perfis')
-        .select('id', { count: 'exact', head: true })
-        .eq('superior_id', session.user.id);
-      setSubordinados(count ?? 0);
-    };
-    carregarSubordinados();
+    getDestinosHierarquicos()
+      .then(({ cargos }) => setCargosAbaixo(cargos.length))
+      .catch(() => setCargosAbaixo(0));
   }, []);
 
-  if (subordinados === null) return null;
-
-  if (subordinados === 0) {
+  if (cargosAbaixo === null) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center px-8 text-center">
-        <UserRoundPlus className="mb-4 text-primary" size={44} strokeWidth={1.5} />
-        <h1 className="text-screen-title mb-2">Enviar</h1>
-        <p className="text-body-secondary text-secondary max-w-sm">
-          Você ainda não tem subordinados. Quando pessoas se cadastrarem sob sua chefia, elas aparecerão aqui.
-        </p>
+        <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
@@ -52,6 +35,11 @@ function EnviarTipoPage() {
   return (
     <div className="p-6">
       <h1 className="text-screen-title mb-6">O que você vai enviar?</h1>
+      {cargosAbaixo === 0 && (
+        <p className="mb-5 text-body-secondary text-secondary">
+          Seu cargo ainda não possui funções subordinadas configuradas.
+        </p>
+      )}
       <button
         onClick={() => navigate({ to: '/enviar/mensagem' })}
         className="w-full mb-4 card-intergo flex items-center justify-between p-4 border border-primary/20 bg-primary/5 active:scale-[0.98] transition-transform"

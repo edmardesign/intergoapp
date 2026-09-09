@@ -22,6 +22,7 @@ export interface EnviarDraft {
   exigir_confirmacao: boolean;
   urgente: boolean;
   destinatarios: string[];
+  cargos_destinatarios: string[];
   anexos: Array<{
     nome: string;
     url: string;
@@ -43,6 +44,7 @@ const initialDraft: EnviarDraft = {
   exigir_confirmacao: false,
   urgente: false,
   destinatarios: [],
+  cargos_destinatarios: [],
   anexos: [],
 };
 

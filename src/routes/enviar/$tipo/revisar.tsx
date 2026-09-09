@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SendFlowLayout } from "@/components/enviar/SendFlowLayout";
 import { useEnviarStore, MensagemTipo } from "@/lib/enviar-store";
-import { enviarMensagem } from "@/lib/enviar.functions";
+import { enviarMensagemHierarquica } from '@/lib/hierarquia-mensagens';
 import { Megaphone, ListChecks, Users, Calendar, AlertCircle, Loader2, CheckCircle2, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -67,22 +67,27 @@ function RevisarPage() {
   const handleSend = async () => {
     setEnviando(true);
     try {
-      const result = await enviarMensagem({
-        data: {
+       const mensagemId = await enviarMensagemHierarquica({
           tipo,
           payload: draft.payload,
-          exigir_confirmacao: draft.exigir_confirmacao,
+           exigirConfirmacao: draft.exigir_confirmacao,
           urgente: draft.urgente,
-          destinatarios: draft.destinatarios,
-          anexos: draft.anexos
-        }
+           pessoas: draft.destinatarios,
+           cargos: draft.cargos_destinatarios,
       });
 
-      if (result.success) {
+       if (draft.anexos.length > 0) {
+         const { error: anexoError } = await (supabase as any).from('anexos').insert(
+           draft.anexos.map((anexo) => ({ ...anexo, mensagem_id: mensagemId })),
+         );
+         if (anexoError) throw anexoError;
+       }
+
+       if (mensagemId) {
         clearDraft(tipo);
         navigate({ 
           to: '/enviar/sucesso', 
-          search: { n: draft.destinatarios.length } 
+           search: { n: Math.max(draft.destinatarios.length, draft.cargos_destinatarios.length) }
         });
       }
     } catch (err: any) {
@@ -116,7 +121,9 @@ function RevisarPage() {
     >
       <div className="space-y-6">
         <div className="text-secondary text-[15px]">
-          Esta mensagem vai para {draft.destinatarios.length} pessoas.
+           Esta mensagem vai para {draft.cargos_destinatarios.length > 0
+             ? `${draft.cargos_destinatarios.length} cargos e seus ocupantes atuais ou futuros`
+             : `${draft.destinatarios.length} pessoas`}.
         </div>
 
         {/* Card Preview */}
