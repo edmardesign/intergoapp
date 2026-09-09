@@ -287,6 +287,7 @@ export async function marcarComoLida(mensagemId: string, userId: string) {
 export interface MensagemEnviada {
   mensagem: Mensagem
   total: number
+  cargos: number
   confirmados: number
   lidos: number
   leitores: Array<{ id: string; nome: string; lido_em: string | null }>
@@ -301,7 +302,7 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
   if (error) throw error
   if (!msgs?.length) return []
 
-  const [{ data: dests }, diretorio] = await Promise.all([
+  const [{ data: dests }, { data: destinosCargo }, diretorio] = await Promise.all([
     (supabase as any)
     .from('mensagem_destinatarios')
     .select('mensagem_id, destinatario_id, confirmado_em, lido_em')
@@ -309,6 +310,13 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
       'mensagem_id',
       msgs.map((m: any) => m.id),
     ),
+    (supabase as any)
+      .from('mensagem_cargos')
+      .select('mensagem_id, cargo_id')
+      .in(
+        'mensagem_id',
+        msgs.map((m: any) => m.id),
+      ),
     getDiretorio(),
   ])
 
@@ -320,9 +328,11 @@ export async function listarEnviadas(userId: string): Promise<MensagemEnviada[]>
 
   return msgs.map((m: any) => {
     const linhas = (dests ?? []).filter((d: any) => d.mensagem_id === m.id)
+    const cargos = (destinosCargo ?? []).filter((d: any) => d.mensagem_id === m.id).length
     return {
       mensagem: m as Mensagem,
       total: linhas.length,
+      cargos,
       confirmados: linhas.filter((d: any) => d.confirmado_em).length,
       lidos: linhas.filter((d: any) => d.lido_em).length,
       leitores: linhas.map((d: any) => ({

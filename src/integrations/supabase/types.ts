@@ -177,6 +177,59 @@ export type Database = {
         }
         Relationships: []
       }
+      mensagem_cargos: {
+        Row: {
+          cargo_id: string
+          created_at: string
+          mensagem_id: string
+          municipio_id: string
+          secretaria_id: string | null
+        }
+        Insert: {
+          cargo_id: string
+          created_at?: string
+          mensagem_id: string
+          municipio_id: string
+          secretaria_id?: string | null
+        }
+        Update: {
+          cargo_id?: string
+          created_at?: string
+          mensagem_id?: string
+          municipio_id?: string
+          secretaria_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagem_cargos_cargo_id_fkey"
+            columns: ["cargo_id"]
+            isOneToOne: false
+            referencedRelation: "cargos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagem_cargos_mensagem_id_fkey"
+            columns: ["mensagem_id"]
+            isOneToOne: false
+            referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagem_cargos_municipio_id_fkey"
+            columns: ["municipio_id"]
+            isOneToOne: false
+            referencedRelation: "municipios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagem_cargos_secretaria_id_fkey"
+            columns: ["secretaria_id"]
+            isOneToOne: false
+            referencedRelation: "secretarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mensagem_destinatarios: {
         Row: {
           confirmado_em: string | null
@@ -677,6 +730,22 @@ export type Database = {
         Returns: undefined
       }
       criar_mensagem_boas_vindas: { Args: never; Returns: undefined }
+      enviar_mensagem_hierarquica: {
+        Args: {
+          p_cargos?: string[]
+          p_exigir_confirmacao: boolean
+          p_payload: Json
+          p_pessoas?: string[]
+          p_tipo: string
+          p_urgente: boolean
+        }
+        Returns: string
+      }
+      garantir_hierarquia_secretaria: {
+        Args: { p_secretaria_id: string }
+        Returns: undefined
+      }
+      get_destinos_hierarquicos: { Args: never; Returns: Json }
       get_equipe_detalhada: { Args: { _user_id: string }; Returns: Json }
       get_equipe_stats: {
         Args: { p_superior_id: string }
