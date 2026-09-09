@@ -1,46 +1,40 @@
-# Plano de Implementação - Sprint de Mensagens (Recebimento e Acompanhamento)
+# Corrigir envio por hierarquia municipal completa
 
-Implementação do feed de mensagens recebidas, confirmação de leitura/recebimento, detalhe da mensagem e fluxo de acompanhamento para quem enviou.
+## Objetivo
+Trocar a dependência de subordinados previamente cadastrados por destinatários definidos pela hierarquia de cargos. Assim, qualquer pessoa poderá preparar e enviar comunicações aos cargos abaixo dela; profissionais já cadastrados recebem imediatamente e os que entrarem depois recebem as mensagens pendentes destinadas ao cargo.
 
-## 1. Banco de Dados e Segurança
-- Criar coluna `lido_em` na tabela `mensagem_destinatarios` (caso não exista, conferir tipos).
-- Garantir RLS para que destinatários possam atualizar `confirmado_em` e `lido_em` de seus próprios registros.
-- Criar função RPC para buscar mensagens recebidas com status de confirmação.
+## 1. Padronizar o plano hierárquico
+- Consolidar uma cadeia municipal comum: Prefeito → Secretário → Direção/Coordenação → Chefias locais → equipes operacionais.
+- Completar os cargos típicos de todas as secretarias oferecidas no cadastro: Saúde, Educação, Assistência Social, Finanças/Fazenda, Obras e Infraestrutura, Administração, Meio Ambiente, Cultura e Esporte e secretaria personalizada.
+- Definir `cargo_superior_id`, escopo e permissão de envio para cada cargo, sem depender de nomes exatos digitados pelo usuário.
+- Manter compatibilidade com a coluna legada `perfis.nivel_id`; não executar a migração ampla `nivel_id → cargo_id`.
 
-## 2. Server Functions (`src/lib/mensagens.functions.ts`)
-- `getMensagensRecebidas`: Busca mensagens destinadas ao usuário atual, filtrando por "Hoje" e "Anteriores".
-- `getMensagemDetalhe`: Busca dados completos de uma mensagem (remetente, anexos, status do destinatário atual).
-- `confirmarRecebimento`: Atualiza `confirmado_em = now()` otimisticamente.
-- `marcarComoLida`: Atualiza `lido_em = now()`.
-- `getMensagensEnviadas`: Para gestores, lista mensagens enviadas com contadores de confirmação.
-- `getAcompanhamentoEnvio`: Detalha quem confirmou e quem não confirmou uma mensagem específica.
+## 2. Destinatários por cargo, mesmo sem cadastro
+- Criar uma relação segura entre mensagem e cargos destinatários abaixo do remetente.
+- Ao enviar para “Todos abaixo de você”, registrar todos os cargos descendentes da cadeia, além dos perfis atualmente existentes.
+- Quando um novo perfil ativo for criado, entregar automaticamente as mensagens pendentes destinadas ao cargo dele.
+- Evitar duplicidade de entrega e manter as regras de leitura/confirmação existentes.
 
-## 3. UI - Tela de Início (`src/routes/inicio/index.tsx`)
-- Refatorar para incluir as seções solicitadas:
-  - Bloco de Pendências (expandido com contadores reais).
-  - Faixa Urgente (alerta vermelho).
-  - Seção "Precisa da sua Confirmação" (cards com botão inline).
-  - Seção "Recebidas Hoje" (feed do dia).
-  - Seção "Anteriores" (agrupamento por data e infinite scroll).
-- Implementar animação de 250ms ao confirmar.
-- Adicionar link "Ver mensagens que eu enviei" para gestores.
+## 3. Corrigir o envio no aplicativo
+- Remover a tela vazia que afirma não haver subordinados.
+- Exibir cargos abaixo do usuário mesmo quando ainda não existem pessoas cadastradas, diferenciando “cargo” de “pessoa”.
+- Em seleção por pessoas, mostrar somente cadastrados; em “Todos” e “Cargo”, incluir também futuros ocupantes.
+- Ajustar o envio rápido e o fluxo de comunicado/demanda/reunião/evento para usar a mesma regra hierárquica.
 
-## 4. UI - Detalhe da Mensagem (`src/routes/inicio/msg/$id.tsx`)
-- Layout completo com cabeçalho, assunto gigante, metadados do remetente.
-- Blocos específicos para Demanda (prazo) e Reunião/Evento (local/data/hora).
-- Gerador de arquivo ICS simples para calendário.
-- Lista de anexos com URLs assinadas.
+## 4. Segurança e consistência
+- Aplicar RLS e GRANTs na nova relação de destinatários por cargo.
+- Validar no banco que o remetente só pode escolher cargos realmente abaixo do próprio cargo e dentro do mesmo município/secretaria aplicável.
+- Impedir envio para o próprio cargo ou para cargos superiores.
+- Preservar mensagens e destinatários já existentes.
 
-## 5. UI - Fluxo de Enviadas (`src/routes/enviadas/index.tsx` e `$id.tsx`)
-- Lista compacta de envios com status X de Y confirmados.
-- Detalhe do envio com abas "Confirmaram" e "Não confirmaram".
-- Lógica de "Cobrar" com trava de 24h no localStorage.
+## 5. Verificação
+- Testar perfis de Prefeito, Secretário, Diretor/Coordenador e cargo operacional.
+- Confirmar envio imediato para usuários já cadastrados.
+- Confirmar entrega retroativa ao cadastrar posteriormente um profissional em cargo previamente destinatário.
+- Confirmar que a aba Enviar nunca fica bloqueada pela ausência de cadastros e que cargos sem subordinados reais mostram corretamente que não há cargo inferior.
+- Validar no celular a seleção, revisão, envio e recebimento sem sobreposição ou texto truncado.
 
-## 6. Realtime
-- Configurar `supabase.channel` para ouvir mudanças em `mensagens` e `mensagem_destinatarios`.
-- Fallback para polling de 30s.
-
-## Detalhes Técnicos
-- Formatação de datas: `Intl.DateTimeFormat` com locale `pt-BR`.
-- Fuso horário: `America/Sao_Paulo` forçado na lógica de agrupamento.
-- Otimização: Cache do TanStack Query com invalidação via realtime.
+## Detalhes técnicos
+- Uma única migração criará/completará a árvore de cargos, a tabela de destinos por cargo, funções recursivas e o gatilho de entrega futura.
+- O frontend continuará usando o banco atual e a coluna `nivel_id`, evitando a migração destrutiva de hierarquia já adiada.
+- “Professor” normalmente é cargo final na Educação; ele poderá enviar apenas se houver funções formalmente abaixo dele na cadeia configurada. O aplicativo não inventará subordinados pessoais inexistentes, mas não exigirá cadastro prévio dos ocupantes dos cargos inferiores.
